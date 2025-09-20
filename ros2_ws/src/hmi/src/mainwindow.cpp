@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -30,4 +30,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::push_button1_on_clicked(bool)
+{
+    auto msg = std_msgs::msg::String();
+    msg.data = "Hello from GUI!";
+    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
 }
