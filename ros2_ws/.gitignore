@@ -1,0 +1,20 @@
+# ROS2 workspace build artifacts
+/build/
+/install/
+/log/
+
+/src/log/
+/src/build/
+/src/install/
+
+# Temporary files
+*.pyc
+*.swp
+*.bak
+
+# Qt build files (if any)
+*.o
+*.obj
+*.moc
+*.qrc
+*.ui.h
