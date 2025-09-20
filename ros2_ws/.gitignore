@@ -7,6 +7,10 @@
 /src/build/
 /src/install/
 
+/src/hmi/log/
+/src/hmi/build/
+/src/hmi/install/
+
 # Temporary files
 *.pyc
 *.swp
@@ -18,3 +22,5 @@
 *.moc
 *.qrc
 *.ui.h
+
+/.vscode
