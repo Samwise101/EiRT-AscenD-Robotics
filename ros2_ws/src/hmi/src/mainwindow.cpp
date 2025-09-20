@@ -11,8 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create publisher
     pub_ = node_->create_publisher<std_msgs::msg::String>("topic_from_gui", 10);
-
-    this->ui->settings_button->setIcon(QIcon(":/images/settings2.png"));
 }
 
 MainWindow::~MainWindow()
