@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    rclcpp::init(argc, argv);  // ✅ Must call this before using any rclcpp nodes
+    rclcpp::init(argc, argv);
     
     MainWindow w;
     w.show();
