@@ -22,77 +22,77 @@ void MainWindow::push_button1_on_clicked(bool)
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from GUI!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_add_box_push_button()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from Add Box Button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_arm_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from Arm Button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_takeoff_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from Takeoff Button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_return_home_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from Return Home Button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_land_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from land button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_request_status_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from request status button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_upload_path_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from upload path button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_zoom_in_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from zoom in button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_zoom_out_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from zoom out button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 void MainWindow::on_clicked_assign_drone_pushButton()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from assign drone button!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
 
 // Slider slots
@@ -100,5 +100,5 @@ void MainWindow::on_value_changed_zoom_in_out_slider()
 {
     auto msg = std_msgs::msg::String();
     msg.data = "Hello from slider!";
-    pub_->publish(msg);  // safe, node_ is thread-safe for publishing
+    pub_->publish(msg);
 }
