@@ -18,7 +18,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
 # Qt dependencies
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
+find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts)
 
 # UI + resources
 set(UI_FILES
@@ -59,6 +59,7 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
+  Qt5::Charts
 )
 
 # Tests (optional)

@@ -17,15 +17,19 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTreeView>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -56,13 +60,20 @@ public:
     QPushButton *pushButton1;
     QVBoxLayout *verticalLayout_2;
     QGridLayout *gridLayout;
-    QFrame *line_6;
     QLabel *label;
+    QFrame *line_6;
     QTabWidget *tabWidget;
     QWidget *map_tab;
-    QWidget *gridLayoutWidget_3;
-    QGridLayout *gridLayout_5;
-    QFrame *frame_4;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout_6;
+    QFrame *map_frame;
+    QFrame *line_13;
+    QHBoxLayout *slider_layout;
+    QSpacerItem *horizontalSpacer_3;
+    QPushButton *zoom_in_pushButton;
+    QSlider *zoom_slider;
+    QPushButton *zoom_out_pushButton;
+    QSpacerItem *horizontalSpacer_4;
     QWidget *box_tab;
     QWidget *verticalLayoutWidget_3;
     QVBoxLayout *box_main_layout;
@@ -76,10 +87,11 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *Box_show_layout;
     QFrame *frame;
+    QFrame *line_14;
     QVBoxLayout *box_information_layout;
-    QHBoxLayout *horizontalLayout_11;
+    QGridLayout *drone_button_layout;
     QPushButton *add_box_pushButton;
-    QPushButton *pushButton_7;
+    QPushButton *assign_drone_pushButton;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_3;
     QFrame *line_5;
@@ -91,12 +103,13 @@ public:
     QFrame *line_4;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_4;
+    QFrame *line_18;
+    QGridLayout *box_position_layout;
+    QLabel *box_longitude_label;
+    QLabel *box_latitude_label;
+    QLineEdit *box_latitude_lineEdit;
+    QLineEdit *box_longitude_lineEdit;
     QFrame *line;
-    QHBoxLayout *horizontalLayout_5;
-    QLabel *label_7;
-    QVBoxLayout *verticalLayout_3;
-    QLabel *label_6;
-    QLabel *label_8;
     QWidget *drone_tab;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_4;
@@ -108,6 +121,7 @@ public:
     QFrame *line_7;
     QHBoxLayout *horizontalLayout_9;
     QFrame *frame_2;
+    QFrame *line_15;
     QVBoxLayout *verticalLayout_5;
     QFrame *line_10;
     QGridLayout *gridLayout_3;
@@ -121,19 +135,23 @@ public:
     QPushButton *pushButton_3;
     QPushButton *pushButton_8;
     QPushButton *pushButton_9;
+    QFrame *line_16;
     QSpacerItem *verticalSpacer;
+    QFrame *line_17;
+    QGridLayout *gridLayout_6;
+    QLineEdit *longitude_lineEdit;
+    QLineEdit *altitude_lineEdit;
+    QLineEdit *latitude_lineEdit;
+    QLabel *longitude_label;
+    QLabel *latitude_label;
+    QLabel *altitude_label;
     QFrame *line_8;
-    QHBoxLayout *horizontalLayout_13;
-    QLabel *label_11;
-    QVBoxLayout *verticalLayout_6;
-    QLabel *label_12;
-    QLabel *label_13;
     QFrame *line_9;
     QWidget *stat_tab;
     QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout_4;
-    QFrame *frame_3;
     QWidget *preset_tab;
+    QTreeView *treeView;
     QMenuBar *menubar;
     QMenu *menuFile;
     QMenu *menuEdit;
@@ -145,7 +163,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(875, 667);
+        MainWindow->resize(875, 676);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         QIcon icon;
@@ -239,13 +257,6 @@ public:
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         gridLayout = new QGridLayout();
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        line_6 = new QFrame(centralwidget);
-        line_6->setObjectName(QString::fromUtf8("line_6"));
-        line_6->setFrameShape(QFrame::HLine);
-        line_6->setFrameShadow(QFrame::Sunken);
-
-        gridLayout->addWidget(line_6, 2, 0, 1, 1);
-
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
         QFont font1;
@@ -256,6 +267,13 @@ public:
         label->setAlignment(Qt::AlignCenter);
 
         gridLayout->addWidget(label, 0, 0, 1, 1);
+
+        line_6 = new QFrame(centralwidget);
+        line_6->setObjectName(QString::fromUtf8("line_6"));
+        line_6->setFrameShape(QFrame::HLine);
+        line_6->setFrameShadow(QFrame::Sunken);
+
+        gridLayout->addWidget(line_6, 3, 0, 1, 1);
 
         tabWidget = new QTabWidget(centralwidget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
@@ -268,19 +286,62 @@ public:
         tabWidget->setFont(font2);
         map_tab = new QWidget();
         map_tab->setObjectName(QString::fromUtf8("map_tab"));
-        gridLayoutWidget_3 = new QWidget(map_tab);
-        gridLayoutWidget_3->setObjectName(QString::fromUtf8("gridLayoutWidget_3"));
-        gridLayoutWidget_3->setGeometry(QRect(270, 150, 160, 80));
-        gridLayout_5 = new QGridLayout(gridLayoutWidget_3);
-        gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
-        gridLayout_5->setContentsMargins(0, 0, 0, 0);
-        frame_4 = new QFrame(gridLayoutWidget_3);
-        frame_4->setObjectName(QString::fromUtf8("frame_4"));
-        frame_4->setFrameShape(QFrame::StyledPanel);
-        frame_4->setFrameShadow(QFrame::Raised);
+        verticalLayoutWidget = new QWidget(map_tab);
+        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
+        verticalLayoutWidget->setGeometry(QRect(10, 10, 731, 511));
+        verticalLayout_6 = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        verticalLayout_6->setContentsMargins(0, 0, 0, 0);
+        map_frame = new QFrame(verticalLayoutWidget);
+        map_frame->setObjectName(QString::fromUtf8("map_frame"));
+        map_frame->setFrameShape(QFrame::StyledPanel);
+        map_frame->setFrameShadow(QFrame::Raised);
 
-        gridLayout_5->addWidget(frame_4, 0, 0, 1, 1);
+        verticalLayout_6->addWidget(map_frame);
 
+        line_13 = new QFrame(verticalLayoutWidget);
+        line_13->setObjectName(QString::fromUtf8("line_13"));
+        line_13->setFrameShape(QFrame::HLine);
+        line_13->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_6->addWidget(line_13);
+
+        slider_layout = new QHBoxLayout();
+        slider_layout->setObjectName(QString::fromUtf8("slider_layout"));
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+
+        slider_layout->addItem(horizontalSpacer_3);
+
+        zoom_in_pushButton = new QPushButton(verticalLayoutWidget);
+        zoom_in_pushButton->setObjectName(QString::fromUtf8("zoom_in_pushButton"));
+        QIcon icon9;
+        icon9.addFile(QString::fromUtf8(":/images/icons/zoom_in.png"), QSize(), QIcon::Normal, QIcon::Off);
+        zoom_in_pushButton->setIcon(icon9);
+
+        slider_layout->addWidget(zoom_in_pushButton);
+
+        zoom_slider = new QSlider(verticalLayoutWidget);
+        zoom_slider->setObjectName(QString::fromUtf8("zoom_slider"));
+        zoom_slider->setOrientation(Qt::Horizontal);
+
+        slider_layout->addWidget(zoom_slider);
+
+        zoom_out_pushButton = new QPushButton(verticalLayoutWidget);
+        zoom_out_pushButton->setObjectName(QString::fromUtf8("zoom_out_pushButton"));
+        QIcon icon10;
+        icon10.addFile(QString::fromUtf8(":/images/icons/zoom_out.png"), QSize(), QIcon::Normal, QIcon::Off);
+        zoom_out_pushButton->setIcon(icon10);
+
+        slider_layout->addWidget(zoom_out_pushButton);
+
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+
+        slider_layout->addItem(horizontalSpacer_4);
+
+
+        verticalLayout_6->addLayout(slider_layout);
+
+        verticalLayout_6->setStretch(0, 10);
         tabWidget->addTab(map_tab, icon3, QString());
         box_tab = new QWidget();
         box_tab->setObjectName(QString::fromUtf8("box_tab"));
@@ -291,7 +352,7 @@ public:
         box_tab->setSizePolicy(sizePolicy1);
         verticalLayoutWidget_3 = new QWidget(box_tab);
         verticalLayoutWidget_3->setObjectName(QString::fromUtf8("verticalLayoutWidget_3"));
-        verticalLayoutWidget_3->setGeometry(QRect(10, 10, 721, 521));
+        verticalLayoutWidget_3->setGeometry(QRect(10, 10, 731, 511));
         box_main_layout = new QVBoxLayout(verticalLayoutWidget_3);
         box_main_layout->setSpacing(0);
         box_main_layout->setObjectName(QString::fromUtf8("box_main_layout"));
@@ -353,10 +414,17 @@ public:
 
         horizontalLayout_2->addLayout(Box_show_layout);
 
+        line_14 = new QFrame(verticalLayoutWidget_3);
+        line_14->setObjectName(QString::fromUtf8("line_14"));
+        line_14->setFrameShape(QFrame::VLine);
+        line_14->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_2->addWidget(line_14);
+
         box_information_layout = new QVBoxLayout();
         box_information_layout->setObjectName(QString::fromUtf8("box_information_layout"));
-        horizontalLayout_11 = new QHBoxLayout();
-        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
+        drone_button_layout = new QGridLayout();
+        drone_button_layout->setObjectName(QString::fromUtf8("drone_button_layout"));
         add_box_pushButton = new QPushButton(verticalLayoutWidget_3);
         add_box_pushButton->setObjectName(QString::fromUtf8("add_box_pushButton"));
         QFont font3;
@@ -365,16 +433,16 @@ public:
         font3.setWeight(50);
         add_box_pushButton->setFont(font3);
 
-        horizontalLayout_11->addWidget(add_box_pushButton);
+        drone_button_layout->addWidget(add_box_pushButton, 0, 0, 1, 1);
 
-        pushButton_7 = new QPushButton(verticalLayoutWidget_3);
-        pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
-        pushButton_7->setFont(font3);
+        assign_drone_pushButton = new QPushButton(verticalLayoutWidget_3);
+        assign_drone_pushButton->setObjectName(QString::fromUtf8("assign_drone_pushButton"));
+        assign_drone_pushButton->setFont(font3);
 
-        horizontalLayout_11->addWidget(pushButton_7);
+        drone_button_layout->addWidget(assign_drone_pushButton, 0, 1, 1, 1);
 
 
-        box_information_layout->addLayout(horizontalLayout_11);
+        box_information_layout->addLayout(drone_button_layout);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
@@ -441,41 +509,48 @@ public:
 
         box_information_layout->addLayout(horizontalLayout_6);
 
+        line_18 = new QFrame(verticalLayoutWidget_3);
+        line_18->setObjectName(QString::fromUtf8("line_18"));
+        line_18->setFrameShape(QFrame::HLine);
+        line_18->setFrameShadow(QFrame::Sunken);
+
+        box_information_layout->addWidget(line_18);
+
+        box_position_layout = new QGridLayout();
+        box_position_layout->setObjectName(QString::fromUtf8("box_position_layout"));
+        box_longitude_label = new QLabel(verticalLayoutWidget_3);
+        box_longitude_label->setObjectName(QString::fromUtf8("box_longitude_label"));
+        box_longitude_label->setFont(font3);
+        box_longitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        box_position_layout->addWidget(box_longitude_label, 1, 0, 1, 1);
+
+        box_latitude_label = new QLabel(verticalLayoutWidget_3);
+        box_latitude_label->setObjectName(QString::fromUtf8("box_latitude_label"));
+        box_latitude_label->setFont(font3);
+        box_latitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        box_position_layout->addWidget(box_latitude_label, 0, 0, 1, 1);
+
+        box_latitude_lineEdit = new QLineEdit(verticalLayoutWidget_3);
+        box_latitude_lineEdit->setObjectName(QString::fromUtf8("box_latitude_lineEdit"));
+
+        box_position_layout->addWidget(box_latitude_lineEdit, 0, 1, 1, 1);
+
+        box_longitude_lineEdit = new QLineEdit(verticalLayoutWidget_3);
+        box_longitude_lineEdit->setObjectName(QString::fromUtf8("box_longitude_lineEdit"));
+
+        box_position_layout->addWidget(box_longitude_lineEdit, 1, 1, 1, 1);
+
+
+        box_information_layout->addLayout(box_position_layout);
+
         line = new QFrame(verticalLayoutWidget_3);
         line->setObjectName(QString::fromUtf8("line"));
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
 
         box_information_layout->addWidget(line);
-
-        horizontalLayout_5 = new QHBoxLayout();
-        horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
-        label_7 = new QLabel(verticalLayoutWidget_3);
-        label_7->setObjectName(QString::fromUtf8("label_7"));
-        label_7->setFont(font3);
-        label_7->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        horizontalLayout_5->addWidget(label_7);
-
-        verticalLayout_3 = new QVBoxLayout();
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        label_6 = new QLabel(verticalLayoutWidget_3);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setFont(font3);
-
-        verticalLayout_3->addWidget(label_6);
-
-        label_8 = new QLabel(verticalLayoutWidget_3);
-        label_8->setObjectName(QString::fromUtf8("label_8"));
-        label_8->setFont(font3);
-
-        verticalLayout_3->addWidget(label_8);
-
-
-        horizontalLayout_5->addLayout(verticalLayout_3);
-
-
-        box_information_layout->addLayout(horizontalLayout_5);
 
 
         horizontalLayout_2->addLayout(box_information_layout);
@@ -494,7 +569,7 @@ public:
         drone_tab->setObjectName(QString::fromUtf8("drone_tab"));
         verticalLayoutWidget_2 = new QWidget(drone_tab);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 721, 511));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 731, 511));
         verticalLayout_4 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -544,6 +619,13 @@ public:
         frame_2->setFrameShadow(QFrame::Raised);
 
         horizontalLayout_9->addWidget(frame_2);
+
+        line_15 = new QFrame(verticalLayoutWidget_2);
+        line_15->setObjectName(QString::fromUtf8("line_15"));
+        line_15->setFrameShape(QFrame::VLine);
+        line_15->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_9->addWidget(line_15);
 
         verticalLayout_5 = new QVBoxLayout();
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
@@ -621,9 +703,64 @@ public:
 
         verticalLayout_5->addLayout(gridLayout_3);
 
+        line_16 = new QFrame(verticalLayoutWidget_2);
+        line_16->setObjectName(QString::fromUtf8("line_16"));
+        line_16->setFrameShape(QFrame::HLine);
+        line_16->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_5->addWidget(line_16);
+
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_5->addItem(verticalSpacer);
+
+        line_17 = new QFrame(verticalLayoutWidget_2);
+        line_17->setObjectName(QString::fromUtf8("line_17"));
+        line_17->setFrameShape(QFrame::HLine);
+        line_17->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_5->addWidget(line_17);
+
+        gridLayout_6 = new QGridLayout();
+        gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
+        longitude_lineEdit = new QLineEdit(verticalLayoutWidget_2);
+        longitude_lineEdit->setObjectName(QString::fromUtf8("longitude_lineEdit"));
+
+        gridLayout_6->addWidget(longitude_lineEdit, 1, 1, 1, 1);
+
+        altitude_lineEdit = new QLineEdit(verticalLayoutWidget_2);
+        altitude_lineEdit->setObjectName(QString::fromUtf8("altitude_lineEdit"));
+
+        gridLayout_6->addWidget(altitude_lineEdit, 2, 1, 1, 1);
+
+        latitude_lineEdit = new QLineEdit(verticalLayoutWidget_2);
+        latitude_lineEdit->setObjectName(QString::fromUtf8("latitude_lineEdit"));
+
+        gridLayout_6->addWidget(latitude_lineEdit, 0, 1, 1, 1);
+
+        longitude_label = new QLabel(verticalLayoutWidget_2);
+        longitude_label->setObjectName(QString::fromUtf8("longitude_label"));
+        longitude_label->setFont(font3);
+        longitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_6->addWidget(longitude_label, 1, 0, 1, 1);
+
+        latitude_label = new QLabel(verticalLayoutWidget_2);
+        latitude_label->setObjectName(QString::fromUtf8("latitude_label"));
+        latitude_label->setFont(font3);
+        latitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_6->addWidget(latitude_label, 0, 0, 1, 1);
+
+        altitude_label = new QLabel(verticalLayoutWidget_2);
+        altitude_label->setObjectName(QString::fromUtf8("altitude_label"));
+        altitude_label->setFont(font3);
+        altitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_6->addWidget(altitude_label, 2, 0, 1, 1);
+
+
+        verticalLayout_5->addLayout(gridLayout_6);
 
         line_8 = new QFrame(verticalLayoutWidget_2);
         line_8->setObjectName(QString::fromUtf8("line_8"));
@@ -631,34 +768,6 @@ public:
         line_8->setFrameShadow(QFrame::Sunken);
 
         verticalLayout_5->addWidget(line_8);
-
-        horizontalLayout_13 = new QHBoxLayout();
-        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
-        label_11 = new QLabel(verticalLayoutWidget_2);
-        label_11->setObjectName(QString::fromUtf8("label_11"));
-        label_11->setFont(font3);
-
-        horizontalLayout_13->addWidget(label_11);
-
-        verticalLayout_6 = new QVBoxLayout();
-        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
-        label_12 = new QLabel(verticalLayoutWidget_2);
-        label_12->setObjectName(QString::fromUtf8("label_12"));
-        label_12->setFont(font3);
-
-        verticalLayout_6->addWidget(label_12);
-
-        label_13 = new QLabel(verticalLayoutWidget_2);
-        label_13->setObjectName(QString::fromUtf8("label_13"));
-        label_13->setFont(font3);
-
-        verticalLayout_6->addWidget(label_13);
-
-
-        horizontalLayout_13->addLayout(verticalLayout_6);
-
-
-        verticalLayout_5->addLayout(horizontalLayout_13);
 
         line_9 = new QFrame(verticalLayoutWidget_2);
         line_9->setObjectName(QString::fromUtf8("line_9"));
@@ -681,20 +790,16 @@ public:
         stat_tab->setObjectName(QString::fromUtf8("stat_tab"));
         gridLayoutWidget_2 = new QWidget(stat_tab);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(120, 50, 160, 80));
+        gridLayoutWidget_2->setGeometry(QRect(120, 50, 501, 361));
         gridLayout_4 = new QGridLayout(gridLayoutWidget_2);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
         gridLayout_4->setContentsMargins(0, 0, 0, 0);
-        frame_3 = new QFrame(gridLayoutWidget_2);
-        frame_3->setObjectName(QString::fromUtf8("frame_3"));
-        frame_3->setFrameShape(QFrame::StyledPanel);
-        frame_3->setFrameShadow(QFrame::Raised);
-
-        gridLayout_4->addWidget(frame_3, 0, 0, 1, 1);
-
         tabWidget->addTab(stat_tab, icon6, QString());
         preset_tab = new QWidget();
         preset_tab->setObjectName(QString::fromUtf8("preset_tab"));
+        treeView = new QTreeView(preset_tab);
+        treeView->setObjectName(QString::fromUtf8("treeView"));
+        treeView->setGeometry(QRect(140, 60, 441, 351));
         tabWidget->addTab(preset_tab, icon, QString());
 
         gridLayout->addWidget(tabWidget, 1, 0, 1, 1);
@@ -753,8 +858,12 @@ public:
         QObject::connect(pushButton_2, SIGNAL(clicked()), MainWindow, SLOT(on_clicked_land_pushButton()));
         QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_clicked_upload_path_pushButton()));
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_clicked_request_status_pushButton()));
+        QObject::connect(zoom_in_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_clicked_zoom_in_pushButton()));
+        QObject::connect(zoom_out_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_clicked_zoom_out_pushButton()));
+        QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_value_changed_zoom_in_out_slider()));
+        QObject::connect(assign_drone_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_clicked_assign_drone_pushButton()));
 
-        tabWidget->setCurrentIndex(2);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -779,20 +888,21 @@ public:
         settings_button->setText(QCoreApplication::translate("MainWindow", "Test", nullptr));
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Drone Hive HMI", nullptr));
+        zoom_in_pushButton->setText(QString());
+        zoom_out_pushButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(map_tab), QCoreApplication::translate("MainWindow", "Map", nullptr));
         current_box_label->setText(QCoreApplication::translate("MainWindow", "Current Box:", nullptr));
         color_label->setText(QString());
         add_box_pushButton->setText(QCoreApplication::translate("MainWindow", "Add Box", nullptr));
-        pushButton_7->setText(QCoreApplication::translate("MainWindow", "Assign Drone", nullptr));
+        assign_drone_pushButton->setText(QCoreApplication::translate("MainWindow", "Assign Drone", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "Box Type", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Box Status", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "Box Number", nullptr));
-        label_4->setText(QCoreApplication::translate("MainWindow", "Drone Number", nullptr));
-        label_7->setText(QCoreApplication::translate("MainWindow", "Box Position:", nullptr));
-        label_6->setText(QCoreApplication::translate("MainWindow", "Lat:", nullptr));
-        label_8->setText(QCoreApplication::translate("MainWindow", "Lon:", nullptr));
+        label_4->setText(QCoreApplication::translate("MainWindow", "Assigned Drone Number", nullptr));
+        box_longitude_label->setText(QCoreApplication::translate("MainWindow", "Box Lon: ", nullptr));
+        box_latitude_label->setText(QCoreApplication::translate("MainWindow", "Box Lat: ", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(box_tab), QCoreApplication::translate("MainWindow", "Box", nullptr));
-        current_drone_label->setText(QCoreApplication::translate("MainWindow", "Drone of Box:", nullptr));
+        current_drone_label->setText(QCoreApplication::translate("MainWindow", "Drone of Box Number:", nullptr));
         comboBox->setItemText(0, QCoreApplication::translate("MainWindow", "0", nullptr));
         comboBox->setItemText(1, QCoreApplication::translate("MainWindow", "1", nullptr));
         comboBox->setItemText(2, QCoreApplication::translate("MainWindow", "2", nullptr));
@@ -807,9 +917,9 @@ public:
         pushButton_3->setText(QCoreApplication::translate("MainWindow", "Take-Off", nullptr));
         pushButton_8->setText(QCoreApplication::translate("MainWindow", "Change Drone", nullptr));
         pushButton_9->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
-        label_11->setText(QCoreApplication::translate("MainWindow", "Drone Position", nullptr));
-        label_12->setText(QCoreApplication::translate("MainWindow", "Lat:", nullptr));
-        label_13->setText(QCoreApplication::translate("MainWindow", "Lon:", nullptr));
+        longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lon:", nullptr));
+        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lat:", nullptr));
+        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Alt:", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(drone_tab), QCoreApplication::translate("MainWindow", "Drone", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(stat_tab), QCoreApplication::translate("MainWindow", "Statistics", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(preset_tab), QCoreApplication::translate("MainWindow", "Presets", nullptr));
