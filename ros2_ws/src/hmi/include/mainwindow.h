@@ -28,20 +28,23 @@ private:
 
 private slots:
     // pushButton slots
-    void push_button1_on_clicked(bool);
-    void on_clicked_add_box_push_button();
-    void on_clicked_arm_pushButton();
-    void on_clicked_takeoff_pushButton();
-    void on_clicked_return_home_pushButton();
-    void on_clicked_land_pushButton();
-    void on_clicked_request_status_pushButton();
-    void on_clicked_upload_path_pushButton();
-    void on_clicked_zoom_in_pushButton();
-    void on_clicked_zoom_out_pushButton();
-    void on_clicked_assign_drone_pushButton();
+    void on_settings_pushButton_clicked(bool);
+    void on_add_box_push_button_clicked();
+    void on_arm_pushButton_clicked();
+    void on_takeoff_pushButton_clicked();
+    void on_return_home_pushButton_clicked();
+    void on_land_pushButton_clicked();
+    void on_request_status_pushButton_clicked();
+    void on_upload_path_pushButton_clicked();
+    void on_zoom_in_pushButton_clicked();
+    void on_zoom_out_pushButton_clicked();
+    void on_assign_drone_pushButton_clicked();
+    void on_removedrone_pushButton_clicked();
+    void on_changedrone_pushButton_clicked();
+    void on_remove_box_pushButton_clicked();
+    void on_path_upload_pushButton_clicked();
 
-    // Slider slots
-    void on_value_changed_zoom_in_out_slider();
+    void on_zoom_in_out_slider_valueChanged(int);
 };
 
 #endif // MAINWINDOW_H
