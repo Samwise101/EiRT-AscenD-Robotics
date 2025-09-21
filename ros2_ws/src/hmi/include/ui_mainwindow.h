@@ -90,8 +90,12 @@ public:
     QFrame *line_14;
     QVBoxLayout *box_information_layout;
     QGridLayout *drone_button_layout;
-    QPushButton *add_box_pushButton;
+    QPushButton *pushButton_10;
     QPushButton *assign_drone_pushButton;
+    QPushButton *pushButton_7;
+    QPushButton *add_box_pushButton;
+    QFrame *line_19;
+    QFrame *line_20;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_3;
     QFrame *line_5;
@@ -425,21 +429,59 @@ public:
         box_information_layout->setObjectName(QString::fromUtf8("box_information_layout"));
         drone_button_layout = new QGridLayout();
         drone_button_layout->setObjectName(QString::fromUtf8("drone_button_layout"));
-        add_box_pushButton = new QPushButton(verticalLayoutWidget_3);
-        add_box_pushButton->setObjectName(QString::fromUtf8("add_box_pushButton"));
+        pushButton_10 = new QPushButton(verticalLayoutWidget_3);
+        pushButton_10->setObjectName(QString::fromUtf8("pushButton_10"));
         QFont font3;
         font3.setPointSize(11);
         font3.setBold(false);
         font3.setWeight(50);
-        add_box_pushButton->setFont(font3);
+        pushButton_10->setFont(font3);
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/images/icons/remove_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_10->setIcon(icon11);
 
-        drone_button_layout->addWidget(add_box_pushButton, 0, 0, 1, 1);
+        drone_button_layout->addWidget(pushButton_10, 2, 1, 1, 1);
 
         assign_drone_pushButton = new QPushButton(verticalLayoutWidget_3);
         assign_drone_pushButton->setObjectName(QString::fromUtf8("assign_drone_pushButton"));
         assign_drone_pushButton->setFont(font3);
+        QIcon icon12;
+        icon12.addFile(QString::fromUtf8(":/images/icons/add_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
+        assign_drone_pushButton->setIcon(icon12);
 
         drone_button_layout->addWidget(assign_drone_pushButton, 0, 1, 1, 1);
+
+        pushButton_7 = new QPushButton(verticalLayoutWidget_3);
+        pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
+        pushButton_7->setFont(font3);
+        QIcon icon13;
+        icon13.addFile(QString::fromUtf8(":/images/icons/remove_box.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_7->setIcon(icon13);
+
+        drone_button_layout->addWidget(pushButton_7, 2, 0, 1, 1);
+
+        add_box_pushButton = new QPushButton(verticalLayoutWidget_3);
+        add_box_pushButton->setObjectName(QString::fromUtf8("add_box_pushButton"));
+        add_box_pushButton->setFont(font3);
+        QIcon icon14;
+        icon14.addFile(QString::fromUtf8(":/images/icons/add_box.png"), QSize(), QIcon::Normal, QIcon::Off);
+        add_box_pushButton->setIcon(icon14);
+
+        drone_button_layout->addWidget(add_box_pushButton, 0, 0, 1, 1);
+
+        line_19 = new QFrame(verticalLayoutWidget_3);
+        line_19->setObjectName(QString::fromUtf8("line_19"));
+        line_19->setFrameShape(QFrame::HLine);
+        line_19->setFrameShadow(QFrame::Sunken);
+
+        drone_button_layout->addWidget(line_19, 1, 0, 1, 1);
+
+        line_20 = new QFrame(verticalLayoutWidget_3);
+        line_20->setObjectName(QString::fromUtf8("line_20"));
+        line_20->setFrameShape(QFrame::HLine);
+        line_20->setFrameShadow(QFrame::Sunken);
+
+        drone_button_layout->addWidget(line_20, 1, 1, 1, 1);
 
 
         box_information_layout->addLayout(drone_button_layout);
@@ -893,8 +935,10 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(map_tab), QCoreApplication::translate("MainWindow", "Map", nullptr));
         current_box_label->setText(QCoreApplication::translate("MainWindow", "Current Box:", nullptr));
         color_label->setText(QString());
-        add_box_pushButton->setText(QCoreApplication::translate("MainWindow", "Add Box", nullptr));
+        pushButton_10->setText(QCoreApplication::translate("MainWindow", "Remove Drone", nullptr));
         assign_drone_pushButton->setText(QCoreApplication::translate("MainWindow", "Assign Drone", nullptr));
+        pushButton_7->setText(QCoreApplication::translate("MainWindow", "Remove Box", nullptr));
+        add_box_pushButton->setText(QCoreApplication::translate("MainWindow", "Add New Box", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "Box Type", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Box Status", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "Box Number", nullptr));

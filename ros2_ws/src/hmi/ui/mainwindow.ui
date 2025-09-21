@@ -357,8 +357,8 @@
                     <layout class="QVBoxLayout" name="box_information_layout">
                      <item>
                       <layout class="QGridLayout" name="drone_button_layout">
-                       <item row="0" column="0">
-                        <widget class="QPushButton" name="add_box_pushButton">
+                       <item row="2" column="1">
+                        <widget class="QPushButton" name="pushButton_10">
                          <property name="font">
                           <font>
                            <pointsize>11</pointsize>
@@ -367,7 +367,11 @@
                           </font>
                          </property>
                          <property name="text">
-                          <string>Add Box</string>
+                          <string>Remove Drone</string>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="../resources/resources.qrc">
+                           <normaloff>:/images/icons/remove_drone.png</normaloff>:/images/icons/remove_drone.png</iconset>
                          </property>
                         </widget>
                        </item>
@@ -382,6 +386,60 @@
                          </property>
                          <property name="text">
                           <string>Assign Drone</string>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="../resources/resources.qrc">
+                           <normaloff>:/images/icons/add_drone.png</normaloff>:/images/icons/add_drone.png</iconset>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="0">
+                        <widget class="QPushButton" name="pushButton_7">
+                         <property name="font">
+                          <font>
+                           <pointsize>11</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Remove Box</string>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="../resources/resources.qrc">
+                           <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0">
+                        <widget class="QPushButton" name="add_box_pushButton">
+                         <property name="font">
+                          <font>
+                           <pointsize>11</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Add New Box</string>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="../resources/resources.qrc">
+                           <normaloff>:/images/icons/add_box.png</normaloff>:/images/icons/add_box.png</iconset>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="Line" name="line_19">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="1">
+                        <widget class="Line" name="line_20">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
                          </property>
                         </widget>
                        </item>
