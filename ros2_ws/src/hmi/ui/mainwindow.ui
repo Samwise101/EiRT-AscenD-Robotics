@@ -136,16 +136,9 @@
                 <height>511</height>
                </rect>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_6" stretch="10,0,0">
+              <layout class="QVBoxLayout" name="map_layout" stretch="10,0,0">
                <item>
-                <widget class="QFrame" name="map_frame">
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
-                 </property>
-                </widget>
+                <layout class="QGridLayout" name="map_frame_layout"/>
                </item>
                <item>
                 <widget class="Line" name="line_13">
@@ -347,7 +340,7 @@
                     </widget>
                    </item>
                    <item>
-                    <layout class="QVBoxLayout" name="box_information_layout">
+                    <layout class="QVBoxLayout" name="box_information_layout" stretch="10,0,0,0,0,0,0,0,0,0,0">
                      <item>
                       <layout class="QGridLayout" name="drone_button_layout">
                        <item row="0" column="1">
@@ -404,6 +397,13 @@
                          </property>
                         </widget>
                        </item>
+                       <item row="1" column="1">
+                        <widget class="Line" name="line_22">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                        </widget>
+                       </item>
                        <item row="0" column="0">
                         <widget class="QPushButton" name="add_box_pushButton">
                          <property name="font">
@@ -422,29 +422,8 @@
                          </property>
                         </widget>
                        </item>
-                       <item row="4" column="0">
-                        <widget class="Line" name="line_19">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="4" column="1">
-                        <widget class="Line" name="line_20">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                        </widget>
-                       </item>
                        <item row="1" column="0">
                         <widget class="Line" name="line_21">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="1">
-                        <widget class="Line" name="line_22">
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -746,6 +725,10 @@
                        <property name="text">
                         <string>Arm</string>
                        </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
+                       </property>
                       </widget>
                      </item>
                      <item row="0" column="1">
@@ -760,6 +743,10 @@
                        <property name="text">
                         <string>Request Status</string>
                        </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                       </property>
                       </widget>
                      </item>
                      <item row="0" column="0">
@@ -773,6 +760,10 @@
                        </property>
                        <property name="text">
                         <string>Path Upload</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
                        </property>
                       </widget>
                      </item>
@@ -802,6 +793,10 @@
                        <property name="text">
                         <string>Land</string>
                        </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
+                       </property>
                       </widget>
                      </item>
                      <item row="4" column="0">
@@ -816,6 +811,10 @@
                        <property name="text">
                         <string>Return Home</string>
                        </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/return_home.png</normaloff>:/images/icons/return_home.png</iconset>
+                       </property>
                       </widget>
                      </item>
                      <item row="3" column="1">
@@ -829,6 +828,10 @@
                        </property>
                        <property name="text">
                         <string>Take-Off</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/drone_takeoff.png</normaloff>:/images/icons/drone_takeoff.png</iconset>
                        </property>
                       </widget>
                      </item>

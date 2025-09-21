@@ -12,10 +12,22 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+install(
+  DIRECTORY presets/
+  DESTINATION share/${PROJECT_NAME}/presets
+)
+
+install(
+  DIRECTORY drone_configs/
+  DESTINATION share/${PROJECT_NAME}/drone_configs
+)
+
+
 # ROS 2 dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+
 
 # Qt dependencies
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts)
