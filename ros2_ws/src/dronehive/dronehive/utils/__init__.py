@@ -2,6 +2,7 @@ from .topics import *
 from .config import Config, DRONEHIVE_DIRS
 from .initialiser import Initialiser
 from typing import Union
+from rclpy.logging import get_logger as rclpy_logger
 
 def dronehive_initialise() -> Config:
 	print("Initializing the package with constants:")

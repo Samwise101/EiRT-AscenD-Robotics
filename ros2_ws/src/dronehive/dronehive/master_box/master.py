@@ -45,6 +45,8 @@ class MasterBoxNode(Node):
 
 		# Drop the initialiser to free memory
 		self.initialiser = None
+		self.get_logger().info(f"Initialised with config : {self.config}")
+
 
 	def create_messages(self):
 		# Subscribers

@@ -29,7 +29,7 @@ class Config:
 		if json_path.exists():
 			with open(json_path, 'r') as f:
 				data = json.load(f)
-				rclpy_logger("Config").info(f"Configuration loaded: {data}")
+				rclpy_logger("Config").debug(f"Configuration loaded: {data}")
 				return Config(
 					box_id = data.get("box_id", ""),
 					drone_id = data.get("drone_id", ""),
