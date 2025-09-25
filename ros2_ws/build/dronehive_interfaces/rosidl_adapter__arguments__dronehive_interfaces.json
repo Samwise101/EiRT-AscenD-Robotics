@@ -1,0 +1,6 @@
+{
+  "package_name": "dronehive_interfaces",
+  "non_idl_tuples": [
+    "/home/magnus/AscenD/EiRT-AscenD-Robotics/ros2_ws/src/dronehive_interfaces:srv/OccupancyService.srv"
+  ]
+}
