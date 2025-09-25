@@ -32,9 +32,6 @@ class MasterBoxNode(Node):
 		# If everything is fine, the initialiser will be None.
 		self.initialise_connections()
 
-	##############################
-	# Callbacks and methods here #
-	##############################
 
 	def initialise_connections(self):
 		self.get_logger().info("Initialising connections...")
@@ -47,6 +44,10 @@ class MasterBoxNode(Node):
 		self.initialiser = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
+
+	##########################
+	# Initialisation methods #
+	##########################
 
 	def create_messages(self):
 		# Subscribers
@@ -72,11 +73,14 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+
 	def create_services(self):
 		pass
 
+
 	def create_actions(self):
 		pass
+
 
 	def destroy_interfaces(self):
 		while self._publishers:
@@ -102,6 +106,10 @@ class MasterBoxNode(Node):
 			self.destroy_interfaces()
 			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
 
+
+	#########################
+	# Callbacks and methods #
+	#########################
 
 	def send_landing_position_to_drone(self, pos: String):
 		self._pub_landing_pos_to_drone.publish(self.config.lending_position)
