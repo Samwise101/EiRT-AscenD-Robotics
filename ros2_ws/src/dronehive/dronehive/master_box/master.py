@@ -2,16 +2,11 @@
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
-from std_msgs.msg import Bool, String
+from std_msgs.msg import String
 
 # Project specific imports
 from dronehive_interfaces.msg import PositionMessage
 import dronehive.utils as dh
-
-
-# Python imports
-import json
-from pathlib import Path
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
