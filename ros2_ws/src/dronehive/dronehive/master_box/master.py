@@ -112,5 +112,6 @@ class MasterBoxNode(Node):
 	#########################
 
 	def send_landing_position_to_drone(self, pos: String):
+		self.get_logger().info(f"Sending landing position to drone \"{pos.data}\"")
 		self._pub_landing_pos_to_drone.publish(self.config.lending_position)
 
