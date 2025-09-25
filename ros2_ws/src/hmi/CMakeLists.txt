@@ -35,6 +35,7 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts)
 # UI + resources
 set(UI_FILES
   ui/mainwindow.ui
+  ui/new_box_pupup.ui
 )
 qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 
@@ -42,10 +43,20 @@ qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 set(SOURCES
   src/main.cpp
   src/mainwindow.cpp
+  src/box.cpp
+  src/drone.cpp
+  src/slave_box.cpp
+  src/master_box.cpp
+  src/new_box_dialog.cpp
 )
 
 set(HEADERS
   include/mainwindow.h
+  include/box.h
+  include/drone.h
+  include/master_box.h
+  include/slave_box.h
+  include/new_box_dialog.h
 )
 
 # Create the executable (only once!)

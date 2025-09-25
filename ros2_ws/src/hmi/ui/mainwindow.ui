@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>875</width>
-    <height>676</height>
+    <width>971</width>
+    <height>672</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,17 +32,46 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="current_box_label">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Selected Box:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="boxComboBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="add_box_pushButton">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
+          <property name="text">
+           <string>Add New Box</string>
           </property>
-         </spacer>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/images/icons/add_box.png</normaloff>:/images/icons/add_box.png</iconset>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="settings_button">
@@ -75,7 +104,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
         <item>
          <widget class="QLabel" name="label">
           <property name="font">
@@ -94,663 +123,250 @@
          </widget>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0">
-           <widget class="QTabWidget" name="tabWidget">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>13</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <widget class="QWidget" name="map_tab">
+           <attribute name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/images/icons/map.png</normaloff>:/images/icons/map.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Map</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>731</width>
+              <height>511</height>
+             </rect>
             </property>
-            <property name="baseSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>13</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="currentIndex">
-             <number>2</number>
-            </property>
-            <widget class="QWidget" name="map_tab">
-             <attribute name="icon">
-              <iconset resource="../resources/resources.qrc">
-               <normaloff>:/images/icons/map.png</normaloff>:/images/icons/map.png</iconset>
-             </attribute>
-             <attribute name="title">
-              <string>Map</string>
-             </attribute>
-             <widget class="QWidget" name="verticalLayoutWidget">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>731</width>
-                <height>511</height>
-               </rect>
-              </property>
-              <layout class="QVBoxLayout" name="map_layout" stretch="10,0,0">
+            <layout class="QVBoxLayout" name="map_layout" stretch="10,0,0">
+             <item>
+              <layout class="QGridLayout" name="map_frame_layout">
+               <item row="1" column="1">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_13">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="slider_layout">
                <item>
-                <layout class="QGridLayout" name="map_frame_layout"/>
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
                <item>
-                <widget class="Line" name="line_13">
+                <widget class="QPushButton" name="zoom_in_pushButton">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources/resources.qrc">
+                   <normaloff>:/images/icons/zoom_in.png</normaloff>:/images/icons/zoom_in.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="zoom_slider">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="slider_layout">
-                 <item>
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeType">
-                    <enum>QSizePolicy::Fixed</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="zoom_in_pushButton">
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../resources/resources.qrc">
-                     <normaloff>:/images/icons/zoom_in.png</normaloff>:/images/icons/zoom_in.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSlider" name="zoom_slider">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="zoom_out_pushButton">
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../resources/resources.qrc">
-                     <normaloff>:/images/icons/zoom_out.png</normaloff>:/images/icons/zoom_out.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_4">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeType">
-                    <enum>QSizePolicy::Fixed</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
+                <widget class="QPushButton" name="zoom_out_pushButton">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources/resources.qrc">
+                   <normaloff>:/images/icons/zoom_out.png</normaloff>:/images/icons/zoom_out.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="box_tab">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="box_tab">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <attribute name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/images/icons/box.png</normaloff>:/images/icons/box.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Box</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget_3">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>731</width>
+              <height>511</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="box_main_layout" stretch="0,0,10">
+             <property name="spacing">
+              <number>0</number>
              </property>
-             <attribute name="icon">
-              <iconset resource="../resources/resources.qrc">
-               <normaloff>:/images/icons/box.png</normaloff>:/images/icons/box.png</iconset>
-             </attribute>
-             <attribute name="title">
-              <string>Box</string>
-             </attribute>
-             <widget class="QWidget" name="verticalLayoutWidget_3">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>731</width>
-                <height>511</height>
-               </rect>
-              </property>
-              <layout class="QVBoxLayout" name="box_main_layout" stretch="0,0,10">
-               <property name="spacing">
-                <number>0</number>
-               </property>
+             <property name="sizeConstraint">
+              <enum>QLayout::SetNoConstraint</enum>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="box_cicle_layout" stretch="0,5">
                <property name="sizeConstraint">
                 <enum>QLayout::SetNoConstraint</enum>
                </property>
                <item>
-                <layout class="QHBoxLayout" name="box_cicle_layout" stretch="0,2,0,5">
-                 <property name="sizeConstraint">
-                  <enum>QLayout::SetNoConstraint</enum>
+                <widget class="QLabel" name="color_label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                 <item>
-                  <widget class="QLabel" name="current_box_label">
-                   <property name="font">
-                    <font>
-                     <pointsize>13</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Current Box:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="box_cicle_spin_box"/>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="color_label">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>30</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="Line" name="line_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
                  </property>
                 </widget>
                </item>
                <item>
-                <layout class="QGridLayout" name="box_grid_layout" rowminimumheight="10">
-                 <property name="sizeConstraint">
-                  <enum>QLayout::SetNoConstraint</enum>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
-                 <item row="0" column="0">
-                  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0,0">
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="box_grid_layout" rowminimumheight="10">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetNoConstraint</enum>
+               </property>
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0,0">
+                 <item>
+                  <layout class="QVBoxLayout" name="Box_show_layout">
                    <item>
-                    <layout class="QVBoxLayout" name="Box_show_layout">
-                     <item>
-                      <widget class="QFrame" name="frame">
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <widget class="Line" name="line_14">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                    <widget class="QFrame" name="frame">
+                     <property name="frameShape">
+                      <enum>QFrame::StyledPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
                      </property>
                     </widget>
                    </item>
-                   <item>
-                    <layout class="QVBoxLayout" name="box_information_layout" stretch="10,0,0,0,0,0,0,0,0,0,0">
-                     <item>
-                      <layout class="QGridLayout" name="drone_button_layout">
-                       <item row="0" column="1">
-                        <widget class="QPushButton" name="pushButton_7">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Remove Box</string>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="../resources/resources.qrc">
-                           <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="0">
-                        <widget class="QPushButton" name="assign_drone_pushButton_3">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Assign Drone</string>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="../resources/resources.qrc">
-                           <normaloff>:/images/icons/add_drone.png</normaloff>:/images/icons/add_drone.png</iconset>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="1">
-                        <widget class="QPushButton" name="pushButton_11">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Remove Drone</string>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="../resources/resources.qrc">
-                           <normaloff>:/images/icons/remove_drone.png</normaloff>:/images/icons/remove_drone.png</iconset>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="1">
-                        <widget class="Line" name="line_22">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="0">
-                        <widget class="QPushButton" name="add_box_pushButton">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Add New Box</string>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="../resources/resources.qrc">
-                           <normaloff>:/images/icons/add_box.png</normaloff>:/images/icons/add_box.png</iconset>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="Line" name="line_21">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_3">
-                       <item>
-                        <widget class="QLabel" name="label_3">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Box Type</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <widget class="Line" name="line_5">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_7">
-                       <item>
-                        <widget class="QLabel" name="label_5">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Box Status</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <widget class="Line" name="line_2">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_4">
-                       <item>
-                        <widget class="QLabel" name="label_2">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Box Number</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <widget class="Line" name="line_4">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_6">
-                       <item>
-                        <widget class="QLabel" name="label_4">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Assigned Drone Number</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <widget class="Line" name="line_18">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <layout class="QGridLayout" name="box_position_layout">
-                       <item row="1" column="0">
-                        <widget class="QLabel" name="box_longitude_label">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Box Lon: </string>
-                         </property>
-                         <property name="alignment">
-                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="0">
-                        <widget class="QLabel" name="box_latitude_label">
-                         <property name="font">
-                          <font>
-                           <pointsize>11</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Box Lat: </string>
-                         </property>
-                         <property name="alignment">
-                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QLineEdit" name="box_latitude_lineEdit"/>
-                       </item>
-                       <item row="1" column="1">
-                        <widget class="QLineEdit" name="box_longitude_lineEdit"/>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <widget class="Line" name="line">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
                   </layout>
                  </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="drone_tab">
-             <attribute name="icon">
-              <iconset resource="../resources/resources.qrc">
-               <normaloff>:/images/icons/drone.png</normaloff>:/images/icons/drone.png</iconset>
-             </attribute>
-             <attribute name="title">
-              <string>Drone</string>
-             </attribute>
-             <widget class="QWidget" name="verticalLayoutWidget_2">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>731</width>
-                <height>511</height>
-               </rect>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,10">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_8">
                  <item>
-                  <widget class="QLabel" name="current_drone_label">
-                   <property name="text">
-                    <string>Drone of Box Number:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="comboBox">
-                   <item>
-                    <property name="text">
-                     <string>0</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>1</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>2</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>3</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="color_drone_label">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>30</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_2">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="Line" name="line_7">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="2,0,0">
-                 <item>
-                  <widget class="QFrame" name="frame_2">
-                   <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_15">
+                  <widget class="Line" name="line_14">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,10,0,0,0,0,0,0">
+                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
                    <item>
-                    <widget class="Line" name="line_10">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QGridLayout" name="gridLayout_3">
-                     <item row="3" column="0">
-                      <widget class="QPushButton" name="pushButton">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Arm</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QPushButton" name="pushButton_6">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Request Status</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                    <layout class="QGridLayout" name="drone_button_layout">
+                     <item row="1" column="0">
+                      <widget class="Line" name="line_21">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="0">
-                      <widget class="QPushButton" name="pushButton_5">
+                      <widget class="QPushButton" name="pushButton_7">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -759,152 +375,20 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Path Upload</string>
+                        <string>Remove Box</string>
                        </property>
                        <property name="icon">
                         <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="Line" name="line_12">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="1">
-                      <widget class="Line" name="line_11">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="1">
-                      <widget class="QPushButton" name="pushButton_2">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Land</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0">
-                      <widget class="QPushButton" name="pushButton_4">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Return Home</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/return_home.png</normaloff>:/images/icons/return_home.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1">
-                      <widget class="QPushButton" name="pushButton_3">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Take-Off</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/drone_takeoff.png</normaloff>:/images/icons/drone_takeoff.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QPushButton" name="pushButton_8">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Change Drone</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QPushButton" name="pushButton_9">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>PushButton</string>
+                         <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
                        </property>
                       </widget>
                      </item>
                     </layout>
                    </item>
                    <item>
-                    <widget class="Line" name="line_16">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="Line" name="line_17">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QGridLayout" name="gridLayout_6">
-                     <item row="1" column="1">
-                      <widget class="QLineEdit" name="longitude_lineEdit"/>
-                     </item>
-                     <item row="2" column="1">
-                      <widget class="QLineEdit" name="altitude_lineEdit"/>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QLineEdit" name="latitude_lineEdit"/>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QLabel" name="longitude_label">
+                    <layout class="QHBoxLayout" name="horizontalLayout_5">
+                     <item>
+                      <widget class="QLabel" name="label_7">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -913,7 +397,125 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Drone Lon:</string>
+                        <string>Box ID</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_3">
+                     <item>
+                      <widget class="QLabel" name="label_3">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Box Type</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_5">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_7">
+                     <item>
+                      <widget class="QLabel" name="label_5">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Box Status</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_2">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_4">
+                     <item>
+                      <widget class="QLabel" name="label_2">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Box Number</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_4">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_6">
+                     <item>
+                      <widget class="QLabel" name="label_4">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Assigned Drone Number</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_18">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QGridLayout" name="box_position_layout">
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="box_longitude_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Box Lon: </string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -921,7 +523,7 @@
                       </widget>
                      </item>
                      <item row="0" column="0">
-                      <widget class="QLabel" name="latitude_label">
+                      <widget class="QLabel" name="box_latitude_label">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -930,41 +532,23 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Drone Lat:</string>
+                        <string>Box Lat: </string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="altitude_label">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Drone Alt:</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
+                     <item row="0" column="1">
+                      <widget class="QLineEdit" name="box_latitude_lineEdit"/>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QLineEdit" name="box_longitude_lineEdit"/>
                      </item>
                     </layout>
                    </item>
                    <item>
-                    <widget class="Line" name="line_8">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="Line" name="line_9">
+                    <widget class="Line" name="line">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
                      </property>
@@ -975,49 +559,439 @@
                 </layout>
                </item>
               </layout>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="stat_tab">
-             <attribute name="icon">
-              <iconset resource="../resources/resources.qrc">
-               <normaloff>:/images/icons/chart.png</normaloff>:/images/icons/chart.png</iconset>
-             </attribute>
-             <attribute name="title">
-              <string>Statistics</string>
-             </attribute>
-             <widget class="QWidget" name="gridLayoutWidget_2">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>50</y>
-                <width>501</width>
-                <height>361</height>
-               </rect>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_4"/>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="preset_tab">
-             <attribute name="icon">
-              <iconset resource="../resources/resources.qrc">
-               <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
-             </attribute>
-             <attribute name="title">
-              <string>Presets</string>
-             </attribute>
-             <widget class="QTreeView" name="treeView">
-              <property name="geometry">
-               <rect>
-                <x>140</x>
-                <y>60</y>
-                <width>441</width>
-                <height>351</height>
-               </rect>
-              </property>
-             </widget>
-            </widget>
+             </item>
+            </layout>
            </widget>
-          </item>
+          </widget>
+          <widget class="QWidget" name="drone_tab">
+           <attribute name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/images/icons/drone.png</normaloff>:/images/icons/drone.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Drone</string>
+           </attribute>
+           <widget class="QWidget" name="verticalLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>731</width>
+              <height>511</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,10">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QLabel" name="current_drone_label">
+                 <property name="text">
+                  <string>Drone of Box Number:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="comboBox">
+                 <item>
+                  <property name="text">
+                   <string>0</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>1</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>2</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>3</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="color_drone_label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="2,0,0">
+               <item>
+                <widget class="QFrame" name="frame_2">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="Line" name="line_15">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,10,0,0,0,0,0,0">
+                 <item>
+                  <widget class="Line" name="line_10">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QGridLayout" name="gridLayout_3">
+                   <item row="3" column="0">
+                    <widget class="QPushButton" name="pushButton">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Arm</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="pushButton_6">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Request Status</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="pushButton_5">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Path Upload</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="Line" name="line_12">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="Line" name="line_11">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QPushButton" name="pushButton_2">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Land</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="pushButton_4">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Return Home</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/return_home.png</normaloff>:/images/icons/return_home.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QPushButton" name="pushButton_3">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Take-Off</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/drone_takeoff.png</normaloff>:/images/icons/drone_takeoff.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="pushButton_8">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Change Drone</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="pushButton_9">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_16">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_17">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QGridLayout" name="gridLayout_6">
+                   <item row="1" column="1">
+                    <widget class="QLineEdit" name="longitude_lineEdit"/>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLineEdit" name="altitude_lineEdit"/>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLineEdit" name="latitude_lineEdit"/>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="longitude_label">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Drone Lon:</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="latitude_label">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Drone Lat:</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="altitude_label">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Drone Alt:</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_8">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_9">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="stat_tab">
+           <attribute name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/images/icons/chart.png</normaloff>:/images/icons/chart.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Statistics</string>
+           </attribute>
+           <widget class="QWidget" name="gridLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>120</x>
+              <y>50</y>
+              <width>501</width>
+              <height>361</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4"/>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="preset_tab">
+           <attribute name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Presets</string>
+           </attribute>
+           <widget class="QTreeView" name="treeView">
+            <property name="geometry">
+             <rect>
+              <x>140</x>
+              <y>60</y>
+              <width>441</width>
+              <height>351</height>
+             </rect>
+            </property>
+           </widget>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
            <widget class="Line" name="line_6">
             <property name="orientation">
@@ -1038,7 +1012,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>875</width>
+     <width>971</width>
      <height>22</height>
     </rect>
    </property>
@@ -1204,30 +1178,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_11</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_removedrone_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>806</x>
-     <y>200</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>200</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>zoom_slider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>on_zoom_in_out_slider_valueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>295</x>
-     <y>615</y>
+     <x>518</x>
+     <y>607</y>
     </hint>
     <hint type="destinationlabel">
      <x>430</x>
@@ -1242,7 +1200,7 @@
    <slot>on_zoom_out_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>793</x>
+     <x>875</x>
      <y>612</y>
     </hint>
     <hint type="destinationlabel">
@@ -1258,7 +1216,7 @@
    <slot>on_zoom_in_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
+     <x>268</x>
      <y>612</y>
     </hint>
     <hint type="destinationlabel">
@@ -1290,7 +1248,7 @@
    <slot>on_return_home_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>687</x>
+     <x>729</x>
      <y>394</y>
     </hint>
     <hint type="destinationlabel">
@@ -1306,8 +1264,8 @@
    <slot>on_arm_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>705</x>
-     <y>350</y>
+     <x>740</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>865</x>
@@ -1322,8 +1280,8 @@
    <slot>on_takeoff_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>777</x>
-     <y>353</y>
+     <x>877</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1338,7 +1296,7 @@
    <slot>on_changedrone_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>656</x>
+     <x>698</x>
      <y>261</y>
     </hint>
     <hint type="destinationlabel">
@@ -1354,7 +1312,7 @@
    <slot>on_request_status_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>781</x>
+     <x>823</x>
      <y>208</y>
     </hint>
     <hint type="destinationlabel">
@@ -1380,30 +1338,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>assign_drone_pushButton_3</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_assign_drone_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>624</x>
-     <y>199</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>870</x>
-     <y>265</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>add_box_pushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>on_add_box_push_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>159</y>
+     <x>130</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>800</x>
@@ -1418,12 +1360,28 @@
    <slot>on_remove_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>762</x>
-     <y>170</y>
+     <x>786</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
      <x>673</x>
      <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>151</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>182</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -1444,5 +1402,6 @@
   <slot>on_changedrone_pushButton_clicked()</slot>
   <slot>on_settings_pushButton_clicked()</slot>
   <slot>on_path_upload_pushButton_clicked()</slot>
+  <slot>on_boxComboBox_currentIndexChanged(int)</slot>
  </slots>
 </ui>
