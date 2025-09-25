@@ -12,7 +12,7 @@ from typing import Callable
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
-	durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+	durability=QoSDurabilityPolicy.VOLATILE,
 	history=QoSHistoryPolicy.KEEP_LAST,
 	depth=1
 )
