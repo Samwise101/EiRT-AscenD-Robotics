@@ -1,6 +1,6 @@
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
-from std_msgs.msg import Bool, String
+from std_msgs.msg import Bool
 
 # Project specific imports
 import dronehive.utils as dh
