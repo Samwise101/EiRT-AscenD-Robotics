@@ -30,6 +30,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetFlightlog.srv"
   "srv/RequestStatus.srv"
 
+  "msg/BoxBroadcastMessage.msg"
   "msg/PositionMessage.msg"
 )
 
