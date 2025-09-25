@@ -1,5 +1,6 @@
 from .topics import *
 from .config import Config, DRONEHIVE_DIRS
+from .initialiser import Initialiser
 
 def dronehive_initialise() -> Config:
 	print("Initializing the package with constants:")
