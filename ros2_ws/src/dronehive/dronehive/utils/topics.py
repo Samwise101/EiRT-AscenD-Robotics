@@ -1,0 +1,5 @@
+DRONEHIVE_NEW_BOX_TOPIC = "/dronehive/new_box"
+DRONEHIVE_NEW_BOX_CONFIMED_TOPIC = "/dronehive/new_box_confirmed"
+DRONEHIVE_ADD_LANDING_POS_TOPIC = "/dronehive/add_landing_position"
+DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
+DRONEHIVE_DRONE_TOPIC = "/dronehive/drone"
