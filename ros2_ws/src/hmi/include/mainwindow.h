@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -9,7 +11,13 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include <memory>
-#include <thread>
+#include <QThread>
+#include <vector>
+
+#include "drone.h"
+#include "master_box.h"
+#include "slave_box.h"
+#include "new_box_dialog.h"
 
 
 class MainWindow : public QMainWindow
@@ -25,6 +33,10 @@ private:
     std::shared_ptr<rclcpp::Node> node_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
     std::thread ros_thread_;
+
+public:
+    std::vector<Box> get_boxes(void);
+    bool get_master_exists();
 
 private slots:
     // pushButton slots
@@ -44,7 +56,13 @@ private slots:
     void on_remove_box_pushButton_clicked();
     void on_path_upload_pushButton_clicked();
 
+    void on_boxComboBox_currentIndexChanged(int);
+    
     void on_zoom_in_out_slider_valueChanged(int);
+
+private:
+    std::vector<Box> boxes;
+    bool master_exists;
 };
 
 #endif // MAINWINDOW_H
