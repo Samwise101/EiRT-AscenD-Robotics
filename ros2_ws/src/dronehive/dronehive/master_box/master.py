@@ -1,16 +1,11 @@
 # ROS2 imports
-import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
 from std_msgs.msg import Bool, String
 
 # Project specific imports
-from dronehive_interfaces.msg import (
-	BoxBroadcastMessage,
-	PositionMessage
-)
-
+from dronehive_interfaces.msg import PositionMessage
 import dronehive.utils as dh
 
 
@@ -27,78 +22,40 @@ qos_profile = QoSProfile(
 
 class MasterBoxNode(Node):
 	def __init__(self):
+		super().__init__('master_box_node')
+
 		self.config: dh.Config = dh.dronehive_initialise()
 
-		# In case the box is not initialised, it will broadcast its position
+		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
+		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
 		if not self.config.initialised:
-			self.get_logger().warn("The configuration is not initialised. Broadcasting box.")
-			self._pub_box_broadcast = self.create_publisher(
-				BoxBroadcastMessage,
-				dh.DRONEHIVE_NEW_BOX_TOPIC,
-				qos_profile
-			)
-
-			self._sub_confirm_initialisation = self.create_subscription(
-				Bool,
-				dh.DRONEHIVE_NEW_BOX_CONFIMED_TOPIC,
-				self._confirm_box_initialisation,
-				qos_profile
-			)
-
-			self._initialise_timer = self.create_timer(1.0, self._broadcast_box_timer_callback)
+			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
+			self.get_logger().info("Box not initialised yet. Waiting for initialisation...")
 			return
 
-
-		############
-		# Messages #
-		############
-		self.create_messages()
-
-		############
-		# Services #
-		############
-		self.create_services()
-
-		###########
-		# Actions #
-		###########
-		self.create_actions()
+		# When the box is initialised at startup we can directly initialise the connections.
+		# If everything is fine, the initialiser will be None.
+		self.initialise_connections()
 
 	##############################
 	# Callbacks and methods here #
 	##############################
 
-	def _broadcast_box_timer_callback(self):
-		self.get_logger().info("Broadcasting box position...")
+	def initialise_connections(self):
+		self.get_logger().info("Initialising connections...")
 
-		msg = BoxBroadcastMessage()
-		msg.box_id = self.config.box_id
-		msg.landing_pos = self.config.lending_position
+		self.create_messages()
+		self.create_services()
+		self.create_actions()
 
-		self._pub_box_broadcast.publish(msg)
-
-	def _confirm_box_initialisation(self, msg: Bool):
-		if msg.data:
-			self.get_logger().info("Box initialization confirmed.")
-			self.config.initialised = True
-			dh.dronehive_update_config(self.config)
-
-			self.destroy_timer(self._initialise_timer)
-			self.destroy_publisher(self._pub_box_broadcast)
-			self.destroy_subscription(self._sub_confirm_initialisation)
-
-			self.create_messages()
-			self.create_services()
-			self.create_actions()
-
-		else:
-			self.get_logger().warn("Box initialization NOT confirmed. Continuing broadcasting.")
+		# Drop the initialiser to free memory
+		self.initialiser = None
 
 	def create_messages(self):
 		# Subscribers
 		# In the code of the method the subscriber is already saved in internal variable.
 		self.create_subscription(
-			PositionMessage,
+			String,
 			dh.DRONEHIVE_REQUEST_LANDING_POS_TOPIC,
 			self.send_landing_position_to_drone,
 			qos_profile
@@ -118,5 +75,5 @@ class MasterBoxNode(Node):
 		pass
 
 	def send_landing_position_to_drone(self, pos: String):
-		self._pub_landing_pos_to_drone.publish(pos)
+		self._pub_landing_pos_to_drone.publish(self.config.lending_position)
 
