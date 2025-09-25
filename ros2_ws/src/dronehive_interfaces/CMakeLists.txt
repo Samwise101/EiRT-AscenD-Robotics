@@ -26,6 +26,11 @@ endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/OccupancyService.srv"
+  "srv/GetConfig.srv"
+  "srv/GetFlightlog.srv"
+  "srv/RequestStatus.srv"
+
+  "msg/PositionMessage.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)
