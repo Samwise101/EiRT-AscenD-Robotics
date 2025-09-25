@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 
 # Project specific imports
 from dronehive_interfaces.msg import (
@@ -27,9 +27,6 @@ qos_profile = QoSProfile(
 
 class MasterBoxNode(Node):
 	def __init__(self):
-		self.lending_position = PositionMessage()
-		self.initialised: bool = False
-
 		self.config: dh.Config = dh.dronehive_initialise()
 
 		# In case the box is not initialised, it will broadcast its position
@@ -91,6 +88,8 @@ class MasterBoxNode(Node):
 			self.destroy_subscription(self._sub_confirm_initialisation)
 
 			self.create_messages()
+			self.create_services()
+			self.create_actions()
 
 		else:
 			self.get_logger().warn("Box initialization NOT confirmed. Continuing broadcasting.")
@@ -98,13 +97,6 @@ class MasterBoxNode(Node):
 	def create_messages(self):
 		# Subscribers
 		# In the code of the method the subscriber is already saved in internal variable.
-		self.create_subscription(
-			PositionMessage,
-			dh.DRONEHIVE_ADD_LANDING_POS_TOPIC,
-			self.add_new_box,
-			qos_profile
-		)
-
 		self.create_subscription(
 			PositionMessage,
 			dh.DRONEHIVE_REQUEST_LANDING_POS_TOPIC,
@@ -125,10 +117,6 @@ class MasterBoxNode(Node):
 	def create_actions(self):
 		pass
 
-	def add_new_box(self, pos: PositionMessage):
-		self.get_logger().info(__name__)
-		pass
-
-	def send_landing_position_to_drone(self, pos: PositionMessage):
+	def send_landing_position_to_drone(self, pos: String):
 		self._pub_landing_pos_to_drone.publish(pos)
 
