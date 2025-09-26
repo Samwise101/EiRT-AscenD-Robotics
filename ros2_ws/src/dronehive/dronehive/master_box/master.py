@@ -82,28 +82,12 @@ class MasterBoxNode(Node):
 		pass
 
 
-	def destroy_interfaces(self):
-		while self._publishers:
-			self.destroy_publisher(self._publishers[0])
-		while self._subscriptions:
-			self.destroy_subscription(self._subscriptions[0])
-		while self._clients:
-			self.destroy_client(self._clients[0])
-		while self._services:
-			self.destroy_service(self._services[0])
-		while self._timers:
-			self.destroy_timer(self._timers[0])
-		while self._guards:
-			self.destroy_guard_condition(self._guards[0])
-
-
 	def _deinitialise_box_callback(self, msg: String):
 		if msg.data == self.config.box_id:
 			self.get_logger().warn("Deinitialising box as requested...")
 			dh.dronehive_deinitialise(self.config)
 
 			self.get_logger().warn("Box deinitialised. Restart the node to reinitialise.")
-			self.destroy_interfaces()
 			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
 
 

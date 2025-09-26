@@ -25,6 +25,9 @@ class Initialiser:
 
 		# In case the box is not initialised, it will broadcast its position
 		if not self.config.initialised:
+			# Switch off all existing interfaces and switch to initialisation mode
+			self.destroy_interfaces();
+
 			node.get_logger().warn("The configuration is not initialised. Broadcasting box.")
 			self._pub_box_broadcast = node.create_publisher(
 				BoxBroadcastMessage,
@@ -40,6 +43,21 @@ class Initialiser:
 			)
 
 			self._initialise_timer = node.create_timer(1.0, self._broadcast_box_timer_callback)
+
+	def destroy_interfaces(self):
+		while self.node._publishers:
+			self.node.destroy_publisher(self.node._publishers[0])
+		while self.node._subscriptions:
+			self.node.destroy_subscription(self.node._subscriptions[0])
+		while self.node._clients:
+			self.node.destroy_client(self.node._clients[0])
+		while self.node._services:
+			self.node.destroy_service(self.node._services[0])
+		while self.node._timers:
+			self.node.destroy_timer(self.node._timers[0])
+		while self.node._guards:
+			self.node.destroy_guard_condition(self.node._guards[0])
+
 
 	def _broadcast_box_timer_callback(self):
 		self.node.get_logger().info("Creating box broadcast message...")
