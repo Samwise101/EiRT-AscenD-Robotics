@@ -11,5 +11,6 @@ DRONEHIVE_DRONE_TOPIC = "/dronehive/drone"
 DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
 
 # Services
+DRONEHIVE_BOX_BROADCAST_SERVICE = "/dronehive/box_broadcast_service"
 
 # Actions
