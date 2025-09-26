@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'box_node = dronehive.box_node:main'
+            'box_node = dronehive.box_node:main',
+            'dummy_confirm = dronehive.dummy:main'
         ],
     },
 )
