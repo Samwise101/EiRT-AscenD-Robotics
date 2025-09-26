@@ -24,8 +24,8 @@ class MasterBoxNode(Node):
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
 		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
 		if not self.config.initialised:
-			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
 			self.get_logger().info("Box not initialised yet. Waiting for initialisation...")
+			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
 			return
 
 		# When the box is initialised at startup we can directly initialise the connections.
@@ -82,18 +82,24 @@ class MasterBoxNode(Node):
 		pass
 
 
-	def _deinitialise_box_callback(self, msg: String):
-		if msg.data == self.config.box_id:
-			self.get_logger().warn("Deinitialising box as requested...")
-			dh.dronehive_deinitialise(self.config)
-
-			self.get_logger().warn("Box deinitialised. Restart the node to reinitialise.")
-			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
-
-
 	#########################
 	# Callbacks and methods #
 	#########################
+
+	def _deinitialise_box_callback(self, msg: String):
+		if msg.data != self.config.box_id:
+			return
+
+		self.get_logger().warn("Deinitialising box as requested...")
+		dh.dronehive_deinitialise(self.config)
+
+		def deferred_reinit():
+			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
+			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
+
+		# Defer to next spin cycle
+		self.timer = self.create_timer(0.1, deferred_reinit)
+
 
 	def send_landing_position_to_drone(self, pos: String):
 		self.get_logger().info(f"Sending landing position to drone \"{pos.data}\"")
