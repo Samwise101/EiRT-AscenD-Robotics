@@ -25,9 +25,10 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/OccupancyService.srv"
+  "srv/BoxBroadcastService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
+  "srv/OccupancyService.srv"
   "srv/RequestStatus.srv"
 
   "msg/BoxBroadcastMessage.msg"

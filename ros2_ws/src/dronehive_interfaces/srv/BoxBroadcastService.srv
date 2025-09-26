@@ -1,0 +1,5 @@
+string box_id
+PositionMessage landing_pos
+---
+bool confirm
+PositionMessage landing_pos
