@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>422</width>
-    <height>210</height>
+    <width>418</width>
+    <height>363</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,10 +19,10 @@
      <x>9</x>
      <y>9</y>
      <width>401</width>
-     <height>181</height>
+     <height>341</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
     <item>
      <widget class="QLabel" name="label">
       <property name="font">
@@ -74,14 +74,60 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="box_id_label">
         <property name="text">
-         <string>Box Number: </string>
+         <string>Box ID: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="boxIdLineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Box Landing Position Lat:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="boxLatLineEdit"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Box Landing Position Lon:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="boxLonLineEdit"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Box Landing Position Alt:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="boxAltLineEdit"/>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -115,8 +161,8 @@
    <slot>on_cancle_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>180</y>
+     <x>129</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
      <x>146</x>
@@ -131,8 +177,8 @@
    <slot>on_comboBox_currentIndexChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>83</y>
+     <x>407</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>401</x>
@@ -147,12 +193,76 @@
    <slot>on_add_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>368</x>
-     <y>169</y>
+     <x>407</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
      <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxIdLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_boxIdLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>152</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>123</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxLatLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_boxLatLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>302</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxLonLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_boxLonLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxAltLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Dialog</receiver>
+   <slot>on_boxAltLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>292</y>
     </hint>
    </hints>
   </connection>
@@ -161,5 +271,9 @@
   <slot>on_cancle_pushButton_clicked()</slot>
   <slot>on_add_pushButton_clicked()</slot>
   <slot>on_comboBox_currentIndexChanged()</slot>
+  <slot>on_boxIdLineEdit_editingFinished()</slot>
+  <slot>on_boxLatLineEdit_editingFinished()</slot>
+  <slot>on_boxLonLineEdit_editingFinished()</slot>
+  <slot>on_boxAltLineEdit_editingFinished()</slot>
  </slots>
 </ui>

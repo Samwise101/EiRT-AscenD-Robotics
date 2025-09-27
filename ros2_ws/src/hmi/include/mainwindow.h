@@ -37,6 +37,7 @@ private:
 public:
     std::vector<Box> get_boxes(void);
     bool get_master_exists();
+    void update_box_comboBox(int& new_box_number);
 
 private slots:
     // pushButton slots
@@ -62,6 +63,7 @@ private slots:
 
 private:
     std::vector<Box> boxes;
+    int number_of_boxes;
     bool master_exists;
 };
 

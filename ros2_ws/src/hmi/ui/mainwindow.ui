@@ -56,6 +56,13 @@
          </layout>
         </item>
         <item>
+         <widget class="Line" name="line_21">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="add_box_pushButton">
           <property name="font">
            <font>
@@ -74,14 +81,34 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="settings_button">
+         <widget class="Line" name="line_19">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_7">
           <property name="font">
            <font>
             <pointsize>11</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
            </font>
           </property>
           <property name="text">
-           <string>Test</string>
+           <string>Remove Box</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_20">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -144,7 +171,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -281,29 +308,10 @@
               <enum>QLayout::SetNoConstraint</enum>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="box_cicle_layout" stretch="0,5">
+              <layout class="QHBoxLayout" name="box_cicle_layout" stretch="5">
                <property name="sizeConstraint">
                 <enum>QLayout::SetNoConstraint</enum>
                </property>
-               <item>
-                <widget class="QLabel" name="color_label">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>30</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
                <item>
                 <spacer name="horizontalSpacer">
                  <property name="orientation">
@@ -355,36 +363,7 @@
                   </widget>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
-                   <item>
-                    <layout class="QGridLayout" name="drone_button_layout">
-                     <item row="1" column="0">
-                      <widget class="Line" name="line_21">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QPushButton" name="pushButton_7">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Remove Box</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
+                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0">
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_5">
                      <item>
