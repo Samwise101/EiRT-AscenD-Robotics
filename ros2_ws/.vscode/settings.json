@@ -67,6 +67,8 @@
         "typeinfo": "cpp",
         "codecvt": "cpp",
         "fstream": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "qtimer": "cpp",
+        "qprocess": "cpp"
     }
 }
