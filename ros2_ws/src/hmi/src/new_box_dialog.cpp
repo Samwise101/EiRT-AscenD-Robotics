@@ -2,7 +2,7 @@
 #include "new_box_dialog.h"
 
 NewBoxDialog::NewBoxDialog(QWidget *parent)
-    : QDialog(parent), box_lat(0.0f), box_lon(0.0f), box_alt(0.0f)
+    : QDialog(parent), box_lat(-0.0f), box_lon(0.0f), box_alt(0.0f)
 {
     ui.setupUi(this); 
     this->box_type = this->ui.comboBox->currentIndex();
@@ -18,8 +18,30 @@ void NewBoxDialog::on_cancle_pushButton_clicked(void)
 
 void NewBoxDialog::on_add_pushButton_clicked(void)
 {
-    std::cout << "Accept\n";
-    this->accept();
+    if(this->ui.boxIdLineEdit->text().isEmpty())
+    {
+        std::cout << "Forgot to assign ID!n";
+    }
+
+    else if(this->ui.boxLatLineEdit->text().isEmpty())
+    {
+        std::cout << "Forgot to assign Latitude!\n";
+    }
+
+    else if(this->ui.boxLonLineEdit->text().isEmpty())
+    {
+        std::cout << "Forgot to assign Longitude!\n";
+    }
+
+    else if(this->ui.boxAltLineEdit->text().isEmpty())
+    {
+        std::cout << "Forgot to assign Altitude!\n";
+    }
+
+    else{
+        std::cout << "Accept\n";
+        this->accept();
+    }
 }
 
 void NewBoxDialog::on_comboBox_currentIndexChanged(int index)
