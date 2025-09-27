@@ -8,19 +8,20 @@
 #include <QTimer>
 #include <QThread>
 
-class BackEndManger : public QObject
+class BackEndManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit BackEndManger(QObject* parent = nullptr);
-    ~BackEndManger();
+    explicit BackEndManager(QObject* parent = nullptr);
+    ~BackEndManager();
 
 public:
 
     void startBackend(void);
     void stopBackend(void);
     void forceKillBackend(void);
+    void setMissedHeartBeat(int);
 
 signals:
     void backEndStarted();

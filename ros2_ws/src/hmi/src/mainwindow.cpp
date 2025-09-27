@@ -1,6 +1,6 @@
 #include <iostream>
 #include "mainwindow.h"
-
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0)
@@ -11,12 +11,44 @@ MainWindow::MainWindow(QWidget *parent)
     node_ = std::make_shared<rclcpp::Node>("gui_node");
 
     // Create publisher
-    pub_ = node_->create_publisher<std_msgs::msg::String>("topic_from_gui", 10);
+    pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/command", 10);
+    sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
+
+    BackEndManager* backEndManager = new BackEndManager(this);
+
+    connect(backEndManager, &BackEndManager::backEndCrashed, this, &MainWindow::onBackEndCrashed);
+    connect(backEndManager, &BackEndManager::backEndStopped, this, &MainWindow::onBackEndStopped);
+
+    backEndManager->startBackend();
+
+    spinTimer_ = new QTimer(this);
+    connect(spinTimer_, &QTimer::timeout, this, [this]() {
+        rclcpp::spin_some(node_);
+    });
+    spinTimer_->start(5);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    delete this->backEndManager;
+    delete this->spinTimer_;
+    delete this->ui;
+}
+
+void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
+{
+    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: '%s'", msg->data.c_str());
+    backEndManager->setMissedHeartBeat(0);
+}
+
+void MainWindow::onBackEndStopped()
+{
+
+}
+
+void MainWindow::onBackEndCrashed()
+{
+    
 }
 
 void MainWindow::update_box_comboBox(int& new_box_number)

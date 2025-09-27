@@ -13,12 +13,13 @@
 #include <memory>
 #include <QThread>
 #include <vector>
+#include <thread>
 
 #include "drone.h"
 #include "master_box.h"
 #include "slave_box.h"
 #include "new_box_dialog.h"
-
+#include "backend_manager.h"
 
 class MainWindow : public QMainWindow
 {
@@ -32,6 +33,7 @@ private:
     Ui::MainWindow *ui;
     std::shared_ptr<rclcpp::Node> node_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
     std::thread ros_thread_;
 
 public:
@@ -40,6 +42,11 @@ public:
     void update_box_comboBox(int& new_box_number);
 
 private slots:
+
+    void onBackEndStopped(void);
+    void onBackEndCrashed(void);
+    void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
+
     // pushButton slots
     void on_settings_pushButton_clicked(bool);
     void on_add_box_push_button_clicked();
@@ -65,6 +72,8 @@ private:
     std::vector<Box> boxes;
     int number_of_boxes;
     bool master_exists;
+    BackEndManager* backEndManager;
+    QTimer* spinTimer_;
 };
 
 #endif // MAINWINDOW_H
