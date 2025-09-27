@@ -48,6 +48,7 @@ set(SOURCES
   src/slave_box.cpp
   src/master_box.cpp
   src/new_box_dialog.cpp
+  src/backend_manager.cpp
 )
 
 set(HEADERS
@@ -57,6 +58,7 @@ set(HEADERS
   include/master_box.h
   include/slave_box.h
   include/new_box_dialog.h
+  include/backend_manager.h
 )
 
 # Create the executable (only once!)
