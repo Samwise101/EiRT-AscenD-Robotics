@@ -57,8 +57,11 @@ public:
     QHBoxLayout *horizontalLayout_11;
     QLabel *current_box_label;
     QComboBox *boxComboBox;
+    QFrame *line_21;
     QPushButton *add_box_pushButton;
-    QPushButton *settings_button;
+    QFrame *line_19;
+    QPushButton *pushButton_7;
+    QFrame *line_20;
     QPushButton *pushButton1;
     QVBoxLayout *verticalLayout_2;
     QLabel *label;
@@ -79,7 +82,6 @@ public:
     QWidget *verticalLayoutWidget_3;
     QVBoxLayout *box_main_layout;
     QHBoxLayout *box_cicle_layout;
-    QLabel *color_label;
     QSpacerItem *horizontalSpacer;
     QFrame *line_3;
     QGridLayout *box_grid_layout;
@@ -88,9 +90,6 @@ public:
     QFrame *frame;
     QFrame *line_14;
     QVBoxLayout *box_information_layout;
-    QGridLayout *drone_button_layout;
-    QFrame *line_21;
-    QPushButton *pushButton_7;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_7;
     QHBoxLayout *horizontalLayout_3;
@@ -253,6 +252,13 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_11);
 
+        line_21 = new QFrame(centralwidget);
+        line_21->setObjectName(QString::fromUtf8("line_21"));
+        line_21->setFrameShape(QFrame::HLine);
+        line_21->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_21);
+
         add_box_pushButton = new QPushButton(centralwidget);
         add_box_pushButton->setObjectName(QString::fromUtf8("add_box_pushButton"));
         add_box_pushButton->setFont(font);
@@ -262,20 +268,37 @@ public:
 
         verticalLayout->addWidget(add_box_pushButton);
 
-        settings_button = new QPushButton(centralwidget);
-        settings_button->setObjectName(QString::fromUtf8("settings_button"));
-        QFont font1;
-        font1.setPointSize(11);
-        settings_button->setFont(font1);
+        line_19 = new QFrame(centralwidget);
+        line_19->setObjectName(QString::fromUtf8("line_19"));
+        line_19->setFrameShape(QFrame::HLine);
+        line_19->setFrameShadow(QFrame::Sunken);
 
-        verticalLayout->addWidget(settings_button);
+        verticalLayout->addWidget(line_19);
+
+        pushButton_7 = new QPushButton(centralwidget);
+        pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
+        pushButton_7->setFont(font);
+        QIcon icon9;
+        icon9.addFile(QString::fromUtf8(":/images/icons/remove_box.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_7->setIcon(icon9);
+
+        verticalLayout->addWidget(pushButton_7);
+
+        line_20 = new QFrame(centralwidget);
+        line_20->setObjectName(QString::fromUtf8("line_20"));
+        line_20->setFrameShape(QFrame::HLine);
+        line_20->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_20);
 
         pushButton1 = new QPushButton(centralwidget);
         pushButton1->setObjectName(QString::fromUtf8("pushButton1"));
+        QFont font1;
+        font1.setPointSize(11);
         pushButton1->setFont(font1);
-        QIcon icon9;
-        icon9.addFile(QString::fromUtf8(":/images/icons/settings2.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton1->setIcon(icon9);
+        QIcon icon10;
+        icon10.addFile(QString::fromUtf8(":/images/icons/settings2.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton1->setIcon(icon10);
 
         verticalLayout->addWidget(pushButton1);
 
@@ -337,9 +360,9 @@ public:
 
         zoom_in_pushButton = new QPushButton(verticalLayoutWidget);
         zoom_in_pushButton->setObjectName(QString::fromUtf8("zoom_in_pushButton"));
-        QIcon icon10;
-        icon10.addFile(QString::fromUtf8(":/images/icons/zoom_in.png"), QSize(), QIcon::Normal, QIcon::Off);
-        zoom_in_pushButton->setIcon(icon10);
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/images/icons/zoom_in.png"), QSize(), QIcon::Normal, QIcon::Off);
+        zoom_in_pushButton->setIcon(icon11);
 
         slider_layout->addWidget(zoom_in_pushButton);
 
@@ -351,9 +374,9 @@ public:
 
         zoom_out_pushButton = new QPushButton(verticalLayoutWidget);
         zoom_out_pushButton->setObjectName(QString::fromUtf8("zoom_out_pushButton"));
-        QIcon icon11;
-        icon11.addFile(QString::fromUtf8(":/images/icons/zoom_out.png"), QSize(), QIcon::Normal, QIcon::Off);
-        zoom_out_pushButton->setIcon(icon11);
+        QIcon icon12;
+        icon12.addFile(QString::fromUtf8(":/images/icons/zoom_out.png"), QSize(), QIcon::Normal, QIcon::Off);
+        zoom_out_pushButton->setIcon(icon12);
 
         slider_layout->addWidget(zoom_out_pushButton);
 
@@ -384,19 +407,11 @@ public:
         box_cicle_layout = new QHBoxLayout();
         box_cicle_layout->setObjectName(QString::fromUtf8("box_cicle_layout"));
         box_cicle_layout->setSizeConstraint(QLayout::SetNoConstraint);
-        color_label = new QLabel(verticalLayoutWidget_3);
-        color_label->setObjectName(QString::fromUtf8("color_label"));
-        sizePolicy.setHeightForWidth(color_label->sizePolicy().hasHeightForWidth());
-        color_label->setSizePolicy(sizePolicy);
-        color_label->setMinimumSize(QSize(30, 0));
-
-        box_cicle_layout->addWidget(color_label);
-
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         box_cicle_layout->addItem(horizontalSpacer);
 
-        box_cicle_layout->setStretch(1, 5);
+        box_cicle_layout->setStretch(0, 5);
 
         box_main_layout->addLayout(box_cicle_layout);
 
@@ -433,27 +448,6 @@ public:
 
         box_information_layout = new QVBoxLayout();
         box_information_layout->setObjectName(QString::fromUtf8("box_information_layout"));
-        drone_button_layout = new QGridLayout();
-        drone_button_layout->setObjectName(QString::fromUtf8("drone_button_layout"));
-        line_21 = new QFrame(verticalLayoutWidget_3);
-        line_21->setObjectName(QString::fromUtf8("line_21"));
-        line_21->setFrameShape(QFrame::HLine);
-        line_21->setFrameShadow(QFrame::Sunken);
-
-        drone_button_layout->addWidget(line_21, 1, 0, 1, 1);
-
-        pushButton_7 = new QPushButton(verticalLayoutWidget_3);
-        pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
-        pushButton_7->setFont(font);
-        QIcon icon12;
-        icon12.addFile(QString::fromUtf8(":/images/icons/remove_box.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_7->setIcon(icon12);
-
-        drone_button_layout->addWidget(pushButton_7, 0, 0, 1, 1);
-
-
-        box_information_layout->addLayout(drone_button_layout);
-
         horizontalLayout_5 = new QHBoxLayout();
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         label_7 = new QLabel(verticalLayoutWidget_3);
@@ -913,7 +907,7 @@ public:
         QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
         QObject::connect(boxComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_boxComboBox_currentIndexChanged(int)));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -937,15 +931,13 @@ public:
         actionOpen_Presets->setText(QCoreApplication::translate("MainWindow", "Open Presets", nullptr));
         current_box_label->setText(QCoreApplication::translate("MainWindow", "Selected Box:", nullptr));
         add_box_pushButton->setText(QCoreApplication::translate("MainWindow", "Add New Box", nullptr));
-        settings_button->setText(QCoreApplication::translate("MainWindow", "Test", nullptr));
+        pushButton_7->setText(QCoreApplication::translate("MainWindow", "Remove Box", nullptr));
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Drone Hive HMI", nullptr));
         label_6->setText(QString());
         zoom_in_pushButton->setText(QString());
         zoom_out_pushButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(map_tab), QCoreApplication::translate("MainWindow", "Map", nullptr));
-        color_label->setText(QString());
-        pushButton_7->setText(QCoreApplication::translate("MainWindow", "Remove Box", nullptr));
         label_7->setText(QCoreApplication::translate("MainWindow", "Box ID", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "Box Type", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Box Status", nullptr));

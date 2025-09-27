@@ -8,7 +8,7 @@
 class SlaveBox : public Box
 {
     public:
-        explicit SlaveBox(int type, float lat, float lon, float alt);
+        explicit SlaveBox(int type, Coordinates coord, int id, int number);
         ~SlaveBox();
     private:
 };

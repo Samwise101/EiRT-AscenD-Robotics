@@ -3,7 +3,7 @@
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false)
+    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0)
 {
     ui->setupUi(this);
 
@@ -17,6 +17,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::update_box_comboBox(int& new_box_number)
+{
+    this->ui->comboBox->addItem(QString::number(new_box_number));
 }
 
 std::vector<Box> MainWindow::get_boxes()
@@ -71,30 +76,46 @@ void MainWindow::on_add_box_push_button_clicked()
     if(dialog.exec() == QDialog::Accepted)
     {
         int box_type{dialog.get_box_type()};
-        std::cout << box_type << std::endl;
 
-        if(box_type == Box::Slave)
-        {
+        if(box_type == SLAVE || (box_type == MASTER && this->master_exists == false))
+        {   
             std::cout << "Slave box created\n";
-            SlaveBox new_box{Box::Slave};
-            this->boxes.push_back(new_box);
-        }
-        else if(box_type == Box::Master && this->master_exists == false)
-        {
-            std::cout << "Master box created\n";
-            MasterBox new_box{Box::Master};
-            this->boxes.insert(this->boxes.begin(), new_box);
-            this->master_exists = true;
+            int box_id{dialog.get_box_id()};
+            float box_lat{dialog.get_box_lat()};
+            float box_lon{dialog.get_box_lon()};
+            float box_alt{dialog.get_box_alt()};
+
+            std::cout << box_type << std::endl;
+
+            Coordinates box_coord{box_lat, box_lon, box_alt};
+
+            std::cout << "Box type: " << box_type << std::endl;
+            std::cout << "Box ID: " << box_id << std::endl;
+            std::cout << "Box number: " << this->number_of_boxes << std::endl;
+            std::cout << "Box coord: [" << box_coord.lat << ", " << box_coord.lon << ", " << box_coord.alt << "]" << std::endl;
+
+            if(box_type == MASTER)
+            {
+                MasterBox box{box_type, box_coord, box_id, this->number_of_boxes++};
+                this->boxes.insert(this->boxes.begin(), box);
+            }
+            else
+            {
+                SlaveBox box{box_type, box_coord, box_id, this->number_of_boxes++};
+                this->boxes.push_back(box);
+            }
         }
         else{
             std::cout << "Unknown box config detected or master already exists\n";
+            return;
         }
     }
 }
 
+
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {
-    
+
 }
 
 void MainWindow::on_arm_pushButton_clicked()
