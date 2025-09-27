@@ -2,7 +2,7 @@
 #include <backend_manager.h>
 #include <QDebug>
 
-BackEndManager::BackEndManager(QObject* parent) : QObject(parent), timeToProcessFinish(2000), timeToProcessStart(3000), hearthBeatInterval(1500)
+BackEndManager::BackEndManager(QObject* parent) : QObject(parent), timeToProcessFinish(20000), timeToProcessStart(3000), hearthBeatInterval(1500)
 {
     connect(&proc,
             QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -31,19 +31,12 @@ void BackEndManager::startBackend()
 {
     if(this->proc.state() != QProcess::NotRunning) return;
 
-    QString program = "/bin/bash";
-    QStringList args;
-
-    // Full path to your workspace
-    QString wsPath = "hmoe/samuel/hmi_backend/EiRT-AscenD-Robotics/ros2_ws";
-
     // The command: source workspace + run the node
-    QString command = QString("source %1/install/setup.bash && ros2 run hmi_backend backend_node")
-                          .arg(wsPath);
+    QString command = "bash";
+    QStringList args;
+    args << "-c" << "source /opt/ros/humble/setup.bash && source ~/hmi_backend/EiRT-AscenD-Robotics/ros2_ws/install/setup.bash && ros2 run hmi_backend backend_node";
 
-    args << "-c" << command;
-
-    this->proc.start(program, args);
+    this->proc.start(command, args);
 
     if(!proc.waitForStarted(this->timeToProcessStart))
     {
@@ -76,14 +69,19 @@ void BackEndManager::stopBackend(void)
 
 void BackEndManager::forceKillBackend(void)
 {
-    if(this->proc.state() == QProcess::Running)
+    if(proc.state() != QProcess::NotRunning)
     {
-        this->proc.kill();
-        this->proc.waitForFinished(this->timeToProcessFinish);
+        proc.terminate(); // ask backend to exit gracefully
+        if(!proc.waitForFinished()) { // wait 3s
+            qWarning() << "Backend did not exit gracefully, killing...";
+            proc.kill(); // force kill as fallback
+            proc.waitForFinished();
+        }
     }
 
-    this->heartBeatTimer.stop();
-    emit this->backEndStopped();
+    heartBeatTimer.stop();
+    missedHeartBeats = 0;
+    emit backEndStopped();
 }
 
 void BackEndManager::onBackEndFinished(int exitCode, QProcess::ExitStatus status)
@@ -107,6 +105,7 @@ void BackEndManager::checkHeartBeat()
 {
     this->missedHeartBeats++;
     if (this->missedHeartBeats > 10) {
+        this->proc.terminate(); 
         qWarning() << "Heartbeat missed, restarting backend";
         this->forceKillBackend();
         this->startBackend();

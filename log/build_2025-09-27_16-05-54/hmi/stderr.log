@@ -1,0 +1,30 @@
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:[m[K In constructor ‘[01m[KBox::Box(int, Coordinates, int, int)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:52:21:[m[K [01;35m[Kwarning: [m[K‘[01m[KBox::coord[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   52 |         Coordinates [01;35m[Kcoord[m[K;
+      |                     [01;35m[K^~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:50:13:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kint Box::id[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   50 |         int [01;35m[Kid[m[K;
+      |             [01;35m[K^~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box.cpp:4:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+    4 | [01;35m[KBox[m[K::Box(int type, Coordinates coord, int id, int number) :
+      | [01;35m[K^~~[m[K
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:[m[K In constructor ‘[01m[KMainWindow::MainWindow(QWidget*)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:74:10:[m[K [01;35m[Kwarning: [m[K‘[01m[KMainWindow::master_exists[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   74 |     bool [01;35m[Kmaster_exists[m[K;
+      |          [01;35m[K^~~~~~~~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:73:9:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kint MainWindow::number_of_boxes[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   73 |     int [01;35m[Knumber_of_boxes[m[K;
+      |         [01;35m[K^~~~~~~~~~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:5:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+    5 | [01;35m[KMainWindow[m[K::MainWindow(QWidget *parent)
+      | [01;35m[K^~~~~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:[m[K In member function ‘[01m[Kvoid MainWindow::on_boxComboBox_currentIndexChanged(int)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:148:57:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kindex[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  148 | void MainWindow::on_boxComboBox_currentIndexChanged([01;35m[Kint index[m[K)
+      |                                                     [01;35m[K~~~~^~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:[m[K In member function ‘[01m[Kvoid MainWindow::on_zoom_in_out_slider_valueChanged(int)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:217:57:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kvalue[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+  217 | void MainWindow::on_zoom_in_out_slider_valueChanged([01;35m[Kint value[m[K)
+      |                                                     [01;35m[K~~~~^~~~~[m[K
