@@ -3,9 +3,10 @@
 #ifndef BACK_END_MANAGER_H
 #define BACK_END_MANAGER_H
 
-#include <QThread>
+#include <QObject>
 #include <QProcess>
-#include <QString>
+#include <QTimer>
+#include <QThread>
 
 class BackEndManger : public QObject
 {
@@ -17,12 +18,27 @@ public:
 
 public:
 
-    void start_backend(void);
-    void stop_backend(void);
-    void force_kill_backend(void);
+    void startBackend(void);
+    void stopBackend(void);
+    void forceKillBackend(void);
+
+signals:
+    void backEndStarted();
+    void backEndStopped();
+    void backEndCrashed();
+
+private slots:
+    void onBackEndFinished(int exitCode, QProcess::ExitStatus status);
+    void onBackEndError(QProcess::ProcessError error);
+    void checkHeartBeat();
 
 private:
-
+    QProcess proc;
+    QTimer heartBeatTimer;
+    int missedHeartBeats;
+    int timeToProcessFinish;
+    int timeToProcessStart;
+    int hearthBeatInterval;
 };
 
 #endif
