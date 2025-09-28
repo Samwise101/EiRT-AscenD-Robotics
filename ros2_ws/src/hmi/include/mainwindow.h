@@ -8,12 +8,14 @@
 #include <QTimer>
 #include <QString>
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 #include <memory>
 #include <QThread>
 #include <vector>
 #include <thread>
+
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+#include <dronehive_interfaces/msg/box_broadcast_message.hpp>
 
 #include "drone.h"
 #include "master_box.h"
@@ -33,7 +35,8 @@ private:
     Ui::MainWindow *ui;
     std::shared_ptr<rclcpp::Node> node_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_gui_sub_;
     std::thread ros_thread_;
 
 public:
@@ -46,6 +49,7 @@ private slots:
     void onBackEndStopped(void);
     void onBackEndCrashed(void);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
+    void onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
 
     // pushButton slots
     void on_settings_pushButton_clicked(bool);

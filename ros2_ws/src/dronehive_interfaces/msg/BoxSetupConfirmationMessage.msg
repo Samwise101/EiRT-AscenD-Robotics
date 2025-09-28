@@ -1,0 +1,2 @@
+bool confirm
+PositionMessage landing_pos
