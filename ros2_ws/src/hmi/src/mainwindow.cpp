@@ -189,49 +189,6 @@ void MainWindow::on_changedrone_pushButton_clicked()
     pub_->publish(msg);
 }
 
-void MainWindow::on_add_box_push_button_clicked()
-{
-    NewBoxDialog dialog;
-
-    if(dialog.exec() == QDialog::Accepted)
-    {
-        int box_type{dialog.get_box_type()};
-
-        if(box_type == SLAVE || (box_type == MASTER && this->master_exists == false))
-        {   
-            std::cout << "Slave box created\n";
-            int box_id{dialog.get_box_id()};
-            float box_lat{dialog.get_box_lat()};
-            float box_lon{dialog.get_box_lon()};
-            float box_alt{dialog.get_box_alt()};
-
-            std::cout << box_type << std::endl;
-
-            Coordinates box_coord{box_lat, box_lon, box_alt};
-
-            std::cout << "Box type: " << box_type << std::endl;
-            std::cout << "Box ID: " << box_id << std::endl;
-            std::cout << "Box number: " << this->number_of_boxes << std::endl;
-            std::cout << "Box coord: [" << box_coord.lat << ", " << box_coord.lon << ", " << box_coord.alt << "]" << std::endl;
-
-            if(box_type == MASTER)
-            {
-                MasterBox box{box_coord, box_id, this->number_of_boxes++};
-                this->boxes.insert(this->boxes.begin(), box);
-            }
-            else
-            {
-                SlaveBox box{box_coord, box_id, this->number_of_boxes++};
-                this->boxes.push_back(box);
-            }
-        }
-        else{
-            std::cout << "Unknown box config detected or master already exists\n";
-            return;
-        }
-    }
-}
-
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {

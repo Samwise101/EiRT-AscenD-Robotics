@@ -47,7 +47,6 @@ private slots:
 
     // pushButton slots
     void on_settings_pushButton_clicked(bool);
-    void on_add_box_push_button_clicked();
     void on_arm_pushButton_clicked();
     void on_takeoff_pushButton_clicked();
     void on_return_home_pushButton_clicked();

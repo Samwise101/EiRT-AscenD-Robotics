@@ -63,24 +63,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="add_box_pushButton">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Add New Box</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../resources/resources.qrc">
-            <normaloff>:/images/icons/add_box.png</normaloff>:/images/icons/add_box.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="Line" name="line_19">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -1313,22 +1295,6 @@
     <hint type="destinationlabel">
      <x>868</x>
      <y>155</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>add_box_pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_add_box_push_button_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>130</x>
-     <y>576</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>800</x>
-     <y>61</y>
     </hint>
    </hints>
   </connection>
