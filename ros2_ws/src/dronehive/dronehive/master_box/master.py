@@ -9,7 +9,7 @@ from dronehive_interfaces.msg import PositionMessage
 import dronehive.utils as dh
 
 qos_profile = QoSProfile(
-	reliability=QoSReliabilityPolicy.BEST_EFFORT,
+	reliability=QoSReliabilityPolicy.RELIABLE,
 	durability=QoSDurabilityPolicy.VOLATILE,
 	history=QoSHistoryPolicy.KEEP_LAST,
 	depth=1
@@ -67,11 +67,6 @@ class MasterBoxNode(Node):
 		)
 
 		# Publishers
-		self._pub_landing_pos_to_drone = self.create_publisher(
-			PositionMessage,
-			dh.DRONEHIVE_DRONE_TOPIC,
-			qos_profile
-		)
 
 
 	def create_services(self) -> None:
@@ -102,6 +97,20 @@ class MasterBoxNode(Node):
 
 
 	def send_landing_position_to_drone(self, pos: String) -> None:
+		# TODO: comunicate with slave boxes to get the landing position. If there are more than one, choose the one that is
+		# the closest to the drone's current position.
 		self.get_logger().info(f"Sending landing position to drone \"{pos.data}\"")
-		self._pub_landing_pos_to_drone.publish(self.config.lending_position)
+
+		# Once a message for a drone is received, create a dedicated publisher to send the landing position to the drone.
+		_pub_landing_pos_to_drone = self.create_publisher(
+			PositionMessage,
+			dh.DRONEHIVE_DRONE_TOPIC(pos.data),
+			qos_profile
+		)
+
+		_pub_landing_pos_to_drone.publish(self.config.lending_position)
+
+		# Wait until the is received by the drone before destroying the publisher
+		_pub_landing_pos_to_drone.wait_for_all_acked()
+		self.destroy_publisher(_pub_landing_pos_to_drone)
 
