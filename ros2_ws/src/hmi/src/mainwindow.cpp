@@ -1,6 +1,9 @@
 #include <iostream>
 #include "mainwindow.h"
 #include <QDebug>
+#include <chrono>
+#include <thread>
+   
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false)
@@ -16,9 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
     auto qos = rclcpp::QoS(10).best_effort();
 
-    new_box_gui_sub_ = this->node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
-        "/dronehive/new_box", qos, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1)
-    );
+    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/new_box",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
 
     backEndManager = new BackEndManager(this);
 
@@ -51,6 +52,8 @@ void MainWindow::cleanup()
     // Shutdown ROS 2
     rclcpp::shutdown();
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
     delete this->spinTimer_;
     delete this->ui;
 }
@@ -73,15 +76,39 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
         NewBoxDialog dialog;
         this->new_box_request = true;
 
-        auto status = dialog.exec();
+        // if(msg->box_id.empty())
+        // {
+        //     std::cout << "Empty box id, aborting\n";
+        //     return;
+        // }
 
-        if(status == QDialog::Accepted)
+        // int box_id{std::stoi(msg->box_id)};
+        // double box_lat{msg->landing_pos.lat};
+        // double box_lon{msg->landing_pos.lon};
+        // double box_alt{msg->landing_pos.elv};
+
+
+        if(dialog.exec() == QDialog::Accepted)
         {
             std::cout << "Accepted" << std::endl;
+
+
+            // Coordinates coord{box_lat, box_lon, box_alt};
+
+            // SlaveBox box(coord, box_id, this->number_of_boxes++);
+
+            // this->boxes.push_back(box);
+
+            std_msgs::msg::String msg;
+            msg.data = "STOP_NEW_BOX_TRANSMIT";
+            this->pub_->publish(msg);
         }
-        else if(status == QDialog::Rejected)
+        else
         {
             std::cout << "Rejected" << std::endl;
+            std_msgs::msg::String msg;
+            msg.data = "STOP_NEW_BOX_TRANSMIT";
+            this->pub_->publish(msg);
         }
     }
 }
@@ -173,12 +200,12 @@ void MainWindow::on_add_box_push_button_clicked()
 
             if(box_type == MASTER)
             {
-                MasterBox box{box_type, box_coord, box_id, this->number_of_boxes++};
+                MasterBox box{box_coord, box_id, this->number_of_boxes++};
                 this->boxes.insert(this->boxes.begin(), box);
             }
             else
             {
-                SlaveBox box{box_type, box_coord, box_id, this->number_of_boxes++};
+                SlaveBox box{box_coord, box_id, this->number_of_boxes++};
                 this->boxes.push_back(box);
             }
         }

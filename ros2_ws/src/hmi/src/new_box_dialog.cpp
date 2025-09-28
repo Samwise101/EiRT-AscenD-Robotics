@@ -18,30 +18,30 @@ void NewBoxDialog::on_cancle_pushButton_clicked(void)
 
 void NewBoxDialog::on_add_pushButton_clicked(void)
 {
-    if(this->ui.boxIdLineEdit->text().isEmpty())
-    {
-        std::cout << "Forgot to assign ID!n";
-    }
+    // if(this->ui.boxIdLineEdit->text().isEmpty())
+    // {
+    //     std::cout << "Forgot to assign ID!n";
+    // }
 
-    else if(this->ui.boxLatLineEdit->text().isEmpty())
-    {
-        std::cout << "Forgot to assign Latitude!\n";
-    }
+    // else if(this->ui.boxLatLineEdit->text().isEmpty())
+    // {
+    //     std::cout << "Forgot to assign Latitude!\n";
+    // }
 
-    else if(this->ui.boxLonLineEdit->text().isEmpty())
-    {
-        std::cout << "Forgot to assign Longitude!\n";
-    }
+    // else if(this->ui.boxLonLineEdit->text().isEmpty())
+    // {
+    //     std::cout << "Forgot to assign Longitude!\n";
+    // }
 
-    else if(this->ui.boxAltLineEdit->text().isEmpty())
-    {
-        std::cout << "Forgot to assign Altitude!\n";
-    }
+    // else if(this->ui.boxAltLineEdit->text().isEmpty())
+    // {
+    //     std::cout << "Forgot to assign Altitude!\n";
+    // }
 
-    else{
+    // else{
         std::cout << "Accept\n";
         this->accept();
-    }
+    //}
 }
 
 void NewBoxDialog::on_comboBox_currentIndexChanged(int index)

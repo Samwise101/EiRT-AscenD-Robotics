@@ -8,7 +8,7 @@
 class MasterBox : public Box
 {
     public:
-        explicit MasterBox(int type, Coordinates coord, int id, int number);
+        explicit MasterBox(Coordinates coord, int id, int number);
         ~MasterBox();
     private:
 };
