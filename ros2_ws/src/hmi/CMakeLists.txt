@@ -27,7 +27,7 @@ install(
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-
+find_package(dronehive_interfaces REQUIRED)
 
 # Qt dependencies
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts)
@@ -62,25 +62,32 @@ set(HEADERS
 )
 
 # Create the executable (only once!)
-add_executable(${PROJECT_NAME}
+add_executable(frontend_node
   ${SOURCES}
   ${HEADERS}
   ${UI_FILES}
   ${QT_RESOURCES}
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(frontend_node PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+
+install(TARGETS frontend_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
 # ROS 2 deps
-ament_target_dependencies(${PROJECT_NAME}
+ament_target_dependencies(frontend_node
   rclcpp
   std_msgs
+  dronehive_interfaces
 )
 
 # Qt linking
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(frontend_node
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets

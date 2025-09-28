@@ -12,7 +12,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create publisher
     pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/command", 10);
-    sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
+    
+    heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
+    auto qos = rclcpp::QoS(10).best_effort();
+
+    new_box_gui_sub_ = this->node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
+        "/dronehive/new_box", qos, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1)
+    );
 
     BackEndManager* backEndManager = new BackEndManager(this);
 
@@ -39,6 +45,14 @@ void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 {
     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: '%s'", msg->data.c_str());
     backEndManager->setMissedHeartBeat(0);
+}
+
+void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
+{
+    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: '%s'", msg->box_id.c_str());
+    backEndManager->setMissedHeartBeat(0);
+
+    std::cout << "Got new BOX request\n";
 }
 
 void MainWindow::onBackEndStopped()
