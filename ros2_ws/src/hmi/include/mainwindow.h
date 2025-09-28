@@ -43,6 +43,7 @@ public:
     std::vector<Box> get_boxes(void);
     bool get_master_exists();
     void update_box_comboBox(int& new_box_number);
+    void cleanup();
 
 private slots:
 
@@ -78,6 +79,7 @@ private:
     bool master_exists;
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
+    bool new_box_request;
 };
 
 #endif // MAINWINDOW_H

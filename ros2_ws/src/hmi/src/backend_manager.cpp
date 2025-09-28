@@ -18,7 +18,7 @@ BackEndManager::BackEndManager(QObject* parent) : QObject(parent), timeToProcess
 BackEndManager::~BackEndManager()
 {
     this->proc.kill();
-    this->proc.waitForFinished(this->timeToProcessFinish);
+    this->proc.waitForFinished();
 }
 
 void BackEndManager::setMissedHeartBeat(int value)
