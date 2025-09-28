@@ -15,8 +15,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create publisher
     pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/command", 10);
+    new_box_confirm_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
     
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
+    
     auto qos = rclcpp::QoS(10).best_effort();
 
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/new_box",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
@@ -92,6 +94,9 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
         {
             std::cout << "Accepted" << std::endl;
 
+            double box_lat{dialog.get_box_lat()};
+            double box_lon{dialog.get_box_lon()};
+            double box_alt{dialog.get_box_alt()};
 
             // Coordinates coord{box_lat, box_lon, box_alt};
 
@@ -99,9 +104,14 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
 
             // this->boxes.push_back(box);
 
-            std_msgs::msg::String msg;
-            msg.data = "STOP_NEW_BOX_TRANSMIT";
-            this->pub_->publish(msg);
+            dronehive_interfaces::msg::BoxSetupConfirmationMessage msg;
+            dronehive_interfaces::msg::PositionMessage position_msg;
+            position_msg.elv = box_alt;
+            position_msg.lat = box_lat;
+            position_msg.lon = box_lon;
+
+            msg.confirm = true;
+            this->new_box_confirm_pub_->publish(msg);
         }
         else
         {
