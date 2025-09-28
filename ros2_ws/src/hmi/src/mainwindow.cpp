@@ -3,7 +3,7 @@
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0)
+    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false)
 {
     ui->setupUi(this);
 
@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
         "/dronehive/new_box", qos, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1)
     );
 
-    BackEndManager* backEndManager = new BackEndManager(this);
+    backEndManager = new BackEndManager(this);
 
     connect(backEndManager, &BackEndManager::backEndCrashed, this, &MainWindow::onBackEndCrashed);
     connect(backEndManager, &BackEndManager::backEndStopped, this, &MainWindow::onBackEndStopped);
@@ -36,7 +36,21 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    this->cleanup();
+}
+
+void MainWindow::cleanup()
+{
     delete this->backEndManager;
+        // Stop timers first
+    if (spinTimer_) {
+        spinTimer_->stop();
+        spinTimer_->disconnect();  // disconnect all signals
+    }
+
+    // Shutdown ROS 2
+    rclcpp::shutdown();
+
     delete this->spinTimer_;
     delete this->ui;
 }
@@ -53,6 +67,23 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
     backEndManager->setMissedHeartBeat(0);
 
     std::cout << "Got new BOX request\n";
+
+    if(!this->new_box_request)
+    {
+        NewBoxDialog dialog;
+        this->new_box_request = true;
+
+        auto status = dialog.exec();
+
+        if(status == QDialog::Accepted)
+        {
+            std::cout << "Accepted" << std::endl;
+        }
+        else if(status == QDialog::Rejected)
+        {
+            std::cout << "Rejected" << std::endl;
+        }
+    }
 }
 
 void MainWindow::onBackEndStopped()
