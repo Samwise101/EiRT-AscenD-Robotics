@@ -99,7 +99,7 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
             double box_alt{dialog.get_box_alt()};
 
             // Coordinates coord{box_lat, box_lon, box_alt};
-
+            std::cout << "Box coord: [" << box_lat << ", " << box_lon << ", " << box_alt << "]" << std::endl;
             // SlaveBox box(coord, box_id, this->number_of_boxes++);
 
             // this->boxes.push_back(box);
@@ -116,9 +116,15 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
         else
         {
             std::cout << "Rejected" << std::endl;
-            std_msgs::msg::String msg;
-            msg.data = "STOP_NEW_BOX_TRANSMIT";
-            this->pub_->publish(msg);
+
+            dronehive_interfaces::msg::BoxSetupConfirmationMessage msg;
+            dronehive_interfaces::msg::PositionMessage position_msg;
+            position_msg.elv = 0.0;
+            position_msg.lat = 0.0;
+            position_msg.lon = 0.0;
+
+            msg.confirm = false;
+            this->new_box_confirm_pub_->publish(msg);
         }
     }
 }
