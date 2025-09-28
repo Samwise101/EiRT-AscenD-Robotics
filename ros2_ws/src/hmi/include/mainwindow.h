@@ -31,14 +31,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
-    std::shared_ptr<rclcpp::Node> node_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
-    rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_gui_sub_;
-    std::thread ros_thread_;
-
 public:
     std::vector<Box> get_boxes(void);
     bool get_master_exists();
@@ -74,6 +66,12 @@ private slots:
     void on_zoom_in_out_slider_valueChanged(int);
 
 private:
+    Ui::MainWindow *ui;
+    std::shared_ptr<rclcpp::Node> node_;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_gui_sub_;
+
     std::vector<Box> boxes;
     int number_of_boxes;
     bool master_exists;
