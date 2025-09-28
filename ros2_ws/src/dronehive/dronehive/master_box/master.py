@@ -16,7 +16,7 @@ qos_profile = QoSProfile(
 )
 
 class MasterBoxNode(Node):
-	def __init__(self):
+	def __init__(self) -> None:
 		super().__init__('master_box_node')
 
 		self.config: dh.Config = dh.dronehive_initialise()
@@ -33,7 +33,7 @@ class MasterBoxNode(Node):
 		self.initialise_connections()
 
 
-	def initialise_connections(self):
+	def initialise_connections(self) -> None:
 		self.get_logger().info("Initialising connections...")
 
 		self.create_messages()
@@ -49,7 +49,7 @@ class MasterBoxNode(Node):
 	# Initialisation methods #
 	##########################
 
-	def create_messages(self):
+	def create_messages(self) -> None:
 		# Subscribers
 		# In the code of the method the subscriber is already saved in internal variable.
 		self.create_subscription(
@@ -74,11 +74,11 @@ class MasterBoxNode(Node):
 		)
 
 
-	def create_services(self):
+	def create_services(self) -> None:
 		pass
 
 
-	def create_actions(self):
+	def create_actions(self) -> None:
 		pass
 
 
@@ -86,7 +86,7 @@ class MasterBoxNode(Node):
 	# Callbacks and methods #
 	#########################
 
-	def _deinitialise_box_callback(self, msg: String):
+	def _deinitialise_box_callback(self, msg: String) -> None:
 		if msg.data != self.config.box_id:
 			return
 
@@ -101,7 +101,7 @@ class MasterBoxNode(Node):
 		self.timer = self.create_timer(0.1, deferred_reinit)
 
 
-	def send_landing_position_to_drone(self, pos: String):
+	def send_landing_position_to_drone(self, pos: String) -> None:
 		self.get_logger().info(f"Sending landing position to drone \"{pos.data}\"")
 		self._pub_landing_pos_to_drone.publish(self.config.lending_position)
 
