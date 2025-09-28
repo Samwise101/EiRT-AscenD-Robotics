@@ -19,8 +19,7 @@
 #include <dronehive_interfaces/msg/box_setup_confirmation_message.hpp>
 
 #include "drone.h"
-#include "master_box.h"
-#include "slave_box.h"
+#include "box.h"
 #include "new_box_dialog.h"
 #include "backend_manager.h"
 

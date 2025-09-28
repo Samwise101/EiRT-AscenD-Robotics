@@ -12,15 +12,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create ROS2 node
     node_ = std::make_shared<rclcpp::Node>("gui_node");
+    auto qos = rclcpp::QoS(10).best_effort();
 
-    // Create publisher
+    // Create publishers
     pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/command", 10);
     new_box_confirm_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
     
+    // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
-    
-    auto qos = rclcpp::QoS(10).best_effort();
-
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/new_box",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
 
     backEndManager = new BackEndManager(this);
@@ -100,7 +99,7 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
 
             // Coordinates coord{box_lat, box_lon, box_alt};
             std::cout << "Box coord: [" << box_lat << ", " << box_lon << ", " << box_alt << "]" << std::endl;
-            // SlaveBox box(coord, box_id, this->number_of_boxes++);
+            // Box box(coord, box_id, this->number_of_boxes++);
 
             // this->boxes.push_back(box);
 
