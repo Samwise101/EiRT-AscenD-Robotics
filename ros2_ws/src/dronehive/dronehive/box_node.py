@@ -1,17 +1,19 @@
 import rclpy
 from dronehive.master_box.master import MasterBoxNode
+from rclpy.executors import MultiThreadedExecutor
 
 def main():
 	rclpy.init()
 
-	master_box = MasterBoxNode()
+	executor = MultiThreadedExecutor()
+	executor.add_node(MasterBoxNode())
 
 	try:
-		rclpy.spin(master_box)
+		executor.spin()
 
 	except KeyboardInterrupt:
-		master_box.get_logger().info("Shutting down master box node...")
-		master_box.destroy_node()
+		rclpy.logging.get_logger("box_node").info("Shutting down master box node...")
+		executor.shutdown()
 
 	rclpy.shutdown()
 
