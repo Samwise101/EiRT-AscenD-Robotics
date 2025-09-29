@@ -41,11 +41,14 @@ class Initialiser:
 			return
 
 		# Once the service is available, cancel the timer and send the request.
-		self.wait_timer.cancel()
 		self.send_request()
 
 
 	def send_request(self) -> BoxBroadcastService.Response | None:
+		# This is either called at the constructor or if the previous attempt failed.
+		# In both cases we want to cancel the timer to avoid multiple calls.
+		self.wait_timer.cancel()
+
 		req = BoxBroadcastService.Request()
 		req.box_id = self.config.box_id
 		req.landing_pos = self.config.lending_position
@@ -63,13 +66,13 @@ class Initialiser:
 		except Exception as e:
 			# If the service call fails, log the error and retry after 2 seconds.
 			self.node.get_logger().error(f'Service call failed: {e}')
-			self.wait_timer = self.node.create_timer(2.0, self.send_request)
+			self.wait_timer.reset()
 			return
 
 		# If the response is None or not confirmed, log the error and retry after 2 seconds.
 		if response is None or not response.confirm:
 			self.node.get_logger().error("Box initialization NOT confirmed from service. Check the box ID and try again.")
-			self.wait_timer = self.node.create_timer(2.0, self.send_request)
+			self.wait_timer.reset()
 			return
 
 		# If the response is confirmed change the current state of the box from uninitialised to initialised.
