@@ -2,10 +2,12 @@
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
+from rclpy.task import Future
 from std_msgs.msg import String
 
 # Project specific imports
 from dronehive_interfaces.msg import PositionMessage
+from dronehive_interfaces.srv import RequestDroneLanding
 import dronehive.utils as dh
 
 qos_profile = QoSProfile(
@@ -31,6 +33,7 @@ class MasterBoxNode(Node):
 		# When the box is initialised at startup we can directly initialise the connections.
 		# If everything is fine, the initialiser will be None.
 		self.initialise_connections()
+		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
 
 	def initialise_connections(self) -> None:
@@ -97,20 +100,45 @@ class MasterBoxNode(Node):
 
 
 	def send_landing_position_to_drone(self, pos: String) -> None:
-		# TODO: comunicate with slave boxes to get the landing position. If there are more than one, choose the one that is
-		# the closest to the drone's current position.
-		self.get_logger().info(f"Sending landing position to drone \"{pos.data}\"")
+		def request_drone_landing_request() -> RequestDroneLanding.Request:
+			req = RequestDroneLanding.Request()
+			req.landing_pos = self.config.lending_position
+			return req
 
-		# Once a message for a drone is received, create a dedicated publisher to send the landing position to the drone.
-		_pub_landing_pos_to_drone = self.create_publisher(
-			PositionMessage,
-			dh.DRONEHIVE_DRONE_TOPIC(pos.data),
-			qos_profile
+		def request_drone_landing_response_2(response: Future) -> None:
+			try:
+				res: RequestDroneLanding.Response = response.result()
+			except Exception as e:
+				self.get_logger().error(f'Service call failed: {e}')
+				return
+
+			if not res.confirm:
+				self.get_logger().error("Landing position NOT confirmed from service. Check the box ID and try again.")
+				return
+
+			self.get_logger().info("Landing position confirmed by drone.")
+
+		def request_drone_landing_response(response: RequestDroneLanding.Response) -> None:
+			if not response.confirm:
+				self.get_logger().error("Landing position NOT confirmed from service. Check the box ID and try again.")
+				return
+
+			self.get_logger().info("Landing position confirmed by drone.")
+			# self.drone_landing_client.destory()
+			# self.drone_landing_client = None
+
+		# self.drone_landing_client = dh.ServiceLessClient(
+		# 	self,
+		# 	RequestDroneLanding,
+		# 	dh.DRONEHIVE_DRONE_LAND_REQUEST(pos.data),
+		# 	request_drone_landing_request,
+		# 	request_drone_landing_response,
+		# )
+
+		self.client_manager.call_async(
+			RequestDroneLanding,
+			dh.DRONEHIVE_DRONE_LAND_REQUEST(pos.data),
+			request_drone_landing_request,
+			request_drone_landing_response_2
 		)
-
-		_pub_landing_pos_to_drone.publish(self.config.lending_position)
-
-		# Wait until the is received by the drone before destroying the publisher
-		_pub_landing_pos_to_drone.wait_for_all_acked()
-		self.destroy_publisher(_pub_landing_pos_to_drone)
 

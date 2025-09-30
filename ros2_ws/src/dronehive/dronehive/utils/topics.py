@@ -14,7 +14,7 @@ DRONEHIVE_NEW_BOX_TOPIC = "/dronehive/new_box"
 DRONEHIVE_DEINITIALISE_BOX_TOPIC = "/dronehive/deinitialise_box"
 
 # Topic that sends a request for landing position, the drone ID should be formatted in the topic.
-DRONEHIVE_DRONE_TOPIC = lambda drone_id: f"/dronehive/{drone_id}/drone"
+DRONEHIVE_DRONE_LAND_REQUEST = lambda drone_id: f"/dronehive/{drone_id}/drone"
 # Topic that receives a request for a drone to lend at a specific position.
 DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
 
