@@ -29,6 +29,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
   "srv/OccupancyService.srv"
+  "srv/RequestDroneLanding.srv"
   "srv/RequestStatus.srv"
 
   "msg/BoxBroadcastMessage.msg"
