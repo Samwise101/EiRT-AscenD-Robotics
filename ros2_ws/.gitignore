@@ -20,7 +20,6 @@
 *.o
 *.obj
 *.moc
-*.qrc
 *.ui.h
 
 /.vscode

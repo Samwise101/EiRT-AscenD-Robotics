@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/install/dronehive_interfaces/include/dronehive_interfaces/dronehive_interfaces/*",
+                "${workspaceFolder}/src/hmi_backend/**",
                 "/usr/include/x86_64-linux-gnu/qt5",
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                 "/usr/include/x86_64-linux-gnu/qt5/QtQuick",
