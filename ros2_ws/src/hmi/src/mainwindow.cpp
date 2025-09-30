@@ -77,17 +77,6 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
         NewBoxDialog dialog;
         this->new_box_request = true;
 
-        // if(msg->box_id.empty())
-        // {
-        //     std::cout << "Empty box id, aborting\n";
-        //     return;
-        // }
-
-        // int box_id{std::stoi(msg->box_id)};
-        // double box_lat{msg->landing_pos.lat};
-        // double box_lon{msg->landing_pos.lon};
-        // double box_alt{msg->landing_pos.elv};
-
 
         if(dialog.exec() == QDialog::Accepted)
         {
@@ -130,12 +119,14 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
 
 void MainWindow::onBackEndStopped()
 {
-
+    std::cout << "Hello from stopped\n";
+    delete this->backEndManager;
 }
 
 void MainWindow::onBackEndCrashed()
 {
-    
+    std::cout << "Hello from crash\n";
+    delete this->backEndManager;
 }
 
 void MainWindow::update_box_comboBox(int& new_box_number)
