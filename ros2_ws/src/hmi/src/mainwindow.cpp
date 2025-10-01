@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create publishers
     pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/command", 10);
-    new_box_confirm_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
+    new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
     
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
@@ -91,28 +91,10 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMe
             // Box box(coord, box_id, this->number_of_boxes++);
 
             // this->boxes.push_back(box);
-
-            dronehive_interfaces::msg::BoxSetupConfirmationMessage msg;
-            dronehive_interfaces::msg::PositionMessage position_msg;
-            position_msg.elv = box_alt;
-            position_msg.lat = box_lat;
-            position_msg.lon = box_lon;
-
-            msg.confirm = true;
-            this->new_box_confirm_pub_->publish(msg);
         }
         else
         {
             std::cout << "Rejected" << std::endl;
-
-            dronehive_interfaces::msg::BoxSetupConfirmationMessage msg;
-            dronehive_interfaces::msg::PositionMessage position_msg;
-            position_msg.elv = 0.0;
-            position_msg.lat = 0.0;
-            position_msg.lon = 0.0;
-
-            msg.confirm = false;
-            this->new_box_confirm_pub_->publish(msg);
         }
     }
 }
@@ -254,4 +236,9 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     auto msg{std_msgs::msg::String()};
     msg.data = "Hello from slider!";
     pub_->publish(msg);
+}
+
+void MainWindow::on_add_box_pushButton_clicked()
+{
+    std::cout << "Hello from the push button\n";
 }

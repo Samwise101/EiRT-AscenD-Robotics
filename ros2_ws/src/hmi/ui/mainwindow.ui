@@ -56,6 +56,13 @@
          </layout>
         </item>
         <item>
+         <widget class="QPushButton" name="addBox">
+          <property name="text">
+           <string>Add Box</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="Line" name="line_21">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -153,7 +160,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -1305,8 +1312,8 @@
    <slot>on_remove_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>786</x>
-     <y>164</y>
+     <x>196</x>
+     <y>598</y>
     </hint>
     <hint type="destinationlabel">
      <x>673</x>
@@ -1330,6 +1337,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>addBox</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_add_box_push_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>542</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>160</x>
+     <y>492</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_add_box_push_button_clicked()</slot>
@@ -1348,5 +1371,6 @@
   <slot>on_settings_pushButton_clicked()</slot>
   <slot>on_path_upload_pushButton_clicked()</slot>
   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
+  <slot>on_addBox_pushButton_clicked()</slot>
  </slots>
 </ui>

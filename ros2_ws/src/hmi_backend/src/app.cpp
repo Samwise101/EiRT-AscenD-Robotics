@@ -12,12 +12,14 @@ App::App()
 
     this->toBoxNewBoxServ = this->node_->create_service<dronehive_interfaces::srv::BoxBroadcastService>(
         "/dronehive/box_broadcast_service",
-        std::bind(
-            &App::onNewBoxCreation,        // member function
-            this,                          // instance of App
-            std::placeholders::_1,         // request
-            std::placeholders::_2          // response
-        )
+        [this](const std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Request> request,
+    std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Response> response)
+        {
+            auto msg = std_msgs::msg::String();
+            msg.data = "Service created";
+            this->to_gui_heart_pub_->publish(msg);
+            this->onNewBoxCreation(request, response);
+        }
     );
 
     auto qos = rclcpp::QoS(10).best_effort();
@@ -64,6 +66,6 @@ void App::appRun()
 void App::appHeartBeat()
 {
     auto msg = std_msgs::msg::String();
-    msg.data = "hello " + std::to_string(this->count++);
+    msg.data = std::to_string(this->count++);
     this->to_gui_heart_pub_->publish(msg);
 }

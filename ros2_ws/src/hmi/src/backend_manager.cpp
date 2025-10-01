@@ -34,7 +34,7 @@ void BackEndManager::startBackend()
     // The command: source workspace + run the node
     QString command = "bash";
     QStringList args;
-    args << "-c" << "source /opt/ros/humble/setup.bash && source ~/hmi_backend/EiRT-AscenD-Robotics/ros2_ws/install/setup.bash && ros2 run hmi_backend backend_node";
+    args << "-c" << "source /opt/ros/humble/setup.bash && source ~/EiRT-AscenD-Robotics/ros2_ws/install/setup.bash && ros2 run hmi_backend backend_node";
 
     this->proc.start(command, args);
 
