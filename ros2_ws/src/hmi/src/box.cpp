@@ -1,7 +1,7 @@
 #include <iostream>
 #include "box.h"
 
-Box::Box(int type, Coordinates coord, int id, int number) : 
+Box::Box(int type, Coordinates coord, std::string id, int number) : 
 box_type(type), coord(coord), id(id), number(number)
 {}
 
@@ -32,7 +32,7 @@ float Box::get_box_landing_alt(void)
     return this->box_landing_position_alt;
 }
 
-int Box::get_box_id(void)
+std::string Box::get_box_id(void)
 {
     return this->id;
 }

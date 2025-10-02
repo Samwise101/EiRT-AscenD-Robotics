@@ -1,2 +1,3 @@
 bool confirm
+string box_id
 PositionMessage landing_pos

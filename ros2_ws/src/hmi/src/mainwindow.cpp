@@ -75,49 +75,37 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
 {
     std::cout << "Got new BOX request\n";
 
-    NewBoxDialog dialog(this);
-
     auto response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10);
+
+    NewBoxDialog dialog(this, msg->landing_pos.lat, msg->landing_pos.lon, msg->landing_pos.elv, msg->box_id);
 
     // Run the dialog modally
     if (dialog.exec() == QDialog::Accepted) {
         std::cout << "Accepted\n";
+
         dronehive_interfaces::msg::BoxSetupConfirmationMessage return_msg;
+
         return_msg.confirm = true;
+        return_msg.box_id = dialog.get_box_id().toStdString();
+        return_msg.landing_pos.elv = dialog.get_box_alt();
+        return_msg.landing_pos.lat = dialog.get_box_lat();
+        return_msg.landing_pos.lon = dialog.get_box_lon();
+
         response_pub_->publish(return_msg);
-    } else {
+
+        Coordinates coord{return_msg.landing_pos.lat,return_msg.landing_pos.lon,return_msg.landing_pos.elv};
+        Box newBox(SLAVE, coord, return_msg.box_id, this->boxes.size() + 1);
+        this->boxes.push_back(newBox);
+
+        this->ui->boxComboBox->addItem(QString::number(this->boxes.size()));
+    } 
+    else 
+    {
         std::cout << "Rejected\n";
         dronehive_interfaces::msg::BoxSetupConfirmationMessage return_msg;
         return_msg.confirm = false;
         response_pub_->publish(return_msg);
-}
-
-
-    // if(!this->new_box_request)
-    // {
-    //     NewBoxDialog dialog;
-    //     this->new_box_request = true;
-
-
-    //     if(dialog.exec() == QDialog::Accepted)
-    //     {
-    //         std::cout << "Accepted" << std::endl;
-
-    //         double box_lat{dialog.get_box_lat()};
-    //         double box_lon{dialog.get_box_lon()};
-    //         double box_alt{dialog.get_box_alt()};
-
-    //         // Coordinates coord{box_lat, box_lon, box_alt};
-    //         std::cout << "Box coord: [" << box_lat << ", " << box_lon << ", " << box_alt << "]" << std::endl;
-    //         // Box box(coord, box_id, this->number_of_boxes++);
-
-    //         // this->boxes.push_back(box);
-    //     }
-    //     else
-    //     {
-    //         std::cout << "Rejected" << std::endl;
-    //     }
-    // }
+    }
 }
 
 void MainWindow::onBackEndStopped()

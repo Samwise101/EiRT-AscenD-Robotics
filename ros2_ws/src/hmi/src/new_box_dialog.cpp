@@ -1,11 +1,14 @@
 #include <iostream>
 #include "new_box_dialog.h"
 
-NewBoxDialog::NewBoxDialog(QWidget *parent)
-    : QDialog(parent), box_lat(-0.0f), box_lon(0.0f), box_alt(0.0f)
+NewBoxDialog::NewBoxDialog(QWidget *parent, float lat, float lon, float alt, std::string box_id)
+    : QDialog(parent), box_alt(alt), box_lat(lat), box_lon(lon), box_id(box_id)
 {
     ui.setupUi(this); 
-    this->box_type = this->ui.comboBox->currentIndex();
+    this->ui.boxAltLineEdit->setText(QString::number(alt));
+    this->ui.boxLonLineEdit->setText(QString::number(lon));
+    this->ui.boxLatLineEdit->setText(QString::number(lat));
+    this->ui.boxIdLineEdit->setText(QString::fromStdString(box_id));
 }
 
 NewBoxDialog::~NewBoxDialog(){}
@@ -18,30 +21,8 @@ void NewBoxDialog::on_cancle_pushButton_clicked(void)
 
 void NewBoxDialog::on_add_pushButton_clicked(void)
 {
-    // if(this->ui.boxIdLineEdit->text().isEmpty())
-    // {
-    //     std::cout << "Forgot to assign ID!n";
-    // }
-
-    // else if(this->ui.boxLatLineEdit->text().isEmpty())
-    // {
-    //     std::cout << "Forgot to assign Latitude!\n";
-    // }
-
-    // else if(this->ui.boxLonLineEdit->text().isEmpty())
-    // {
-    //     std::cout << "Forgot to assign Longitude!\n";
-    // }
-
-    // else if(this->ui.boxAltLineEdit->text().isEmpty())
-    // {
-    //     std::cout << "Forgot to assign Altitude!\n";
-    // }
-
-    // else{
-        std::cout << "Accept\n";
-        this->accept();
-    //}
+    std::cout << "Accept\n";
+    this->accept();
 }
 
 void NewBoxDialog::on_comboBox_currentIndexChanged(int index)
@@ -69,9 +50,9 @@ void NewBoxDialog::on_boxAltLineEdit_editingFinished(void)
     this->box_alt = this->ui.boxAltLineEdit->text().toFloat();
 }
 
-int NewBoxDialog::get_box_id(void)
+QString NewBoxDialog::get_box_id(void)
 {
-    return this->box_id;
+    return QString::fromStdString(this->box_id);
 }
 
 int NewBoxDialog::get_box_type()

@@ -7,6 +7,7 @@
 #include "std_msgs/msg/string.hpp"
 #include <memory>
 #include <QThread>
+#include <string>
 
 typedef struct
 {
@@ -24,7 +25,7 @@ enum BoxType {
 class Box
 {
     public:
-        explicit Box(int type, Coordinates coord, int id, int number);
+        explicit Box(int type, Coordinates coord, std::string id, int number);
         ~Box();
 
     public:
@@ -35,7 +36,7 @@ class Box
         float get_box_landing_lon(void);
         float get_box_landing_alt(void);
 
-        int get_box_id(void);
+        std::string get_box_id(void);
 
         int get_box_number(void);
 
@@ -44,10 +45,8 @@ class Box
         float box_landing_position_lat;
         float box_landing_position_lon;
         float box_landing_position_alt;
-    
-    private:
         
-        int id;
+        std::string id;
         int number;
         Coordinates coord;
 
