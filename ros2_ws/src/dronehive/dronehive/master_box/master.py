@@ -185,6 +185,12 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.slave_box_incoming_dron_pub = self.create_publisher(
+			String,
+			dh.DRONEHIVE_REQUEST_LANDING_POS_TOPIC,
+			qos_profile
+		)
+
 	#####################
 	# Message callbacks #
 	#####################
@@ -317,6 +323,16 @@ class MasterBoxNode(Node):
 					closest_distance = distance
 					closest_box_id = box_id
 					landing_pos = box_status.position
+
+
+		if closest_box_id == "":
+			self.get_logger().warn(f"No empty slave box found for drone ID: {request.drone_id}. Cannot assign landing position.")
+			response.landing_pos = PositionMessage()
+			return response
+
+		self.linked_slave_boxes[closest_box_id].drone_id = request.drone_id
+		self.linked_slave_boxes[closest_box_id].status = BoxStatusEnum.OCCUPIED
+		self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
 		response.landing_pos = landing_pos
 		return response
