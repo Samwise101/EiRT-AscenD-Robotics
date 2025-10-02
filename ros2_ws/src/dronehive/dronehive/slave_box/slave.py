@@ -42,7 +42,7 @@ class SlaveBoxNode(Node):
 	def _publish_initialisation(self) -> None:
 		msg = BoxBroadcastMessage()
 		msg.box_id = self.config.box_id
-		msg.landing_pos = self.config.lending_position
+		msg.landing_pos = self.config.landing_position
 
 		self.get_logger().info(f"Publishing initialisation message: {msg}")
 		self.__init_publisher.publish(msg)
@@ -53,6 +53,7 @@ class SlaveBoxNode(Node):
 		if msg.box_id == self.config.box_id:
 			self.get_logger().info(f"Initialisation confirmed for box ID: {self.config.box_id}")
 			self.config.initialised = True
+			self.config.landing_position = msg.landing_pos
 			self.config.save()
 
 			# Destroy the initialisation publisher and timer

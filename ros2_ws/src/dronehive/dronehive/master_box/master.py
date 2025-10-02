@@ -136,7 +136,7 @@ class MasterBoxNode(Node):
 		if msg.confirm:
 			self.get_logger().info("Box initialization confirmed.")
 			self.config.initialised = True
-			self.config.lending_position = msg.landing_pos
+			self.config.landing_position = msg.landing_pos
 			dh.dronehive_update_config(self.config)
 			self._pub_box_broadcast.publish(msg)
 
@@ -187,7 +187,7 @@ class MasterBoxNode(Node):
 	def send_landing_position_to_drone(self, pos: String) -> None:
 		request = RequestDroneLanding.Request()
 		request.box_id = self.config.box_id
-		request.landing_pos = self.config.lending_position
+		request.landing_pos = self.config.landing_position
 		self.get_logger().info(f"Sending landing position '{request.landing_pos}' for box ID '{request.box_id}' to drone...")
 
 		def request_drone_landing_response(response: Future) -> None:
