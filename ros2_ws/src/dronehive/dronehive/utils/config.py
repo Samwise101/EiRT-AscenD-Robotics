@@ -4,11 +4,13 @@ from rclpy.logging import get_logger as rclpy_logger
 from dataclasses import dataclass, field
 from pathlib import Path
 import json
+import os
 
 HOME: Path = Path.home()
+CONFIG_PATH = Path(os.getenv("XDG_CONFIG_HOME", f"{HOME}/.config"))
 
 DRONEHIVE_SHARE_DIR = HOME / ".local" / "share" / "dronehive"
-DRONEHIVE_CONFIG_DIR = HOME / ".config" / "dronehive"
+DRONEHIVE_CONFIG_DIR = CONFIG_PATH / "dronehive"
 DRONEHIVE_DIRS = [
 	DRONEHIVE_SHARE_DIR,
 	DRONEHIVE_CONFIG_DIR
