@@ -5,7 +5,7 @@ from std_msgs.msg import String, Bool
 
 import dronehive.utils as dh
 
-from dronehive_interfaces.msg import BoxBroadcastMessage
+from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.RELIABLE,
@@ -34,9 +34,9 @@ class SlaveBoxNode(Node):
 
 
 	def box_init_interfaces(self) -> None:
-		self.__init_publisher = self.create_publisher(BoxBroadcastMessage, dh.DRONEHIVE_BOX_INITIALISE_TOPIC, qos_profile)
+		self.__init_publisher = self.create_publisher(BoxBroadcastMessage, dh.DRONEHIVE_INITIALISE_SLAVE_BOX_TOPIC, qos_profile)
 		self.__timer = self.create_timer(2.0, self._publish_initialisation)
-		self.__confirm_subs = self.create_subscription(BoxBroadcastMessage, dh.DRONEHIVE_NEW_SLAVE_BOX_CONFIMED_TOPIC, self._initialisation_confirmed_callback, qos_profile)
+		self.__confirm_subs = self.create_subscription(BoxSetupConfirmationMessage, dh.DRONEHIVE_NEW_SLAVE_BOX_CONFIMED_TOPIC, self._initialisation_confirmed_callback, qos_profile)
 
 
 	def _publish_initialisation(self) -> None:
@@ -49,6 +49,7 @@ class SlaveBoxNode(Node):
 
 
 	def _initialisation_confirmed_callback(self, msg: BoxBroadcastMessage) -> None:
+		self.get_logger().info(f"Received initialisation confirmation message: {msg}")
 		if msg.box_id == self.config.box_id:
 			self.get_logger().info(f"Initialisation confirmed for box ID: {self.config.box_id}")
 			self.config.initialised = True

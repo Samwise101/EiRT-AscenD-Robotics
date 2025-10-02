@@ -33,6 +33,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/RequestStatus.srv"
 
   "msg/BoxBroadcastMessage.msg"
+  "msg/BoxSetupConfirmationMessage.msg"
   "msg/PositionMessage.msg"
 )
 
