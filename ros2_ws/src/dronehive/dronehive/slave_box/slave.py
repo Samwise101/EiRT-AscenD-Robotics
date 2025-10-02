@@ -6,6 +6,7 @@ from std_msgs.msg import String, Bool
 import dronehive.utils as dh
 
 from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage
+from dronehive_interfaces.srv import BoxStatusService
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.RELIABLE,
@@ -102,12 +103,17 @@ class SlaveBoxNode(Node):
 
 
 	def create_services(self) -> None:
-		pass
 		# self.create_service(
 		# 	RequestDroneLanding,
 		# 	dh.DRONEHIVE_DRONE_LAND_REQUEST,
 		# 	self.find_best_lending_place
 		# )
+
+		self.create_service(
+			BoxStatusService,
+			dh.DRONEHIVE_BOX_STATUS_REQUEST_SERVICE,
+			self.provide_box_status
+		)
 
 
 	def create_actions(self) -> None:
@@ -116,6 +122,15 @@ class SlaveBoxNode(Node):
 	##################
 	# Callbacks etc. #
 	##################
+
+	def provide_box_status(self, request: BoxStatusService.Request, response: BoxStatusService.Response) -> BoxStatusService.Response:
+		response.landing_pos = self.config.landing_position
+		response.drone_id = self.config.drone_id
+
+		self.get_logger().info(f"Responding with landing position: {response.landing_pos} and drone ID: {response.drone_id}")
+		return response
+
+
 
 	def send_landing_position_to_drone(self, msg: String) -> None:
 		pass
