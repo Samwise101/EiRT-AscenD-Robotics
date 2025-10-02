@@ -25,7 +25,10 @@ class ServiceClientManager:
 		return (srv_type.__name__, srv_name)
 
 
-	def get_or_create_client(self, srv_type, srv_name):
+	def get_or_create_client(self, srv_type, srv_name, timeout_sec: float|None =-1.0):
+		if timeout_sec == -1.0:
+			timeout_sec = self.wait_for_service_timeout
+
 		key = self._make_key(srv_type, srv_name)
 		with self._lock:
 			if key in self._clients:
@@ -34,9 +37,9 @@ class ServiceClientManager:
 				return self._clients[key]['client']
 
 			client = self.node.create_client(srv_type, srv_name)
-			if not client.wait_for_service(timeout_sec=self.wait_for_service_timeout):
+			if not client.wait_for_service(timeout_sec=timeout_sec):
 				# service didn't appear quickly — you can still use client.call_async later
-				self.node.get_logger().debug(
+				self.node.get_logger().error(
 					f"Service {srv_name} not available after {self.wait_for_service_timeout}s"
 				)
 
@@ -54,13 +57,16 @@ class ServiceClientManager:
 			return client
 
 
-	def call_async(self, srv_type, srv_name, request_callback, response_callback):
+	def call_async(self, srv_type, srv_name, request, response_callback, timeout_sec: float|None =-1.0) -> Future:
 		"""
 		Returns the Future returned by client.call_async(request).
 		Caller must arrange for spinning (node executor) so callback fires.
 		"""
-		client = self.get_or_create_client(srv_type, srv_name)
-		fut = client.call_async(request_callback)
+		if timeout_sec == -1.0:
+			timeout_sec = self.wait_for_service_timeout
+
+		client = self.get_or_create_client(srv_type, srv_name, timeout_sec=timeout_sec)
+		fut = client.call_async(request)
 		fut.add_done_callback(response_callback)
 		return fut
 
