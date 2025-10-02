@@ -1,7 +1,6 @@
 from .topics import *
 from .config import Config, DRONEHIVE_DIRS
 from .initialiser import Initialiser
-from .client import ServiceLessClient
 from .client_manager import ServiceClientManager
 from .utm import *
 
