@@ -8,9 +8,9 @@ from std_msgs.msg import String
 # Project specific imports
 from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage, PositionMessage
 from dronehive_interfaces.srv import (
-	RequestBoxStatus,
-	RequestDroneLanding,
 	BoxBroadcastService,
+	BoxStatusService,
+	DroneLandingService,
 	SlaveBoxIDsService,
 	SlaveBoxInformationService
 )
@@ -96,10 +96,10 @@ class MasterBoxNode(Node):
 		For each box, it will call the RequestBoxStatus service and update the linked_slave_boxes dictionary.
 		If the service call fails, it will set the box status to UNKNOWN.
 		"""
-		request = RequestBoxStatus.Request()
+		request = BoxStatusService.Request()
 
 		def callback(future: Future, box_id: str) -> None:
-			response: RequestBoxStatus.Response | None = future.result()
+			response: BoxStatusService.Response | None = future.result()
 
 			if response is not None:
 				self.get_logger().info(f"Got box status for box ID: {box_id}: {response}")
@@ -124,7 +124,7 @@ class MasterBoxNode(Node):
 			request.box_id = box_id
 			self.get_logger().info(f"Gathering state of linked slave box ID: {box_id}...")
 			self.client_manager.call_async(
-				RequestBoxStatus,
+				BoxStatusService,
 				dh.DRONEHIVE_BOX_STATUS_REQUEST_SERVICE,
 				request,
 				lambda future: callback(future, box_id),
@@ -287,7 +287,7 @@ class MasterBoxNode(Node):
 
 	def create_services(self) -> None:
 		self.create_service(
-			RequestDroneLanding,
+			DroneLandingService,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
 			self.find_best_lending_place
 		)
@@ -308,7 +308,7 @@ class MasterBoxNode(Node):
 	# SERVICE Callbacks #
 	#####################
 
-	def find_best_lending_place(self, request: RequestDroneLanding.Request, response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
+	def find_best_lending_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
 		closest_box_id = ""
 		closest_distance = float('inf')
 		landing_pos = PositionMessage()
