@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
-    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
+    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backEndManager = new BackEndManager(this);
 
@@ -71,26 +71,25 @@ void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
     backEndManager->setMissedHeartBeat(0);
 }
 
-void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
+void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
 {
-    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: '%s'", msg->box_id.c_str());
     std::cout << "Got new BOX request\n";
 
     NewBoxDialog dialog(this);
 
+    auto response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10);
+
     // Run the dialog modally
     if (dialog.exec() == QDialog::Accepted) {
         std::cout << "Accepted\n";
-        dronehive_interfaces::msg::GuiCommand return_msg;
+        dronehive_interfaces::msg::BoxSetupConfirmationMessage return_msg;
         return_msg.confirm = true;
-        return_msg.command = dronehive_interfaces::msg::GuiCommand::NEW_BOX_CONFIRMED;
-        gui_cmd_pub_->publish(return_msg);
+        response_pub_->publish(return_msg);
     } else {
         std::cout << "Rejected\n";
-        dronehive_interfaces::msg::GuiCommand return_msg;
+        dronehive_interfaces::msg::BoxSetupConfirmationMessage return_msg;
         return_msg.confirm = false;
-        return_msg.command = dronehive_interfaces::msg::GuiCommand::NEW_BOX_DECLINED;
-        gui_cmd_pub_->publish(return_msg);
+        response_pub_->publish(return_msg);
 }
 
 

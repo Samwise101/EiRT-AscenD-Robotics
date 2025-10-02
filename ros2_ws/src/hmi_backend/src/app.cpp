@@ -13,6 +13,7 @@ App::App() : Node("app_node")
     to_gui_command_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/command", 10);
 
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
+    gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1));
 
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
@@ -28,11 +29,32 @@ App::~App()
     rclcpp::shutdown();
 }
 
+void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
+{
+    auto to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
+    to_box_new_box_confirmation_pub->publish(*msg);
+}
+
 
 void App::onGuiMessage(const std_msgs::msg::String::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "Got message: %s", msg->data.c_str());
 }
+
+void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
+{
+    if(!this->new_box_message_arrived) return;
+
+    this->new_box_message_arrived = false;
+
+    auto box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10);
+
+    auto gui_msg = dronehive_interfaces::msg::BoxSetupConfirmationMessage();
+
+    gui_msg.landing_pos = msg->landing_pos;
+    box_msg_pub_->publish(gui_msg);
+}
+
 
 void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command)
 {
@@ -44,10 +66,11 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
 
     switch(command->command)
     {
-        case dronehive_interfaces::msg::GuiCommand::NEW_BOX_CONFIRMED:
-        case dronehive_interfaces::msg::GuiCommand::NEW_BOX_DECLINED:
-                this->new_box_confirm = false;
         case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX:
                 this->new_box_message_arrived = true;
+                auto new_box_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
+    "/dronehive/new_box", 10, std::bind(&App::onBoxMessage, this, std::placeholders::_1));
+                
+                break;
     };
 }

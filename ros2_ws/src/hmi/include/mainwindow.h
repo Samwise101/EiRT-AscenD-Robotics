@@ -15,10 +15,10 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include <dronehive_interfaces/msg/box_broadcast_message.hpp>
 #include <dronehive_interfaces/msg/box_setup_confirmation_message.hpp>
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/msg/gui_command.hpp>
+#include <dronehive_interfaces/msg/backend_command.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -41,7 +41,7 @@ public:
 
     void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
-    void onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
+    void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
 
 private slots:
 
@@ -78,7 +78,7 @@ private:
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
 
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
-    rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_gui_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr backend_msg_sub_;
 
     std::vector<Box> boxes;
