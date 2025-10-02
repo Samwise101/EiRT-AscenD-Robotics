@@ -26,11 +26,14 @@ endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/BoxBroadcastService.srv"
+  "srv/BoxStatusService.srv"
+  "srv/DroneLandingService.srv"
+  "srv/DroneStatusService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
   "srv/OccupancyService.srv"
-  "srv/RequestDroneLanding.srv"
-  "srv/RequestStatus.srv"
+  "srv/SlaveBoxIDsService.srv"
+  "srv/SlaveBoxInformationService.srv"
 
   "msg/BoxBroadcastMessage.msg"
   "msg/BoxSetupConfirmationMessage.msg"
