@@ -9,6 +9,7 @@ import dronehive.utils as dh
 def send_dummy_response(request: BoxBroadcastService.Request, response: BoxBroadcastService.Response) -> BoxBroadcastService.Response:
 
 	response = BoxBroadcastService.Response()
+	response.box_id = request.box_id
 	response.confirm = True
 
 	landing_pos = PositionMessage()
