@@ -31,7 +31,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DroneStatusService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
+  "srv/GetFreeBox.srv"
   "srv/OccupancyService.srv"
+  "srv/RequestStatus.srv"
   "srv/SlaveBoxIDsService.srv"
   "srv/SlaveBoxInformationService.srv"
 
