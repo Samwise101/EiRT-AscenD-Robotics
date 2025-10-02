@@ -7,7 +7,13 @@ from std_msgs.msg import String
 
 # Project specific imports
 from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage, PositionMessage
-from dronehive_interfaces.srv import RequestBoxStatus, RequestDroneLanding, BoxBroadcastService
+from dronehive_interfaces.srv import (
+	RequestBoxStatus,
+	RequestDroneLanding,
+	BoxBroadcastService,
+	SlaveBoxIDsService,
+	SlaveBoxInformationService
+)
 import dronehive.utils as dh
 
 from dataclasses import dataclass
@@ -58,7 +64,17 @@ class MasterBoxNode(Node):
 		self.initialise_connections()
 
 
+	##########################
+	# Initialisation methods #
+	##########################
+
 	def initialise_connections(self) -> None:
+		"""
+		Initialises the connections of the master box node.
+		Creates the service client manager, messages, timers, services and actions.
+		Gathers the states of the linked slave boxes.
+		Drops the initialiser to free memory.
+		"""
 		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 		self.get_logger().info("Initialising connections...")
 
@@ -73,10 +89,6 @@ class MasterBoxNode(Node):
 		self.initialiser = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
-
-	##########################
-	# Initialisation methods #
-	##########################
 
 	def gather_slave_boxes_states(self) -> None:
 		"""
@@ -125,6 +137,8 @@ class MasterBoxNode(Node):
 	def create_messages(self) -> None:
 		# Subscribers
 		# In the code of the method the subscriber is already saved in internal variable.
+
+		# Topic used to deinitialise a box (both master and slave)
 		self.create_subscription(
 			String,
 			dh.DRONEHIVE_DEINITIALISE_BOX_TOPIC,
@@ -132,6 +146,8 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		# Topic used by slave boxes to let the master box know they want to be initialised. The message is then forwarded
+		# to the GUI.
 		self.create_subscription(
 			BoxBroadcastMessage,
 			dh.DRONEHIVE_INITIALISE_SLAVE_BOX_TOPIC,
@@ -139,6 +155,7 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		# Topic used by the GUI to confirm the initialisation of a box (both master and slave).
 		self.create_subscription(
 			BoxSetupConfirmationMessage,
 			dh.DRONEHIVE_NEW_BOX_CONFIMED_TOPIC,
@@ -147,45 +164,64 @@ class MasterBoxNode(Node):
 		)
 
 		# Publishers
+		# Topic used to forward the initialisation confirmation of a slave box from the GUI to the slave box.
 		self.slave_box_confirm_init_pub = self.create_publisher(
 			BoxSetupConfirmationMessage,
 			dh.DRONEHIVE_NEW_SLAVE_BOX_CONFIMED_TOPIC,
 			qos_profile
 		)
 
+		# Topic used to forward the deinitialisation request of a different box from the GUI to the respective slave box.
 		self.deinitialise_slave_box_pub = self.create_publisher(
 			String,
 			dh.DRONEHIVE_DEINITIALISE_SLAVE_BOX_TOPIC,
 			qos_profile
 		)
 
+		# Topic used to broadcast the initialisation request of a box (both master and slave) to the GUI.
 		self._pub_box_broadcast = self.create_publisher(
 			BoxBroadcastMessage,
 			dh.DRONEHIVE_NEW_BOX_TOPIC,
 			qos_profile
 		)
 
+	#####################
+	# Message callbacks #
+	#####################
 
-	def create_timers(self) -> None:
-		self.slave_publish_timer = self.create_timer(2.0, self.__publish_slave_boxes)
-		self.slave_publish_timer.cancel()
+	def _deinitialise_box_callback(self, msg: String) -> None:
+		# If the message is intended for a different box, forward it to the respective slave box.
+		if msg.data != self.config.box_id:
+			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
+			self.deinitialise_slave_box_pub.publish(msg)
+
+			if msg.data in self.config.linked_box_ids:
+				self.config.linked_box_ids.remove(msg.data)
+				dh.dronehive_update_config(self.config)
+
+			return
+
+		# The message is for this box, deinitialise it.
+		self.get_logger().warn("Deinitialising box as requested...")
+		dh.dronehive_deinitialise(self.config)
+
+		def deferred_reinit():
+			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
+			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
+
+		# Defer to next spin cycle
+		self.timer = self.create_timer(0.1, deferred_reinit)
 
 
-	def create_services(self) -> None:
-		self.create_service(
-			RequestDroneLanding,
-			dh.DRONEHIVE_DRONE_LAND_REQUEST,
-			self.find_best_lending_place
-		)
+	def __init_new_slave_box(self, msg: BoxBroadcastMessage) -> None:
+		request = BoxBroadcastService.Request()
+		request.box_id = msg.box_id
+		request.landing_pos = msg.landing_pos
 
+		self.uninitialised_slave_boxes[msg.box_id] = (msg, time.time())
+		self.slave_publish_timer.reset()
+		self.get_logger().info(f"Initialisation request for new slave box ID: '{request.box_id}', landing position: '{request.landing_pos}'. Forwarding to service...")
 
-	def create_actions(self) -> None:
-		pass
-
-
-	#########################
-	# Callbacks and methods #
-	#########################
 
 	def _confirm_box_initialisation(self, msg: BoxSetupConfirmationMessage):
 		# The message is for a slave box
@@ -207,6 +243,18 @@ class MasterBoxNode(Node):
 			self._pub_box_broadcast.publish(msg)
 
 
+	#################
+	# Create TIMERS #
+	#################
+
+	def create_timers(self) -> None:
+		self.slave_publish_timer = self.create_timer(2.0, self.__publish_slave_boxes)
+		self.slave_publish_timer.cancel()
+
+	###################
+	# TIMER Callbacks #
+	###################
+
 	def __publish_slave_boxes(self) -> None:
 		if len(self.uninitialised_slave_boxes) == 0:
 			self.slave_publish_timer.cancel()
@@ -227,37 +275,32 @@ class MasterBoxNode(Node):
 			del self.uninitialised_slave_boxes[box_id]
 
 
-	def __init_new_slave_box(self, msg: BoxBroadcastMessage) -> None:
-		request = BoxBroadcastService.Request()
-		request.box_id = msg.box_id
-		request.landing_pos = msg.landing_pos
+	###################
+	# Create SERVICES #
+	###################
 
-		self.uninitialised_slave_boxes[msg.box_id] = (msg, time.time())
-		self.slave_publish_timer.reset()
-		self.get_logger().info(f"Initialisation request for new slave box ID: '{request.box_id}', landing position: '{request.landing_pos}'. Forwarding to service...")
+	def create_services(self) -> None:
+		self.create_service(
+			RequestDroneLanding,
+			dh.DRONEHIVE_DRONE_LAND_REQUEST,
+			self.find_best_lending_place
+		)
 
+		self.create_service(
+			SlaveBoxIDsService,
+			dh.DRONEHIVE_GUI_BOXES_ID_SERVICE,
+			self._handle_slave_box_ids_request
+		)
 
-	def _deinitialise_box_callback(self, msg: String) -> None:
-		if msg.data != self.config.box_id:
-			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
-			self.deinitialise_slave_box_pub.publish(msg)
+		self.create_service(
+			SlaveBoxInformationService,
+			dh.DRONEHIVE_GUI_SLAVE_BOX_INFO_SERVICE,
+			self._handle_slave_box_info_request
+		)
 
-			if msg.data in self.config.linked_box_ids:
-				self.config.linked_box_ids.remove(msg.data)
-				dh.dronehive_update_config(self.config)
-
-			return
-
-		self.get_logger().warn("Deinitialising box as requested...")
-		dh.dronehive_deinitialise(self.config)
-
-		def deferred_reinit():
-			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
-			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
-
-		# Defer to next spin cycle
-		self.timer = self.create_timer(0.1, deferred_reinit)
-
+	#####################
+	# SERVICE Callbacks #
+	#####################
 
 	def find_best_lending_place(self, request: RequestDroneLanding.Request, response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
 		closest_box_id = ""
@@ -273,8 +316,45 @@ class MasterBoxNode(Node):
 				if distance < closest_distance:
 					closest_distance = distance
 					closest_box_id = box_id
+					landing_pos = box_status.position
 
-		response.landing_pos = box_status.position
+		response.landing_pos = landing_pos
+		return response
+
+
+	def _handle_slave_box_ids_request(self, request: SlaveBoxIDsService.Request, response: SlaveBoxIDsService.Response) -> SlaveBoxIDsService.Response:
+		response.box_ids = self.config.linked_box_ids
+		response.size = len(self.config.linked_box_ids)
+		self.get_logger().info(f"Slave box IDs request received. Responding with: {response.box_ids}")
+		return response
+
+
+	def _handle_slave_box_info_request(self, request: SlaveBoxInformationService.Request, response: SlaveBoxInformationService.Response) -> SlaveBoxInformationService.Response:
+		box_info = self.linked_slave_boxes.get(request.box_id, None)
+
+		if box_info is None:
+			self.get_logger().warn(f"Slave box info request received for unknown box ID: '{request.box_id}'. Responding with empty info.")
+			response.drone_id = ""
+			response.landing_pos = PositionMessage()
+			response.status = BoxStatusEnum.UNKNOWN.value
+
+		else:
+			self.get_logger().info(f"Slave box info request received for box ID: '{request.box_id}'. Responding with info: {box_info}")
+			response.drone_id = box_info.drone_id
+			response.landing_pos = box_info.position
+			response.status = box_info.status.value
 
 		return response
+
+
+	##################
+	# Create ACTIONS #
+	##################
+
+	def create_actions(self) -> None:
+		pass
+
+	####################
+	# ACTION Callbacks #
+	####################
 
