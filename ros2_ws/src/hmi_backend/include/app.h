@@ -41,6 +41,7 @@ class App : public rclcpp::Node
 
         rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr gui_box_confirm_sub_;
+        rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_sub_;
 
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_heart_pub_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_command_pub_;

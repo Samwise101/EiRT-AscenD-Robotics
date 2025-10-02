@@ -13,7 +13,14 @@ App::App() : Node("app_node")
     to_gui_command_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/command", 10);
 
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
-    gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1));
+
+    new_box_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
+        "/dronehive/new_box", qos, std::bind(&App::onBoxMessage, this, std::placeholders::_1)
+    );
+
+    gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>(
+        "/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
+    );
 
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
@@ -31,6 +38,11 @@ App::~App()
 
 void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
 {
+    auto msg2 = std_msgs::msg::String();
+    msg2.data = "Confirming:";
+    to_gui_msg_pub_->publish(msg2);
+
+    auto qos = rclcpp::QoS(10).best_effort();
     auto to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
     to_box_new_box_confirmation_pub->publish(*msg);
 }
@@ -59,18 +71,14 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command)
 {
     RCLCPP_INFO(this->get_logger(), "Got command: %d", command->command);
-    
-    auto msg = std_msgs::msg::String();
-    msg.data = "Got command: " + std::to_string(command->command);
-    to_gui_msg_pub_->publish(msg);
 
     switch(command->command)
     {
         case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX:
+                auto msg = std_msgs::msg::String();
+                msg.data = "Got command: " + std::to_string(command->command);
+                to_gui_msg_pub_->publish(msg);
                 this->new_box_message_arrived = true;
-                auto new_box_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
-    "/dronehive/new_box", 10, std::bind(&App::onBoxMessage, this, std::placeholders::_1));
-                
                 break;
     };
 }
