@@ -77,9 +77,9 @@ class Initialiser:
 
 		msg = BoxBroadcastMessage()
 		msg.box_id = self.config.box_id
-		msg.landing_pos.lat = self.config.lending_position.lat
-		msg.landing_pos.lon = self.config.lending_position.lon
-		msg.landing_pos.elv = self.config.lending_position.elv
+		msg.landing_pos.lat = self.config.landing_position.lat
+		msg.landing_pos.lon = self.config.landing_position.lon
+		msg.landing_pos.elv = self.config.landing_position.elv
 
 		self.node.get_logger().info("Broadcasting box position...")
 		self._pub_box_broadcast.publish(msg)
@@ -89,7 +89,7 @@ class Initialiser:
 		if msg.confirm:
 			self.node.get_logger().info("Box initialization confirmed.")
 			self.config.initialised = True
-			self.config.lending_position = msg.landing_pos
+			self.config.landing_position = msg.landing_pos
 			dh.dronehive_update_config(self.config)
 
 			# self.node.destroy_timer(self._initialise_timer)

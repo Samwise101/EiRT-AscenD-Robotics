@@ -21,7 +21,7 @@ class Config:
 	box_id: str = ""
 	drone_id: str = ""
 	initialised: bool = False
-	lending_position: PositionMessage = field(default_factory=PositionMessage)
+	landing_position: PositionMessage = field(default_factory=PositionMessage)
 	linked_box_ids: list[str] = field(default_factory=list)
 
 	@staticmethod
@@ -37,7 +37,7 @@ class Config:
 					box_id = data.get("box_id", ""),
 					drone_id = data.get("drone_id", ""),
 					initialised = data.get("initialised", False),
-					lending_position = PositionMessage(**data.get("lending_position", {})),
+					landing_position = PositionMessage(**data.get("lending_position", {})),
 					linked_box_ids = data.get("linked_box_ids", [])
 				)
 
@@ -56,9 +56,9 @@ class Config:
 			"drone_id": self.drone_id,
 			"initialised": self.initialised,
 			"lending_position": {
-				"lat": self.lending_position.lat,
-				"lon": self.lending_position.lon,
-				"elv": self.lending_position.elv
+				"lat": self.landing_position.lat,
+				"lon": self.landing_position.lon,
+				"elv": self.landing_position.elv
 			},
 			"linked_box_ids": self.linked_box_ids
 		}, indent=4)
