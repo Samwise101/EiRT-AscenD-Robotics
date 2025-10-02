@@ -20,6 +20,7 @@ class Config:
 	drone_id: str = ""
 	initialised: bool = False
 	lending_position: PositionMessage = field(default_factory=PositionMessage)
+	linked_box_ids: list[str] = field(default_factory=list)
 
 	@staticmethod
 	def load() -> 'Config':
@@ -34,7 +35,8 @@ class Config:
 					box_id = data.get("box_id", ""),
 					drone_id = data.get("drone_id", ""),
 					initialised = data.get("initialised", False),
-					lending_position = PositionMessage(**data.get("lending_position", {}))
+					lending_position = PositionMessage(**data.get("lending_position", {})),
+					linked_box_ids = data.get("linked_box_ids", [])
 				)
 
 		# Placeholder for loading configuration from a file or environment
@@ -55,7 +57,8 @@ class Config:
 				"lat": self.lending_position.lat,
 				"lon": self.lending_position.lon,
 				"elv": self.lending_position.elv
-			}
+			},
+			"linked_box_ids": self.linked_box_ids
 		}, indent=4)
 
 
