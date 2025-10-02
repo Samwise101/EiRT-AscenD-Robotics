@@ -4,16 +4,23 @@
 #define APP_H
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/timer.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <dronehive_interfaces/msg/box_broadcast_message.hpp>
 #include <dronehive_interfaces/msg/box_setup_confirmation_message.hpp>
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
+#include <dronehive_interfaces/msg/gui_command.hpp>
+
 #include <memory>
 #include <QTimer>
 #include <QThread>
 #include <string>
 
-class App
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+class App : public rclcpp::Node
 {
 
     public:
@@ -21,8 +28,6 @@ class App
         ~App();
 
     public:
-        void appRun();
-        void appHeartBeat();
 
         void onGuiCommandMessage(const std_msgs::msg::String::SharedPtr msg);
 
@@ -33,7 +38,6 @@ class App
     private:
         int count;
         bool new_box_message_arrived;
-        std::shared_ptr<rclcpp::Node> node_;
 
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr gui_command_sub_;
 
@@ -41,6 +45,9 @@ class App
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_command_pub_;
 
         rclcpp::Service<dronehive_interfaces::srv::BoxBroadcastService>::SharedPtr toBoxNewBoxServ;
+        
+        rclcpp::TimerBase::SharedPtr heartbeat_timer_;
+        
 };
 
 #endif

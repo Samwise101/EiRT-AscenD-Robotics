@@ -4,11 +4,10 @@
 
 int main(int argc, char ** argv) {
   rclcpp::init(argc, argv);
-
-  App app{};
-
-  app.appRun();
-
+  auto node = std::make_shared<App>();
+  rclcpp::executors::MultiThreadedExecutor exec;
+  exec.add_node(node);
+  exec.spin();
   rclcpp::shutdown();
   return 0;
 }

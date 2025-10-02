@@ -34,6 +34,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BoxBroadcastMessage.msg"
   "msg/BoxSetupConfirmationMessage.msg"
   "msg/PositionMessage.msg"
+  "msg/GuiCommand.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

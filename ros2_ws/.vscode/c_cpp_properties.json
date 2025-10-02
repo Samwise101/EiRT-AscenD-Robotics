@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/install/dronehive_interfaces/include/dronehive_interfaces/dronehive_interfaces/*",
+                "${workspaceFolder}/install/dronehive_interfaces/include/dronehive_interfaces/dronehive_interfaces/**",
                 "${workspaceFolder}/src/hmi_backend/**",
                 "/usr/include/x86_64-linux-gnu/qt5",
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
@@ -29,8 +29,10 @@
                 "/opt/ros/humble/include",
                 "/opt/ros/humble/include/rclcpp",
                 "/opt/ros/humble/include/std_msgs",
-                "/opt/ros/humble/include/rcutils"
-
+                "/opt/ros/humble/include/rcutils",
+                "${workspaceFolder}/install/dronehive_interfaces/include/dronehive_interfaces/dronehive_interfaces/msg/**",
+                "${workspaceFolder}/install/dronehive_interfaces/include/dronehive_interfaces/dronehive_interfaces/srv/**",
+                "${workspaceFolder}/install/dronehive_interfaces/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

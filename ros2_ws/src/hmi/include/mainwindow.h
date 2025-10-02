@@ -18,6 +18,7 @@
 #include <dronehive_interfaces/msg/box_broadcast_message.hpp>
 #include <dronehive_interfaces/msg/box_setup_confirmation_message.hpp>
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
+#include <dronehive_interfaces/msg/gui_command.hpp>
 
 #include "drone.h"
 #include "box.h"
