@@ -98,6 +98,17 @@ class MasterBoxNode(Node):
 		"""
 		request = BoxStatusService.Request()
 
+		# Add master box status
+
+		self.get_logger().info(f"Gathering state of master box ID: {self.config.box_id}...")
+		self.linked_slave_boxes[self.config.box_id] = BoxStatus(
+			box_id=self.config.box_id,
+			drone_id=self.config.drone_id,
+			position=self.config.landing_position,
+			status=BoxStatusEnum.EMPTY if self.config.drone_id == "" else BoxStatusEnum.OCCUPIED
+		)
+
+		# Add slave box statuses
 		def callback(future: Future, box_id: str) -> None:
 			response: BoxStatusService.Response | None = future.result()
 
@@ -200,6 +211,7 @@ class MasterBoxNode(Node):
 		if msg.data != self.config.box_id:
 			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
 			self.deinitialise_slave_box_pub.publish(msg)
+			self.linked_slave_boxes.pop(msg.data, None)
 
 			if msg.data in self.config.linked_box_ids:
 				self.config.linked_box_ids.remove(msg.data)
@@ -210,6 +222,7 @@ class MasterBoxNode(Node):
 		# The message is for this box, deinitialise it.
 		self.get_logger().warn("Deinitialising box as requested...")
 		dh.dronehive_deinitialise(self.config)
+		self.linked_slave_boxes = {}
 
 		def deferred_reinit():
 			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
@@ -330,17 +343,25 @@ class MasterBoxNode(Node):
 			response.landing_pos = PositionMessage()
 			return response
 
+		if closest_box_id == self.config.box_id:
+			self.get_logger().info(f"Assigning landing position of master box ID: {self.config.box_id} to drone ID: {request.drone_id}")
+			self.config.drone_id = request.drone_id
+			dh.dronehive_update_config(self.config)
+			landing_pos = self.config.landing_position
+
 		self.linked_slave_boxes[closest_box_id].drone_id = request.drone_id
 		self.linked_slave_boxes[closest_box_id].status = BoxStatusEnum.OCCUPIED
-		self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
+		if closest_box_id != self.config.box_id:
+			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
+			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
 		response.landing_pos = landing_pos
 		return response
 
 
 	def _handle_slave_box_ids_request(self, request: SlaveBoxIDsService.Request, response: SlaveBoxIDsService.Response) -> SlaveBoxIDsService.Response:
-		response.box_ids = self.config.linked_box_ids
-		response.size = len(self.config.linked_box_ids)
+		response.box_ids = self.linked_slave_boxes.keys()
+		response.size = len(self.linked_slave_boxes.keys())
 		self.get_logger().info(f"Slave box IDs request received. Responding with: {response.box_ids}")
 		return response
 
