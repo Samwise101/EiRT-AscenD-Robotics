@@ -26,7 +26,8 @@ setup(
         'console_scripts': [
             'box_node = dronehive.box_node:main',
             'slave_node = dronehive.slave_box_node:main',
-            'dummy_confirm = dronehive.dummy:main'
+            'dummy_confirm = dronehive.dummy:main',
+            'dummy_drone = dronehive.dummy_drone:main'
         ],
     },
 )
