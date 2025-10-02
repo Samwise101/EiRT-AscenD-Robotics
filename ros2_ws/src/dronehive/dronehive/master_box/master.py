@@ -79,6 +79,11 @@ class MasterBoxNode(Node):
 	##########################
 
 	def gather_slave_boxes_states(self) -> None:
+		"""
+		Go through all the box_id's in the config and gather their states.
+		For each box, it will call the RequestBoxStatus service and update the linked_slave_boxes dictionary.
+		If the service call fails, it will set the box status to UNKNOWN.
+		"""
 		request = RequestBoxStatus.Request()
 
 		def callback(future: Future, box_id: str) -> None:
@@ -255,7 +260,21 @@ class MasterBoxNode(Node):
 
 
 	def find_best_lending_place(self, request: RequestDroneLanding.Request, response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
-		request.drone_id
+		closest_box_id = ""
+		closest_distance = float('inf')
+		landing_pos = PositionMessage()
+
+		*_, drone_easing, drone_northing = dh.utmconv().geodetic_to_utm(request.drone_pos.lat, request.drone_pos.lon)
+		for box_id, box_status in self.linked_slave_boxes.items():
+			if box_status.status == BoxStatusEnum.EMPTY:
+				self.get_logger().info(f"Found empty slave box ID: {box_id} for drone ID: {request.drone_id}. Assigning landing position: {box_status.position}")
+				*_, box_easting, box_northing = dh.utmconv().geodetic_to_utm(box_status.position.lat, box_status.position.lon)
+				distance = ((box_easting - drone_easing) ** 2 + (box_northing - drone_northing) ** 2) ** 0.5
+				if distance < closest_distance:
+					closest_distance = distance
+					closest_box_id = box_id
+
+		response.landing_pos = box_status.position
 
 		return response
 
