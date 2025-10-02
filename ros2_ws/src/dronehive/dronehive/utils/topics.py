@@ -28,6 +28,7 @@ DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
 ############
 DRONEHIVE_BOX_BROADCAST_SERVICE = "/dronehive/box_broadcast_service"
 DRONEHIVE_DRONE_REQUESTED_LANDING_POS = "/dronehive/drone/landing_pos"
+DRONEHIVE_BOX_STATUS_REQUEST_SERVICE = "/dronehive/box_status_request_service"
 
 ###########
 # Actions #
