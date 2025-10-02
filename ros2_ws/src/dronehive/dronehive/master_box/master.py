@@ -6,8 +6,8 @@ from rclpy.task import Future
 from std_msgs.msg import String
 
 # Project specific imports
-from dronehive_interfaces.msg import PositionMessage
-from dronehive_interfaces.srv import RequestDroneLanding
+from dronehive_interfaces.msg import BoxBroadcastMessage
+from dronehive_interfaces.srv import RequestDroneLanding, BoxBroadcastService
 import dronehive.utils as dh
 
 qos_profile = QoSProfile(
@@ -22,6 +22,7 @@ class MasterBoxNode(Node):
 		super().__init__('master_box_node')
 
 		self.config: dh.Config = dh.dronehive_initialise()
+		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
 		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
@@ -33,7 +34,6 @@ class MasterBoxNode(Node):
 		# When the box is initialised at startup we can directly initialise the connections.
 		# If everything is fine, the initialiser will be None.
 		self.initialise_connections()
-		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
 
 	def initialise_connections(self) -> None:
@@ -69,11 +69,33 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.create_subscription(
+			BoxBroadcastMessage,
+			dh.DRONEHIVE_BOX_INITIALISE_TOPIC,
+			self.__init_new_slave_box,
+			qos_profile
+		)
+
 		# Publishers
+		self.slave_box_confirm_init_pub = self.create_publisher(
+			BoxBroadcastMessage,
+			dh.DRONEHIVE_NEW_SLAVE_BOX_CONFIMED_TOPIC,
+			qos_profile
+		)
+
+		self.deinitialise_slave_box_pub = self.create_publisher(
+			String,
+			dh.DRONEHIVE_DEINITIALISE_SLAVE_BOX_TOPIC,
+			qos_profile
+		)
 
 
 	def create_services(self) -> None:
-		pass
+		self.create_service(
+			RequestDroneLanding,
+			dh.DRONEHIVE_DRONE_LAND_REQUEST,
+			self.find_best_lending_place
+		)
 
 
 	def create_actions(self) -> None:
@@ -84,8 +106,54 @@ class MasterBoxNode(Node):
 	# Callbacks and methods #
 	#########################
 
+	def handle_new_slave_box_response(self, response_future: Future) -> None:
+		self.get_logger().info("Received response from box broadcast service.")
+		try:
+			response: BoxBroadcastService.Response = response_future.result()
+		except Exception as e:
+			self.get_logger().error(f'Service call failed: {e}')
+			return
+
+		if response is None or not response.confirm:
+			self.get_logger().error("New slave box NOT confirmed from service. Check the box ID and try again.")
+			return
+
+		self.get_logger().info(f"New slave box confirmed for box ID: {response.box_id}")
+
+		# Publish the confirmation to the new slave box
+		confirm_msg = BoxBroadcastMessage()
+		confirm_msg.box_id = response.box_id
+		confirm_msg.landing_pos = response.landing_pos
+		self.slave_box_confirm_init_pub.publish(confirm_msg)
+
+		self.config.linked_box_ids.append(response.box_id)
+		dh.dronehive_update_config(self.config)
+
+
+	def __init_new_slave_box(self, msg: BoxBroadcastMessage) -> None:
+		request = BoxBroadcastService.Request()
+		request.box_id = msg.box_id
+		request.landing_pos = msg.landing_pos
+
+		self.get_logger().info(f"Initialisation request for new slave box ID: '{request.box_id}', landing position: '{request.landing_pos}'. Forwarding to service...")
+		self.client_manager.call_async(
+			BoxBroadcastService,
+			dh.DRONEHIVE_BOX_BROADCAST_SERVICE,
+			request,
+			self.handle_new_slave_box_response,
+			None
+		)
+
+
 	def _deinitialise_box_callback(self, msg: String) -> None:
 		if msg.data != self.config.box_id:
+			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
+			self.deinitialise_slave_box_pub.publish(msg)
+
+			if msg.data in self.config.linked_box_ids:
+				self.config.linked_box_ids.remove(msg.data)
+				dh.dronehive_update_config(self.config)
+
 			return
 
 		self.get_logger().warn("Deinitialising box as requested...")
@@ -105,7 +173,7 @@ class MasterBoxNode(Node):
 			req.landing_pos = self.config.lending_position
 			return req
 
-		def request_drone_landing_response_2(response: Future) -> None:
+		def request_drone_landing_response(response: Future) -> None:
 			try:
 				res: RequestDroneLanding.Response = response.result()
 			except Exception as e:
@@ -118,27 +186,14 @@ class MasterBoxNode(Node):
 
 			self.get_logger().info("Landing position confirmed by drone.")
 
-		def request_drone_landing_response(response: RequestDroneLanding.Response) -> None:
-			if not response.confirm:
-				self.get_logger().error("Landing position NOT confirmed from service. Check the box ID and try again.")
-				return
-
-			self.get_logger().info("Landing position confirmed by drone.")
-			# self.drone_landing_client.destory()
-			# self.drone_landing_client = None
-
-		# self.drone_landing_client = dh.ServiceLessClient(
-		# 	self,
-		# 	RequestDroneLanding,
-		# 	dh.DRONEHIVE_DRONE_LAND_REQUEST(pos.data),
-		# 	request_drone_landing_request,
-		# 	request_drone_landing_response,
-		# )
 
 		self.client_manager.call_async(
 			RequestDroneLanding,
-			dh.DRONEHIVE_DRONE_LAND_REQUEST(pos.data),
+			dh.DRONEHIVE_DRONE_LAND_REQUEST,
 			request_drone_landing_request,
-			request_drone_landing_response_2
+			request_drone_landing_response
 		)
 
+
+	def find_best_lending_place(self, request: RequestDroneLanding.Request, response: RequestDroneLanding.Response) -> None:
+		pass
