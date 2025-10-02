@@ -25,12 +25,15 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/PositionMessage.msg"
+  
+  "action/TrackDrone.action"
+  
   "srv/OccupancyService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
   "srv/RequestStatus.srv"
-
-  "msg/PositionMessage.msg"
+  "srv/GetFreeBox.srv"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

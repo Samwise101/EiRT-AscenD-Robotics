@@ -1,0 +1,8 @@
+#service to identify a free box, asking masterbox
+
+string drone_id
+
+---
+
+string box_id
+string box_location
