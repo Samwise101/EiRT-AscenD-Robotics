@@ -168,19 +168,20 @@ class MasterBoxNode(Node):
 
 
 	def send_landing_position_to_drone(self, pos: String) -> None:
-		def request_drone_landing_request() -> RequestDroneLanding.Request:
-			req = RequestDroneLanding.Request()
-			req.landing_pos = self.config.lending_position
-			return req
+		request = RequestDroneLanding.Request()
+		request.box_id = self.config.box_id
+		request.landing_pos = self.config.lending_position
+		self.get_logger().info(f"Sending landing position '{request.landing_pos}' for box ID '{request.box_id}' to drone...")
 
 		def request_drone_landing_response(response: Future) -> None:
 			try:
 				res: RequestDroneLanding.Response = response.result()
+
 			except Exception as e:
 				self.get_logger().error(f'Service call failed: {e}')
 				return
 
-			if not res.confirm:
+			if not res.received:
 				self.get_logger().error("Landing position NOT confirmed from service. Check the box ID and try again.")
 				return
 
@@ -190,8 +191,9 @@ class MasterBoxNode(Node):
 		self.client_manager.call_async(
 			RequestDroneLanding,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
-			request_drone_landing_request,
-			request_drone_landing_response
+			request,
+			request_drone_landing_response,
+			None
 		)
 
 
