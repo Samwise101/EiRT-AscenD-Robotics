@@ -25,7 +25,6 @@ class SlaveBoxNode(Node):
 		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
 		if not self.config.initialised:
 			self.box_init_interfaces()
-
 			return
 
 		# When the box is initialised at startup we can directly initialise the connections.
@@ -95,11 +94,12 @@ class SlaveBoxNode(Node):
 		self.create_subscription(
 			String,
 			dh.DRONEHIVE_REQUEST_LANDING_POS_TOPIC,
-			self.send_landing_position_to_drone,
+			self.landing_drone_requested,
 			qos_profile
 		)
 
 		# Publishers
+		return
 
 
 	def create_services(self) -> None:
@@ -131,9 +131,10 @@ class SlaveBoxNode(Node):
 		return response
 
 
-
-	def send_landing_position_to_drone(self, msg: String) -> None:
-		pass
+	def landing_drone_requested(self, msg: String) -> None:
+		self.get_logger().info(f"Received landing position request for drone ID: {msg.data}")
+		self.config.drone_id = msg.data
+		self.config.save()
 
 
 	def _deinitialise_box_callback(self, msg: String) -> None:
