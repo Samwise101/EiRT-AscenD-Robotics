@@ -13,8 +13,9 @@ DRONEHIVE_NEW_BOX_TOPIC = "/dronehive/new_box"
 # Messages #
 ############
 DRONEHIVE_DEINITIALISE_BOX_TOPIC = "/dronehive/deinitialise_box"
-DRONEHIVE_BOX_INITIALISE_TOPIC = "/dronehive/box_initialise"
+DRONEHIVE_INITIALISE_BOX_TOPIC = "/dronehive/box_initialise"
 
+DRONEHIVE_INITIALISE_SLAVE_BOX_TOPIC = "/dronehive/box_slave_initialise"
 DRONEHIVE_DEINITIALISE_SLAVE_BOX_TOPIC = "/dronehive/deinitialise_slave_box"
 
 # Topic that sends a request for landing position, the drone ID should be formatted in the topic.
