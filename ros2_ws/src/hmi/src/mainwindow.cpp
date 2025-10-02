@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
-    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/new_box",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
+    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backEndManager = new BackEndManager(this);
 
@@ -74,35 +74,51 @@ void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
 {
     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: '%s'", msg->box_id.c_str());
-    backEndManager->setMissedHeartBeat(0);
-
     std::cout << "Got new BOX request\n";
 
-    if(!this->new_box_request)
-    {
-        NewBoxDialog dialog;
-        this->new_box_request = true;
+    NewBoxDialog dialog(this);
+
+    // Run the dialog modally
+    if (dialog.exec() == QDialog::Accepted) {
+        std::cout << "Accepted\n";
+        dronehive_interfaces::msg::GuiCommand return_msg;
+        return_msg.confirm = true;
+        return_msg.command = dronehive_interfaces::msg::GuiCommand::NEW_BOX_CONFIRMED;
+        gui_cmd_pub_->publish(return_msg);
+    } else {
+        std::cout << "Rejected\n";
+        dronehive_interfaces::msg::GuiCommand return_msg;
+        return_msg.confirm = false;
+        return_msg.command = dronehive_interfaces::msg::GuiCommand::NEW_BOX_DECLINED;
+        gui_cmd_pub_->publish(return_msg);
+}
 
 
-        if(dialog.exec() == QDialog::Accepted)
-        {
-            std::cout << "Accepted" << std::endl;
+    // if(!this->new_box_request)
+    // {
+    //     NewBoxDialog dialog;
+    //     this->new_box_request = true;
 
-            double box_lat{dialog.get_box_lat()};
-            double box_lon{dialog.get_box_lon()};
-            double box_alt{dialog.get_box_alt()};
 
-            // Coordinates coord{box_lat, box_lon, box_alt};
-            std::cout << "Box coord: [" << box_lat << ", " << box_lon << ", " << box_alt << "]" << std::endl;
-            // Box box(coord, box_id, this->number_of_boxes++);
+    //     if(dialog.exec() == QDialog::Accepted)
+    //     {
+    //         std::cout << "Accepted" << std::endl;
 
-            // this->boxes.push_back(box);
-        }
-        else
-        {
-            std::cout << "Rejected" << std::endl;
-        }
-    }
+    //         double box_lat{dialog.get_box_lat()};
+    //         double box_lon{dialog.get_box_lon()};
+    //         double box_alt{dialog.get_box_alt()};
+
+    //         // Coordinates coord{box_lat, box_lon, box_alt};
+    //         std::cout << "Box coord: [" << box_lat << ", " << box_lon << ", " << box_alt << "]" << std::endl;
+    //         // Box box(coord, box_id, this->number_of_boxes++);
+
+    //         // this->boxes.push_back(box);
+    //     }
+    //     else
+    //     {
+    //         std::cout << "Rejected" << std::endl;
+    //     }
+    // }
 }
 
 void MainWindow::onBackEndStopped()
@@ -249,7 +265,7 @@ void MainWindow::on_add_box_pushButton_clicked()
     std::cout << "Hello from the add box button\n";
 
     auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = 0;
+    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
 
     gui_cmd_pub_->publish(command);
 }

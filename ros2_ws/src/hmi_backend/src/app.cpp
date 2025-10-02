@@ -12,18 +12,6 @@ App::App() : Node("app_node")
     to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
     to_gui_command_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/command", 10);
 
-    this->toBoxNewBoxServ = this->create_service<dronehive_interfaces::srv::BoxBroadcastService>(
-        "/dronehive/box_broadcast_service",
-        [this](const std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Request> request,
-    std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Response> response)
-        {
-            auto msg = std_msgs::msg::String();
-            msg.data = "Service created";
-            this->to_gui_heart_pub_->publish(msg);
-            this->onNewBoxCreation(request, response);
-        }
-    );
-
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
     heartbeat_timer_ = this->create_wall_timer(
@@ -32,7 +20,7 @@ App::App() : Node("app_node")
         std_msgs::msg::String msg;
         msg.data = "heartbeat";
         to_gui_heart_pub_->publish(msg);
-    });
+    }); 
 }
 
 App::~App()
@@ -40,14 +28,6 @@ App::~App()
     rclcpp::shutdown();
 }
 
-void App::onNewBoxCreation(
-    const std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Request> request,
-    std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Response> response)
-{
-    RCLCPP_INFO(this->get_logger(), "Triggered: %s");
-    response->confirm = true;
-    response->landing_pos = request->landing_pos;
-}
 
 void App::onGuiMessage(const std_msgs::msg::String::SharedPtr msg)
 {
@@ -62,8 +42,12 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
     msg.data = "Got command: " + std::to_string(command->command);
     to_gui_msg_pub_->publish(msg);
 
-    if(command->command == dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX)
+    switch(command->command)
     {
-
-    }
+        case dronehive_interfaces::msg::GuiCommand::NEW_BOX_CONFIRMED:
+        case dronehive_interfaces::msg::GuiCommand::NEW_BOX_DECLINED:
+                this->new_box_confirm = false;
+        case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX:
+                this->new_box_message_arrived = true;
+    };
 }
