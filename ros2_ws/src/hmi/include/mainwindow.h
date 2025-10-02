@@ -39,12 +39,14 @@ public:
     void update_box_comboBox(int& new_box_number);
     void cleanup();
 
+    void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
+    void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
+    void onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
+
 private slots:
 
     void onBackEndStopped(void);
     void onBackEndCrashed(void);
-    void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
-    void onNewBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
 
     // pushButton slots
     void on_settings_pushButton_clicked(bool);
@@ -72,9 +74,12 @@ private:
     Ui::MainWindow *ui;
     std::shared_ptr<rclcpp::Node> node_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_cmd_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
+
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_gui_sub_;
-    rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr backend_msg_sub_;
 
     std::vector<Box> boxes;
     int number_of_boxes;

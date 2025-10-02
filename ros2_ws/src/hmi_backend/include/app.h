@@ -29,7 +29,8 @@ class App : public rclcpp::Node
 
     public:
 
-        void onGuiCommandMessage(const std_msgs::msg::String::SharedPtr msg);
+        void onGuiMessage(const std_msgs::msg::String::SharedPtr msg);
+        void onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command);
 
         void onNewBoxCreation(
             const std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Request> request,
@@ -39,10 +40,11 @@ class App : public rclcpp::Node
         int count;
         bool new_box_message_arrived;
 
-        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr gui_command_sub_;
+        rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub_;
 
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_heart_pub_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_command_pub_;
+        rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_msg_pub_;
 
         rclcpp::Service<dronehive_interfaces::srv::BoxBroadcastService>::SharedPtr toBoxNewBoxServ;
         

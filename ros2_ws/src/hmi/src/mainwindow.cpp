@@ -15,13 +15,14 @@ MainWindow::MainWindow(QWidget *parent)
     auto qos = rclcpp::QoS(10).best_effort();
 
     // Create publishers
-    pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/command", 10);
+    pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/msg", 10);
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
-    
+    gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10);
+
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>("/backend/new_box",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
-
+    backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backEndManager = new BackEndManager(this);
 
     connect(backEndManager, &BackEndManager::backEndCrashed, this, &MainWindow::onBackEndCrashed);
@@ -59,9 +60,14 @@ void MainWindow::cleanup()
     delete this->ui;
 }
 
+void MainWindow::onBackendMessage(const std_msgs::msg::String::SharedPtr msg)
+{
+    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: %s", msg->data.c_str());
+}
+
 void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 {
-    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got message: '%s'", msg->data.c_str());
+    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got heartbeat: '%s'", msg->data.c_str());
     backEndManager->setMissedHeartBeat(0);
 }
 
@@ -240,5 +246,10 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 
 void MainWindow::on_add_box_pushButton_clicked()
 {
-    std::cout << "Hello from the push button\n";
+    std::cout << "Hello from the add box button\n";
+
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = 0;
+
+    gui_cmd_pub_->publish(command);
 }
