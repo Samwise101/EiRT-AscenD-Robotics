@@ -33,24 +33,6 @@ def eval_cubic(coeffs, t):
 # ----------------------------------------------------------------------
 
 class LandingTrajNode(Node):
-    def timer_cb(self):
-        # Publish setpoint to keep MAVROS in offboard mode
-        msg = PoseStamped()
-        msg.header = Header()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'map'
-
-        # Default: hold current position if no trajectory
-        if self.current_pos is None:
-            self.get_logger().warn('Current position unknown, cannot publish setpoint.')
-            return
-
-        msg.pose.orientation.x = float(self.current_pos[0])
-        msg.pose.orientation.y = float(self.current_pos[1])
-        msg.pose.orientation.z = float(self.current_pos[2])
-        # Set type_mask to ignore velocity/acceleration/yaw
-        self.pub.publish(msg)
-
     def __init__(self):
         super().__init__('landing_traj_node')
 
@@ -74,6 +56,25 @@ class LandingTrajNode(Node):
 
         # Once both current_pos and landing_pos are known -> plan trajectory
         self.get_logger().info('LandingTrajNode initialized. Waiting for current position...')
+
+
+    def timer_cb(self):
+        # Publish setpoint to keep MAVROS in offboard mode
+        msg = PoseStamped()
+        msg.header = Header()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'map'
+
+        # Default: hold current position if no trajectory
+        if self.current_pos is None:
+            self.get_logger().warn('Current position unknown, cannot publish setpoint.')
+            return
+
+        msg.pose.orientation.x = float(self.current_pos[0])
+        msg.pose.orientation.y = float(self.current_pos[1])
+        msg.pose.orientation.z = float(self.current_pos[2])
+        # Set type_mask to ignore velocity/acceleration/yaw
+        self.pub.publish(msg)
 
     # ------------------------------------------------------------------
 
