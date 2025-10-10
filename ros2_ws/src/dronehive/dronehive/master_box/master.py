@@ -244,22 +244,27 @@ class MasterBoxNode(Node):
 
 	def _confirm_box_initialisation(self, msg: BoxSetupConfirmationMessage):
 		# The message is for a slave box
-		if self.config.box_id != msg.box_id:
+		if self.config.box_id != msg.box_id and msg.box_id in self.uninitialised_slave_boxes:
 			self.get_logger().info(f"Box initialization confirmed for slave box ID: '{msg.box_id}'. Forwarding to service...")
 			self.slave_box_confirm_init_pub.publish(msg)
-			self.config.linked_box_ids.append(msg.box_id)
+			self.config.linked_box_ids.add(msg.box_id)
 			self.slave_publish_timer.cancel()
-			self.uninitialised_slave_boxes.pop(msg.box_id)
+			self.get_logger().info(f"Removing slave box ID: '{msg.box_id}' from uninitialised list {self.uninitialised_slave_boxes}")
+			self.uninitialised_slave_boxes.pop(msg.box_id, None)
 			dh.dronehive_update_config(self.config)
 			return
 
 		# The message is for this master box
-		if msg.confirm:
+		if msg.confirm and self.config.initialised == False:
 			self.get_logger().info("Box initialization confirmed.")
 			self.config.initialised = True
 			self.config.landing_position = msg.landing_pos
 			dh.dronehive_update_config(self.config)
-			self._pub_box_broadcast.publish(msg)
+
+			response = BoxBroadcastMessage()
+			response.box_id = self.config.box_id
+			response.landing_pos = self.config.landing_position
+			self._pub_box_broadcast.publish(response)
 
 
 	#################
