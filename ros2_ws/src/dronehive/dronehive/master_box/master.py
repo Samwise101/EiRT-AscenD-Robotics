@@ -296,7 +296,7 @@ class MasterBoxNode(Node):
 			self._pub_box_broadcast.publish(msg)
 
 		for box_id in to_remove:
-			del self.uninitialised_slave_boxes[box_id]
+			self.uninitialised_slave_boxes.pop(box_id, None)
 
 
 	###################
