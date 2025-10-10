@@ -207,6 +207,14 @@ class MasterBoxNode(Node):
 	#####################
 
 	def _deinitialise_box_callback(self, msg: String) -> None:
+		"""
+		Callback for the deinitialise box topic. This callback is used as an interface between
+		the boxes (master and slave) and the GUI. When a box (both master and slave) needs to be deinitialised,
+		it will receive a message from the GUI.
+
+		Args:
+			msg: String - The message containing the box ID to deinitialise.
+		"""
 		# If the message is intended for a different box, forward it to the respective slave box.
 		if msg.data != self.config.box_id:
 			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
@@ -233,6 +241,16 @@ class MasterBoxNode(Node):
 
 
 	def __init_new_slave_box(self, msg: BoxBroadcastMessage) -> None:
+		"""
+		Callback for the BoxBroadcastMessage topic. This callback is used as an interface between
+		the boxes (master and slave) and the GUI. When a slave box wants to be initialised, it will
+		send a message to the master box which will then forward it to the GUI.
+
+		This only works if the box is already initialised (aka setup and confirmed by the GUI).
+
+		Args:
+			msg: BoxBroadcastMessage - The message containing the box ID and landing position.
+		"""
 		request = BoxBroadcastService.Request()
 		request.box_id = msg.box_id
 		request.landing_pos = msg.landing_pos
@@ -243,24 +261,39 @@ class MasterBoxNode(Node):
 
 
 	def _confirm_box_initialisation(self, msg: BoxSetupConfirmationMessage):
+		"""
+		Callback for the BoxSetupConfirmationMessage topic. This callback is used as an interface between
+		the boxes (master and slave) and the GUI. When a box (both master and slave) is initialised, it will
+		receive a confirmation message from the GUI.
+
+		Args:
+			msg: BoxSetupConfirmationMessage - The message containing the box ID and landing position.
+		"""
 		# The message is for a slave box
 		if self.config.box_id != msg.box_id and msg.box_id in self.uninitialised_slave_boxes:
 			self.get_logger().info(f"Box initialization confirmed for slave box ID: '{msg.box_id}'. Forwarding to service...")
+			# Let the slave box know it has been initialised.
 			self.slave_box_confirm_init_pub.publish(msg)
-			self.config.linked_box_ids.add(msg.box_id)
 			self.slave_publish_timer.cancel()
+
+			# Remove from uninitialised list.
 			self.get_logger().info(f"Removing slave box ID: '{msg.box_id}' from uninitialised list {self.uninitialised_slave_boxes}")
 			self.uninitialised_slave_boxes.pop(msg.box_id, None)
+
+			# Update config.
+			self.config.linked_box_ids.add(msg.box_id)
 			dh.dronehive_update_config(self.config)
 			return
 
 		# The message is for this master box
 		if msg.confirm and self.config.initialised == False:
 			self.get_logger().info("Box initialization confirmed.")
+			# Update config.
 			self.config.initialised = True
 			self.config.landing_position = msg.landing_pos
 			dh.dronehive_update_config(self.config)
 
+			# Initialise connections.
 			response = BoxBroadcastMessage()
 			response.box_id = self.config.box_id
 			response.landing_pos = self.config.landing_position
@@ -272,6 +305,7 @@ class MasterBoxNode(Node):
 	#################
 
 	def create_timers(self) -> None:
+		""" Creates the timers used by the master box node. """
 		self.slave_publish_timer = self.create_timer(2.0, self.__publish_slave_boxes)
 		self.slave_publish_timer.cancel()
 
@@ -280,6 +314,10 @@ class MasterBoxNode(Node):
 	###################
 
 	def __publish_slave_boxes(self) -> None:
+		"""
+		Publishes the initialisation request for all uninitialised slave boxes every 2 seconds.
+		If all the uninitialised slave boxes have been initialised, the timer is cancelled.
+		"""
 		if len(self.uninitialised_slave_boxes) == 0:
 			self.slave_publish_timer.cancel()
 			return
@@ -304,6 +342,7 @@ class MasterBoxNode(Node):
 	###################
 
 	def create_services(self) -> None:
+		""" Initialilse the services provided by the master box node. """
 		self.create_service(
 			DroneLandingService,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
@@ -327,9 +366,20 @@ class MasterBoxNode(Node):
 	#####################
 
 	def find_best_lending_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
-		closest_box_id = ""
-		closest_distance = float('inf')
-		landing_pos = PositionMessage()
+		"""
+		Finds the best landing place for a drone based on its current position.
+		It will look for the closest empty slave box and assign it to the drone.
+		If no empty slave box is found, it will return an empty position.
+		If the closest empty slave box is the master box, it will assign the drone to the master box, otherwise it will
+		assign the drone to the slave box and publish the drone ID to the respective slave box.
+
+		Args:
+			request: DroneLandingService.Request - The request containing the drone ID and current position and the drone ID.
+			response: DroneLandingService.Response - The response containing the landing position.
+
+		Returns:
+			DroneLandingService.Response - The response containing the landing position.
+		"""
 
 		*_, drone_easing, drone_northing = dh.utmconv().geodetic_to_utm(request.drone_pos.lat, request.drone_pos.lon)
 		for box_id, box_status in self.linked_slave_boxes.items():
@@ -365,6 +415,18 @@ class MasterBoxNode(Node):
 
 
 	def _handle_slave_box_ids_request(self, request: SlaveBoxIDsService.Request, response: SlaveBoxIDsService.Response) -> SlaveBoxIDsService.Response:
+		"""
+		Handles the request for the IDs of all linked slave boxes. If a request arrives to fetch the IDs of all linked slave
+		boxes, this method will be called. It will populate the response with the IDs of all linked slave boxes. (including
+		the master box ID)
+
+		Args:
+			request: SlaveBoxIDsService.Request - Empty request.
+			response: SlaveBoxIDsService.Response - The response containing the list of box IDs and the size of the list.
+
+		Returns:
+			SlaveBoxIDsService.Response - The response containing the list of box IDs and the size of the list.
+		"""
 		response.box_ids = self.linked_slave_boxes.keys()
 		response.size = len(self.linked_slave_boxes.keys())
 		self.get_logger().info(f"Slave box IDs request received. Responding with: {response.box_ids}")
@@ -372,6 +434,20 @@ class MasterBoxNode(Node):
 
 
 	def _handle_slave_box_info_request(self, request: SlaveBoxInformationService.Request, response: SlaveBoxInformationService.Response) -> SlaveBoxInformationService.Response:
+		"""
+		Handles the request for the information of a specific linked slave box. If a request arrives to fetch the information
+		of a specific linked slave box, this method will be called. It will populate the response with the information of the
+		specified slave box. If the box ID is not found, it will respond with empty information and status UNKNOWN.
+
+		Args:
+			request: SlaveBoxInformationService.Request - The request containing the box ID.
+			response: SlaveBoxInformationService.Response - The response containing the box information (drone ID, landing
+			position, status).
+
+		Returns:
+			SlaveBoxInformationService.Response - The response containing the box information (drone ID, landing position,
+			status).
+		"""
 		box_info = self.linked_slave_boxes.get(request.box_id, None)
 
 		if box_info is None:
@@ -394,6 +470,7 @@ class MasterBoxNode(Node):
 	##################
 
 	def create_actions(self) -> None:
+		""" Creates the actions used by the master box node. """
 		pass
 
 	####################
