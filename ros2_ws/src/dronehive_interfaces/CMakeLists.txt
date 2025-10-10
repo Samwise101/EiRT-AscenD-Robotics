@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.22)
 project(dronehive_interfaces)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -31,9 +31,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DroneStatusService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
-  "srv/GetFreeBox.srv"
   "srv/OccupancyService.srv"
-  "srv/RequestStatus.srv"
   "srv/SlaveBoxIDsService.srv"
   "srv/SlaveBoxInformationService.srv"
 
