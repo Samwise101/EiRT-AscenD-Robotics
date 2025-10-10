@@ -41,6 +41,8 @@ class Config:
 					linked_box_ids = data.get("linked_box_ids", [])
 				)
 
+		conf = Config()
+		conf.save()
 		# Placeholder for loading configuration from a file or environment
 		# For now, return a default Config object
 		return Config()
