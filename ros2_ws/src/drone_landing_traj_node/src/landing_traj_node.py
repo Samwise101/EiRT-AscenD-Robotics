@@ -35,28 +35,27 @@ def eval_cubic(coeffs, t):
 class LandingTrajNode(Node):
     def timer_cb(self):
         # Publish setpoint to keep MAVROS in offboard mode
-        msg = PositionTarget()
+        msg = PoseStamped()
         msg.header = Header()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'map'
+
         # Default: hold current position if no trajectory
-        if self.current_pos is not None:
-            msg.position.x = float(self.current_pos[0])
-            msg.position.y = float(self.current_pos[1])
-            msg.position.z = float(self.current_pos[2])
-        else:
+        if self.current_pos is None:
             self.get_logger().warn('Current position unknown, cannot publish setpoint.')
             return
+
+        msg.pose.orientation.x = float(self.current_pos[0])
+        msg.pose.orientation.y = float(self.current_pos[1])
+        msg.pose.orientation.z = float(self.current_pos[2])
         # Set type_mask to ignore velocity/acceleration/yaw
-        msg.type_mask = PositionTarget.IGNORE_VX | PositionTarget.IGNORE_VY | PositionTarget.IGNORE_VZ |
-                        PositionTarget.IGNORE_AFX | PositionTarget.IGNORE_AFY | PositionTarget.IGNORE_AFZ |
-                        PositionTarget.IGNORE_YAW | PositionTarget.IGNORE_YAW_RATE
         self.pub.publish(msg)
+
     def __init__(self):
         super().__init__('landing_traj_node')
 
         # --- Publishers/Subscribers ---
-        self.pub = self.create_publisher(PositionTarget, '/mavros/setpoint_raw/local', 10) #might need to be changed if the drone uses a different topic
+        self.pub = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10) #might need to be changed if the drone uses a different topic
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self.pose_cb, 10) #might need to be changed if the drone uses a different topic
 
         # --- Service client to the landing box ---
