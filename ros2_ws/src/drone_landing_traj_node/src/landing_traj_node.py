@@ -117,7 +117,6 @@ class LandingTrajNode(Node):
         pos_msg.elv = self.current_pos[2]
         pos_msg.drone_id = 'drone69'
         req.drone_pos = pos_msg
-        
 
         future = self.cli.call_async(req)
         future.add_done_callback(self.future_callback)
@@ -137,15 +136,16 @@ class LandingTrajNode(Node):
         v0 = np.zeros(3)
         a0 = np.zeros(3)
         t_accum = 0.0
-        for i in range(len(self.waypoints)-1):
 
-            d = np.linalg.norm(self.waypoints[i+1] - self.waypoints[i])
+        for i in range(len(self.waypoints)-1):
             p0 = self.waypoints[i]
             p1 = self.waypoints[i+1]
+
+            d = np.linalg.norm(p1 - p0)
             T = max(1.0, d / 0.5)  # slower descent: 0.5 m/s nominal
             t_accum += T
-
             coeffs_xyz = []
+
             for axis in range(3):
                 coeffs = cubic_coeffs_from_boundary(p0[axis], p1[axis], v0[axis], a0[axis], T)
                 coeffs_xyz.append(coeffs)
