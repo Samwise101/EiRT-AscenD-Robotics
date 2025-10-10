@@ -22,7 +22,7 @@ class Config:
 	drone_id: str = ""
 	initialised: bool = False
 	landing_position: PositionMessage = field(default_factory=PositionMessage)
-	linked_box_ids: list[str] = field(default_factory=list)
+	linked_box_ids: set[str] = field(default_factory=set)
 
 	@staticmethod
 	def load() -> 'Config':
@@ -38,7 +38,7 @@ class Config:
 					drone_id = data.get("drone_id", ""),
 					initialised = data.get("initialised", False),
 					landing_position = PositionMessage(**data.get("lending_position", {})),
-					linked_box_ids = data.get("linked_box_ids", [])
+					linked_box_ids = set(data.get("linked_box_ids", []))
 				)
 
 		conf = Config()
@@ -62,7 +62,7 @@ class Config:
 				"lon": self.landing_position.lon,
 				"elv": self.landing_position.elv
 			},
-			"linked_box_ids": self.linked_box_ids
+			"linked_box_ids": list(self.linked_box_ids)
 		}, indent=4)
 
 
