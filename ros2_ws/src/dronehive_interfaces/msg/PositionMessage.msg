@@ -1,7 +1,7 @@
-#contains the position of a point in x, y and z (z is up)
+#contains the position of a point in lat, lon and elv (elv is up)
 
 string drone_id
-float64 x
-float64 y
-float64 z
+float64 lat
+float64 lon
+float64 elv
 

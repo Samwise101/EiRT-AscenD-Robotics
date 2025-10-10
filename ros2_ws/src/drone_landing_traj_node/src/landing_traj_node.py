@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+import numpy as np
+import time
+
+from geometry_msgs.msg import PoseStamped, Point, Vector3
+from mavros_msgs.msg import PositionTarget
+from std_msgs.msg import Header
+
+import dronehive.utils as dh
+from dronehive_interfaces.srv import DroneLandingService
+from dronehive_interfaces.msg import PositionMessage
+#from example_interfaces.srv import Trigger  # simple service type for demo
+
+# ---------------------- Helper math ----------------------------------
+
+def cubic_coeffs_from_boundary(p0, v0, a0, p1, T):
+    """Compute cubic coefficients given start pos/vel/acc and end pos."""
+    c0 = p0
+    c1 = v0
+    c2 = a0 / 2.0
+    c3 = (p1 - (c0 + c1*T + c2*T**2)) / (T**3)
+    return np.array([c0, c1, c2, c3])
+
+def eval_cubic(coeffs, t):
+    c0, c1, c2, c3 = coeffs
+    p = c0 + c1*t + c2*t**2 + c3*t**3
+    v = c1 + 2*c2*t + 3*c3*t**2
+    a = 2*c2 + 6*c3*t
+    return p, v, a
+
+# ----------------------------------------------------------------------
+
+class LandingTrajNode(Node):
+    def __init__(self):
+        super().__init__('landing_traj_node')
+
+        # --- Publishers/Subscribers ---
+        self.pub = self.create_publisher(PositionTarget, '/mavros/setpoint_raw/local', 10) #might need to be changed if the drone uses a different topic
+        self.create_subscription(PoseStamped, '/mavros/local_position/pose', self.pose_cb, 10) #might need to be changed if the drone uses a different topic
+
+        # --- Service client to the landing box ---
+        
+        self.cli = self.create_client(DroneLandingService, dh.DRONEHIVE_DRONE_LAND_REQUEST)
+        while not self.cli.wait_for_service(timeout_sec=2.0):
+            self.get_logger().info(f'Waiting for {dh.DRONEHIVE_DRONE_LAND_REQUEST} service...')
+
+        # --- Internal state ---
+        self.current_pos = None
+        self.landing_pos = None
+        self.have_path = False
+        self.path_start_time = None
+        self.publish_rate = 50.0  # Hz
+        self.timer = self.create_timer(1.0/self.publish_rate, self.timer_cb)
+
+        # Once both current_pos and landing_pos are known -> plan trajectory
+        self.get_logger().info('LandingTrajNode initialized. Waiting for current position...')
+
+    # ------------------------------------------------------------------
+
+    def pose_cb(self, msg: PoseStamped):
+        self.current_pos = np.array([
+            msg.pose.position.x,
+            msg.pose.position.y,
+            msg.pose.position.z
+        ])
+
+        if self.landing_pos is None:
+            # Try to fetch landing position once we have current pos
+            self.request_landing_position()
+
+        if (self.current_pos is not None) and (self.landing_pos is not None) and not self.have_path:
+            self.plan_trajectory()
+
+    # ------------------------------------------------------------------
+
+    def request_landing_position(self):
+        """Request landing position from the master box node via DroneLandingService."""
+        self.get_logger().info('Requesting landing position from master box...')
+        req = DroneLandingService.Request()
+        # For now, use current_pos as lat/lon/elv (replace with actual conversion if needed)
+        if self.current_pos is None:
+            self.get_logger().warn('Current position not available for landing request.')
+            return
+        pos_msg = PositionMessage()
+        pos_msg.lat = self.current_pos[0]
+        pos_msg.lon = self.current_pos[1]
+        pos_msg.elv = self.current_pos[2]
+        req.drone_pos = pos_msg
+        # TODO: set req.drone_id when available
+
+        future = self.cli.call_async(req)
+        rclpy.spin_until_future_complete(self, future)
+        if future.result() is not None:
+            landing_pos_msg = future.result().landing_pos
+            self.landing_pos = np.array([landing_pos_msg.lat, landing_pos_msg.lon, landing_pos_msg.elv])
+            self.get_logger().info(f"Received landing position: ({self.landing_pos[0]}, {self.landing_pos[1]}, {self.landing_pos[2]})")
+        else:
+            self.get_logger().warn('Landing service call failed or returned no data')
+
+    # ------------------------------------------------------------------
+
+    def plan_trajectory(self):
+        """Constructs 2-segment cubic trajectory: current -> above -> land."""
+        if self.current_pos is None or self.landing_pos is None:
+            return
+
+        above = self.landing_pos + np.array([0.0, 0.0, 1.0])  # 1m above landing point
+        self.waypoints = [self.current_pos, above, self.landing_pos]
+
+        # --- Time allocation heuristic ---
+        self.segment_times = []
+        for i in range(len(self.waypoints)-1):
+            d = np.linalg.norm(self.waypoints[i+1] - self.waypoints[i])
+            self.segment_times.append(max(1.0, d / 0.5))  # slower descent: 0.5 m/s nominal
+
+        # --- Build segments ---
+        self.segments = []
+        v0 = np.zeros(3)
+        a0 = np.zeros(3)
+        t_accum = 0.0
+        for i in range(len(self.waypoints)-1):
+            p0 = self.waypoints[i]
+            p1 = self.waypoints[i+1]
+            T = self.segment_times[i]
+            coeffs_xyz = []
+            for axis in range(3):
+                coeffs = cubic_coeffs_from_boundary(p0[axis],_
