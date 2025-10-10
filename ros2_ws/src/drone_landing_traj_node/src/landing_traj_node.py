@@ -109,21 +109,25 @@ class LandingTrajNode(Node):
         above = self.landing_pos + np.array([0.0, 0.0, 1.0])  # 1m above landing point
         self.waypoints = [self.current_pos, above, self.landing_pos]
 
-        # --- Time allocation heuristic ---
-        self.segment_times = []
-        for i in range(len(self.waypoints)-1):
-            d = np.linalg.norm(self.waypoints[i+1] - self.waypoints[i])
-            self.segment_times.append(max(1.0, d / 0.5))  # slower descent: 0.5 m/s nominal
-
         # --- Build segments ---
         self.segments = []
         v0 = np.zeros(3)
         a0 = np.zeros(3)
         t_accum = 0.0
         for i in range(len(self.waypoints)-1):
+            
+            d = np.linalg.norm(self.waypoints[i+1] - self.waypoints[i])
             p0 = self.waypoints[i]
             p1 = self.waypoints[i+1]
-            T = self.segment_times[i]
+            T = max(1.0, d / 0.5)  # slower descent: 0.5 m/s nominal
+            t_accum += T
+            
             coeffs_xyz = []
             for axis in range(3):
-                coeffs = cubic_coeffs_from_boundary(p0[axis],_
+                coeffs = cubic_coeffs_from_boundary(p0[axis], p1[axis], v0[axis], a0[axis], T)
+                coeffs_xyz.append(coeffs)
+            self.segments.append(coeffs_xyz)
+
+        # --- Time allocation ---
+        self.total_time = t_accum
+        self.get_logger().info(f"Total trajectory time: {self.total_time:.2f} seconds")
