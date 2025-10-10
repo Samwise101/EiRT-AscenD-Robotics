@@ -90,6 +90,7 @@ class LandingTrajNode(Node):
 
         if (self.current_pos is not None) and (self.landing_pos is not None) and not self.have_path:
             self.plan_trajectory()
+            self.have_path = True
 
     # ------------------------------------------------------------------
 
