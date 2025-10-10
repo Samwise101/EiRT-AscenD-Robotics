@@ -33,6 +33,25 @@ def eval_cubic(coeffs, t):
 # ----------------------------------------------------------------------
 
 class LandingTrajNode(Node):
+    def timer_cb(self):
+        # Publish setpoint to keep MAVROS in offboard mode
+        msg = PositionTarget()
+        msg.header = Header()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'map'
+        # Default: hold current position if no trajectory
+        if self.current_pos is not None:
+            msg.position.x = float(self.current_pos[0])
+            msg.position.y = float(self.current_pos[1])
+            msg.position.z = float(self.current_pos[2])
+        else:
+            self.get_logger().warn('Current position unknown, cannot publish setpoint.')
+            return
+        # Set type_mask to ignore velocity/acceleration/yaw
+        msg.type_mask = PositionTarget.IGNORE_VX | PositionTarget.IGNORE_VY | PositionTarget.IGNORE_VZ |
+                        PositionTarget.IGNORE_AFX | PositionTarget.IGNORE_AFY | PositionTarget.IGNORE_AFZ |
+                        PositionTarget.IGNORE_YAW | PositionTarget.IGNORE_YAW_RATE
+        self.pub.publish(msg)
     def __init__(self):
         super().__init__('landing_traj_node')
 
@@ -51,7 +70,7 @@ class LandingTrajNode(Node):
         self.landing_pos = None
         self.have_path = False
         self.path_start_time = None
-        self.publish_rate = 50.0  # Hz
+        self.publish_rate = 60.0  # Hz
         self.timer = self.create_timer(1.0/self.publish_rate, self.timer_cb)
 
         # Once both current_pos and landing_pos are known -> plan trajectory
@@ -96,8 +115,9 @@ class LandingTrajNode(Node):
         pos_msg.lat = self.current_pos[0]
         pos_msg.lon = self.current_pos[1]
         pos_msg.elv = self.current_pos[2]
+        pos_msg.drone_id = 'drone69'
         req.drone_pos = pos_msg
-        # TODO: set req.drone_id when available
+        
 
         future = self.cli.call_async(req)
         future.add_done_callback(self.future_callback)
