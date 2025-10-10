@@ -380,20 +380,24 @@ class MasterBoxNode(Node):
 		Returns:
 			DroneLandingService.Response - The response containing the landing position.
 		"""
+		closest_box_id: str | None = None
+		closest_distance: float = float('inf')
+		landing_pos: PositionMessage = PositionMessage()
 
 		*_, drone_easing, drone_northing = dh.utmconv().geodetic_to_utm(request.drone_pos.lat, request.drone_pos.lon)
 		for box_id, box_status in self.linked_slave_boxes.items():
-			if box_status.status == BoxStatusEnum.EMPTY:
+			if box_status.status != BoxStatusEnum.EMPTY:
+				continue
+
+			*_, box_easting, box_northing = dh.utmconv().geodetic_to_utm(box_status.position.lat, box_status.position.lon)
+			distance = ((box_easting - drone_easing) ** 2 + (box_northing - drone_northing) ** 2) ** 0.5
+			if distance < closest_distance:
+				closest_distance = distance
+				closest_box_id = box_id
+				landing_pos = box_status.position
 				self.get_logger().info(f"Found empty slave box ID: {box_id} for drone ID: {request.drone_id}. Assigning landing position: {box_status.position}")
-				*_, box_easting, box_northing = dh.utmconv().geodetic_to_utm(box_status.position.lat, box_status.position.lon)
-				distance = ((box_easting - drone_easing) ** 2 + (box_northing - drone_northing) ** 2) ** 0.5
-				if distance < closest_distance:
-					closest_distance = distance
-					closest_box_id = box_id
-					landing_pos = box_status.position
 
-
-		if closest_box_id == "":
+		if closest_box_id == None:
 			self.get_logger().warn(f"No empty slave box found for drone ID: {request.drone_id}. Cannot assign landing position.")
 			response.landing_pos = PositionMessage()
 			return response
