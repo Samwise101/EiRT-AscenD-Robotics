@@ -263,11 +263,6 @@ class OffboardControl(Node):
 				self.go_to_pos(self.pose_descent, self.descent)
 			return
 
-		if self.descent:
-			self.get_logger().info(f"Landing to target position")
-			self.go_to_pos(self.pose_land)
-			return
-
 	def publish_setpoint(self):
 		self.local_pos_pub.publish(self.sp)
 
