@@ -23,9 +23,9 @@ class DronePositionPublisher(Node):
         pos_msg.drone_id = self._drone_id
 		if hasattr(pos_msg, 'drone_id'):
 			pos_msg.drone_id = self._drone_id
-		pos_msg.x = msg.pose.position.x
-		pos_msg.y = msg.pose.position.y
-		pos_msg.z = msg.pose.position.z
+		pos_msg.lat = msg.pose.position.x
+		pos_msg.lon = msg.pose.position.y
+		pos_msg.elv = msg.pose.position.z
 		self._pub.publish(pos_msg)
 
 def main(args=None):
