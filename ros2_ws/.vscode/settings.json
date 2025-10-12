@@ -74,6 +74,7 @@
         "any": "cpp",
         "future": "cpp",
         "shared_mutex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "qthread": "cpp"
     }
 }

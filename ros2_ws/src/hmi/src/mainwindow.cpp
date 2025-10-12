@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
+    backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
+    
     backEndManager = new BackEndManager(this);
 
     connect(backEndManager, &BackEndManager::backEndCrashed, this, &MainWindow::onBackEndCrashed);
@@ -58,6 +60,18 @@ void MainWindow::cleanup()
 
     delete this->spinTimer_;
     delete this->ui;
+}
+
+void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)
+{
+    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got command: %d", msg->command);
+
+    switch(msg->command)
+    {
+        case dronehive_interfaces::msg::BackendCommand::NEW_BOX_SEARCH_TIMEOUT:
+            std::cout << "The new box search request timed out" << std::endl; 
+            break;
+    }
 }
 
 void MainWindow::onBackendMessage(const std_msgs::msg::String::SharedPtr msg)
@@ -97,7 +111,7 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
         Box newBox(SLAVE, coord, return_msg.box_id, this->boxes.size() + 1);
         this->boxes.push_back(newBox);
 
-        this->ui->boxComboBox->addItem(QString::number(this->boxes.size()));
+        this->ui->boxComboBox->addItem(QString::fromStdString(return_msg.box_id));
     } 
     else 
     {

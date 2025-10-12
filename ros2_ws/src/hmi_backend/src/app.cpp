@@ -4,13 +4,14 @@
 App::App() : Node("app_node") 
 {
     this->count = 0;
+    this->box_timeout_timer = 0;
     this->new_box_message_arrived = false;
 
     auto qos = rclcpp::QoS(10).best_effort();
 
-    to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", 10);
-    to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
-    to_gui_command_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/command", 10);
+    this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", 10);
+    this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
+    this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10);
 
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
@@ -29,6 +30,19 @@ App::App() : Node("app_node")
         msg.data = "heartbeat";
         to_gui_heart_pub_->publish(msg);
     }); 
+
+    newbox_timeout_timer_ = this->create_wall_timer(
+    std::chrono::seconds(1),
+    [this](){
+        this->box_timeout_timer++;
+        if(this->box_timeout_timer > 10)
+        {
+            dronehive_interfaces::msg::BackendCommand msg;
+            msg.command = dronehive_interfaces::msg::BackendCommand::NEW_BOX_SEARCH_TIMEOUT;
+            this->to_gui_command_pub_->publish(msg);
+            this->box_timeout_timer = 0;
+        }
+    });
 }
 
 App::~App()

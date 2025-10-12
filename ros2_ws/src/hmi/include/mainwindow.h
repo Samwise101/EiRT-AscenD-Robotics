@@ -42,6 +42,7 @@ public:
     void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
     void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
+    void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
 
 private slots:
 
@@ -80,6 +81,7 @@ private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr backend_msg_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
 
     std::vector<Box> boxes;
     int number_of_boxes;
@@ -89,4 +91,4 @@ private:
     bool new_box_request;
 };
 
-#endif // MAINWINDOW_H
+#endif
