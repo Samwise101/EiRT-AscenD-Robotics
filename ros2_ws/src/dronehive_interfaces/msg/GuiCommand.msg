@@ -1,9 +1,19 @@
 # GuiCommand.msg
 uint8 SEARCH_FOR_NEW_BOX = 0
-uint8 START_MAPPING = 1
-uint8 STOP = 2
-uint8 NEW_BOX_CONFIRMED = 3
-uint8 NEW_BOX_DECLINED = 4
+uint8 NEW_BOX_CONFIRMED = 1
+uint8 NEW_BOX_DECLINED = 2
+uint8 REMOVE_BOX = 3
+uint8 REQUEST_STATUS = 4
+uint8 REQUEST_LANDING = 5
+uint8 REQUEST_RETURN_HOME = 6
+uint8 REQUEST_TAKEOFF = 7
+uint8 REQUEST_ARMING = 8
+uint8 PATH_UPLOAD = 9
+uint8 REQUEST_LOG = 10
+uint8 REQUEST_OCCUPANCY = 11
+uint8 TRACK_DRONE = 12
+uint8 EXECUTE_PATH = 13
 
 uint8 command
 bool confirm
+string box_id

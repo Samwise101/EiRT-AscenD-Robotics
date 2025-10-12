@@ -38,7 +38,8 @@ class App : public rclcpp::Node
         int count;
         int box_timeout_timer;
         bool new_box_message_arrived;
-        bool new_box_confirm = false;
+        bool new_box_confirm;
+        bool new_search_retry;
 
         rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr gui_box_confirm_sub_;

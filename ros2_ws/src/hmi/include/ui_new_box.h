@@ -22,7 +22,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_Dialog
+class Ui_NewBoxDialog
 {
 public:
     QWidget *verticalLayoutWidget;
@@ -48,12 +48,12 @@ public:
     QPushButton *pushButton;
     QPushButton *pushButton_2;
 
-    void setupUi(QDialog *Dialog)
+    void setupUi(QDialog *NewBoxDialog)
     {
-        if (Dialog->objectName().isEmpty())
-            Dialog->setObjectName(QString::fromUtf8("Dialog"));
-        Dialog->resize(418, 363);
-        verticalLayoutWidget = new QWidget(Dialog);
+        if (NewBoxDialog->objectName().isEmpty())
+            NewBoxDialog->setObjectName(QString::fromUtf8("NewBoxDialog"));
+        NewBoxDialog->resize(418, 363);
+        verticalLayoutWidget = new QWidget(NewBoxDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(9, 9, 401, 341));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
@@ -172,38 +172,38 @@ public:
         verticalLayout->addLayout(horizontalLayout_4);
 
 
-        retranslateUi(Dialog);
-        QObject::connect(pushButton, SIGNAL(clicked()), Dialog, SLOT(on_cancle_pushButton_clicked()));
-        QObject::connect(comboBox, SIGNAL(currentIndexChanged(int)), Dialog, SLOT(on_comboBox_currentIndexChanged()));
-        QObject::connect(pushButton_2, SIGNAL(clicked()), Dialog, SLOT(on_add_pushButton_clicked()));
-        QObject::connect(boxIdLineEdit, SIGNAL(editingFinished()), Dialog, SLOT(on_boxIdLineEdit_editingFinished()));
-        QObject::connect(boxLatLineEdit, SIGNAL(editingFinished()), Dialog, SLOT(on_boxLatLineEdit_editingFinished()));
-        QObject::connect(boxLonLineEdit, SIGNAL(editingFinished()), Dialog, SLOT(on_boxLonLineEdit_editingFinished()));
-        QObject::connect(boxAltLineEdit, SIGNAL(editingFinished()), Dialog, SLOT(on_boxAltLineEdit_editingFinished()));
+        retranslateUi(NewBoxDialog);
+        QObject::connect(pushButton, SIGNAL(clicked()), NewBoxDialog, SLOT(on_cancle_pushButton_clicked()));
+        QObject::connect(comboBox, SIGNAL(currentIndexChanged(int)), NewBoxDialog, SLOT(on_comboBox_currentIndexChanged()));
+        QObject::connect(pushButton_2, SIGNAL(clicked()), NewBoxDialog, SLOT(on_add_pushButton_clicked()));
+        QObject::connect(boxIdLineEdit, SIGNAL(editingFinished()), NewBoxDialog, SLOT(on_boxIdLineEdit_editingFinished()));
+        QObject::connect(boxLatLineEdit, SIGNAL(editingFinished()), NewBoxDialog, SLOT(on_boxLatLineEdit_editingFinished()));
+        QObject::connect(boxLonLineEdit, SIGNAL(editingFinished()), NewBoxDialog, SLOT(on_boxLonLineEdit_editingFinished()));
+        QObject::connect(boxAltLineEdit, SIGNAL(editingFinished()), NewBoxDialog, SLOT(on_boxAltLineEdit_editingFinished()));
 
-        QMetaObject::connectSlotsByName(Dialog);
+        QMetaObject::connectSlotsByName(NewBoxDialog);
     } // setupUi
 
-    void retranslateUi(QDialog *Dialog)
+    void retranslateUi(QDialog *NewBoxDialog)
     {
-        Dialog->setWindowTitle(QCoreApplication::translate("Dialog", "Dialog", nullptr));
-        label->setText(QCoreApplication::translate("Dialog", "New Box Settings", nullptr));
-        label_2->setText(QCoreApplication::translate("Dialog", "Box Type:", nullptr));
-        comboBox->setItemText(0, QCoreApplication::translate("Dialog", "Slave", nullptr));
-        comboBox->setItemText(1, QCoreApplication::translate("Dialog", "Master", nullptr));
+        NewBoxDialog->setWindowTitle(QCoreApplication::translate("NewBoxDialog", "Dialog", nullptr));
+        label->setText(QCoreApplication::translate("NewBoxDialog", "New Box Settings", nullptr));
+        label_2->setText(QCoreApplication::translate("NewBoxDialog", "Box Type:", nullptr));
+        comboBox->setItemText(0, QCoreApplication::translate("NewBoxDialog", "Slave", nullptr));
+        comboBox->setItemText(1, QCoreApplication::translate("NewBoxDialog", "Master", nullptr));
 
-        box_id_label->setText(QCoreApplication::translate("Dialog", "Box ID: ", nullptr));
-        label_4->setText(QCoreApplication::translate("Dialog", "Box Landing Position Lat:", nullptr));
-        label_5->setText(QCoreApplication::translate("Dialog", "Box Landing Position Lon:", nullptr));
-        label_6->setText(QCoreApplication::translate("Dialog", "Box Landing Position Alt:", nullptr));
-        pushButton->setText(QCoreApplication::translate("Dialog", "Cancle", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("Dialog", "Add", nullptr));
+        box_id_label->setText(QCoreApplication::translate("NewBoxDialog", "Box ID: ", nullptr));
+        label_4->setText(QCoreApplication::translate("NewBoxDialog", "Box Landing Position Lat:", nullptr));
+        label_5->setText(QCoreApplication::translate("NewBoxDialog", "Box Landing Position Lon:", nullptr));
+        label_6->setText(QCoreApplication::translate("NewBoxDialog", "Box Landing Position Alt:", nullptr));
+        pushButton->setText(QCoreApplication::translate("NewBoxDialog", "Cancle", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("NewBoxDialog", "Add", nullptr));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class Dialog: public Ui_Dialog {};
+    class NewBoxDialog: public Ui_NewBoxDialog {};
 } // namespace Ui
 
 QT_END_NAMESPACE

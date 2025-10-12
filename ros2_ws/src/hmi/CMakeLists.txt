@@ -36,6 +36,7 @@ set(SOURCES
   src/drone.cpp
   src/new_box_dialog.cpp
   src/backend_manager.cpp
+  src/box_timeout_dialog.cpp
 )
 
 set(HEADERS
@@ -43,6 +44,7 @@ set(HEADERS
   include/box.h
   include/drone.h
   include/new_box_dialog.h
+  include/box_timeout_dialog.h
   include/backend_manager.h
 )
 

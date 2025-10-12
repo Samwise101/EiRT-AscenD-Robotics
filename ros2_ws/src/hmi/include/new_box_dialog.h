@@ -34,7 +34,7 @@ public slots:
     void on_boxAltLineEdit_editingFinished(void);
 
 private:
-    Ui::Dialog ui;
+    Ui::NewBoxDialog ui;
     int box_type;
     std::string box_id;
     float box_lat;

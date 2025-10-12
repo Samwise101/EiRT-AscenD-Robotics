@@ -69,7 +69,22 @@ void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendComman
     switch(msg->command)
     {
         case dronehive_interfaces::msg::BackendCommand::NEW_BOX_SEARCH_TIMEOUT:
-            std::cout << "The new box search request timed out" << std::endl; 
+            std::cout << "The new box search request timed out" << std::endl;
+
+            BoxTimeoutDialog dialog(this);
+
+            if(dialog.exec() == QDialog::Accepted)
+            {
+                std::cout << "Retrying looking for new boxes\n";
+                auto command = dronehive_interfaces::msg::GuiCommand();
+                command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
+                gui_cmd_pub_->publish(command);
+            }
+            else
+            {
+                std::cout << "Stopping looking for new boxes\n";
+            }
+
             break;
     }
 }
@@ -172,9 +187,16 @@ void MainWindow::on_path_upload_pushButton_clicked()
 
 void MainWindow::on_remove_box_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from remove box button!";
-    pub_->publish(msg);
+    std::cout << "Hello from remove box button!\n";
+
+    // if(this->ui->boxComboBox->currentText().isEmpty()) return;
+
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REMOVE_BOX;
+
+    QString current_data = this->ui->boxComboBox->currentText();
+    command.box_id = current_data.toStdString();
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_changedrone_pushButton_clicked()

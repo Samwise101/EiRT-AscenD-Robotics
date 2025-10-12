@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>NewBoxDialog</class>
+ <widget class="QDialog" name="NewBoxDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -157,7 +157,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_cancle_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -173,7 +173,7 @@
   <connection>
    <sender>comboBox</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_comboBox_currentIndexChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -189,7 +189,7 @@
   <connection>
    <sender>pushButton_2</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_add_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -205,7 +205,7 @@
   <connection>
    <sender>boxIdLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_boxIdLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -221,7 +221,7 @@
   <connection>
    <sender>boxLatLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_boxLatLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -237,7 +237,7 @@
   <connection>
    <sender>boxLonLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_boxLonLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -253,7 +253,7 @@
   <connection>
    <sender>boxAltLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>NewBoxDialog</receiver>
    <slot>on_boxAltLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">

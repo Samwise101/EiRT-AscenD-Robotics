@@ -23,6 +23,7 @@
 #include "drone.h"
 #include "box.h"
 #include "new_box_dialog.h"
+#include "box_timeout_dialog.h"
 #include "backend_manager.h"
 
 class MainWindow : public QMainWindow

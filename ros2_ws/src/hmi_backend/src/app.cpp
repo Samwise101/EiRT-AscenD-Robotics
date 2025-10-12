@@ -6,6 +6,8 @@ App::App() : Node("app_node")
     this->count = 0;
     this->box_timeout_timer = 0;
     this->new_box_message_arrived = false;
+    this->new_box_confirm = false;
+    this->new_search_retry = false;
 
     auto qos = rclcpp::QoS(10).best_effort();
 
@@ -34,13 +36,19 @@ App::App() : Node("app_node")
     newbox_timeout_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
     [this](){
-        this->box_timeout_timer++;
         if(this->box_timeout_timer > 10)
         {
             dronehive_interfaces::msg::BackendCommand msg;
             msg.command = dronehive_interfaces::msg::BackendCommand::NEW_BOX_SEARCH_TIMEOUT;
             this->to_gui_command_pub_->publish(msg);
             this->box_timeout_timer = 0;
+            this->new_search_retry = false;
+            this->new_box_confirm = false;
+            this->new_box_message_arrived = false;
+        }
+        else if(this->new_search_retry)
+        { 
+            this->box_timeout_timer++;
         }
     });
 }
@@ -73,6 +81,8 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 
     this->new_box_message_arrived = false;
 
+    this->new_search_retry = false;
+
     auto box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10);
 
     auto gui_msg = dronehive_interfaces::msg::BoxSetupConfirmationMessage();
@@ -86,13 +96,31 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
 {
     RCLCPP_INFO(this->get_logger(), "Got command: %d", command->command);
 
+    auto msg = std_msgs::msg::String();
+    msg.data = "Got command: " + std::to_string(command->command);
+    to_gui_msg_pub_->publish(msg);
+
     switch(command->command)
     {
         case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX:
-                auto msg = std_msgs::msg::String();
-                msg.data = "Got command: " + std::to_string(command->command);
-                to_gui_msg_pub_->publish(msg);
-                this->new_box_message_arrived = true;
-                break;
+        {
+            this->new_box_message_arrived = true;
+            this->new_search_retry = true;
+            this->box_timeout_timer = 0;
+            break;
+        }
+        case dronehive_interfaces::msg::GuiCommand::REMOVE_BOX:
+        {
+            auto deinit_msg = std_msgs::msg::String();
+            deinit_msg.data = command->box_id;
+
+            rclcpp::QoS qos_profile(rclcpp::KeepLast(1));
+            qos_profile.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+            qos_profile.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+            
+            auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profile);
+            pub->publish(deinit_msg);
+            break;
+        }
     };
 }
