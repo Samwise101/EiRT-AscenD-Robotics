@@ -6,7 +6,7 @@
    
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false)
+    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0)
 {
     ui->setupUi(this);
 
@@ -122,7 +122,8 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
 
         response_pub_->publish(return_msg);
 
-        Coordinates coord{return_msg.landing_pos.lat,return_msg.landing_pos.lon,return_msg.landing_pos.elv};
+        Coordinates coord{dialog.get_box_lat(),dialog.get_box_lon(),dialog.get_box_alt()};
+        std::cout << "Coord" << coord.alt << std::endl;
         Box newBox(SLAVE, coord, return_msg.box_id, this->boxes.size() + 1);
         this->boxes.push_back(newBox);
 
@@ -191,8 +192,22 @@ void MainWindow::on_remove_box_pushButton_clicked()
     auto command = dronehive_interfaces::msg::GuiCommand();
     command.command = dronehive_interfaces::msg::GuiCommand::REMOVE_BOX;
     QString current_data = this->ui->boxComboBox->currentText();
+    int current_index = this->ui->boxComboBox->currentIndex();
+
     command.box_id = current_data.toStdString();
     gui_cmd_pub_->publish(command);
+
+    std::cout << "Current index = " << current_index << std::endl; 
+    if (current_index >= 0) {
+        this->ui->boxComboBox->removeItem(current_index);
+    }
+
+    this->ui->box_latitude_lineEdit->clear();
+    this->ui->box_longitude_lineEdit->clear();
+    this->ui->box_altitude_lineEdit->clear();
+    this->ui->boxIdLabel->setText("Box ID");
+    this->ui->boxNumberLabel->setText("Box number");
+    this->ui->boxTypeLabel->setText("Box Type");
 }
 
 void MainWindow::on_arm_pushButton_clicked()
@@ -273,4 +288,28 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     pub_->publish(msg);
 }
 
-void MainWindow::on_boxComboBox_currentIndexChanged(int index){}
+void MainWindow::on_boxComboBox_currentIndexChanged(int index)
+{
+    if(this->ui->boxComboBox->count() > 0)
+    {
+        this->currentBoxIndex = index;
+
+        float box_altitude = this->boxes[this->currentBoxIndex].get_box_landing_alt();
+        float box_longitude = this->boxes[this->currentBoxIndex].get_box_landing_lon();
+        float box_latitude = this->boxes[this->currentBoxIndex].get_box_landing_lat();
+        std::string box_id = this->boxes[this->currentBoxIndex].get_box_id();
+        int box_number = this->boxes[this->currentBoxIndex].get_box_number();
+        int box_type = this->boxes[this->currentBoxIndex].get_box_type();
+
+        this->ui->box_altitude_lineEdit->setText(QString::number(box_altitude));
+        this->ui->box_longitude_lineEdit->setText(QString::number(box_longitude));
+        this->ui->box_latitude_lineEdit->setText(QString::number(box_latitude));
+        this->ui->boxIdLabel->setText("Box ID: " + QString::fromStdString(box_id));
+        this->ui->boxNumberLabel->setText("Box number: " + QString::number(box_number));
+
+        if(box_type == BoxType::SLAVE)
+            this->ui->boxTypeLabel->setText("Box type: Slave");
+        else if(box_type == BoxType::MASTER)
+            this->ui->boxTypeLabel->setText("Box type: Master");
+    }
+}

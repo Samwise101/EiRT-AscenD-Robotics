@@ -3,7 +3,9 @@
 
 Box::Box(int type, Coordinates coord, std::string id, int number) : 
 box_type(type), coord(coord), id(id), number(number)
-{}
+{
+
+}
 
 Box::~Box(){}
 
@@ -19,17 +21,17 @@ int Box::get_box_type()
 
 float Box::get_box_landing_lat(void)
 {
-    return this->box_landing_position_lat;
+    return this->coord.lat;
 }
 
 float Box::get_box_landing_lon(void)
 {
-    return this->box_landing_position_lon;
+    return this->coord.lon;
 }
 
 float Box::get_box_landing_alt(void)
 {
-    return this->box_landing_position_alt;
+    return this->coord.alt;
 }
 
 std::string Box::get_box_id(void)

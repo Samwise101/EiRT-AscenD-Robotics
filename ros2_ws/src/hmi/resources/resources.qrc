@@ -30,5 +30,6 @@
         <file>icons/battery_40.png</file>
         <file>icons/battery_20.png</file>
         <file>icons/battery_empty.png</file>
+        <file>icons/update_system.png</file>
     </qresource>
 </RCC>

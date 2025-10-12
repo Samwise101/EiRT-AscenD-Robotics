@@ -56,6 +56,13 @@
          </layout>
         </item>
         <item>
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="addBox">
           <property name="text">
            <string>Add Box</string>
@@ -77,6 +84,17 @@
          <widget class="QPushButton" name="updateSystem">
           <property name="text">
            <string>Update System Status</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/images/icons/update_system.png</normaloff>:/images/icons/update_system.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -139,7 +157,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -360,7 +378,7 @@
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_5">
                      <item>
-                      <widget class="QLabel" name="label_7">
+                      <widget class="QLabel" name="boxIdLabel">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -378,7 +396,7 @@
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
                      <item>
-                      <widget class="QLabel" name="label_3">
+                      <widget class="QLabel" name="boxTypeLabel">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -403,7 +421,7 @@
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_7">
                      <item>
-                      <widget class="QLabel" name="label_5">
+                      <widget class="QLabel" name="boxStatusLabel">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -428,7 +446,7 @@
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_4">
                      <item>
-                      <widget class="QLabel" name="label_2">
+                      <widget class="QLabel" name="boxNumberLabel">
                        <property name="font">
                         <font>
                          <pointsize>11</pointsize>
@@ -445,6 +463,9 @@
                    </item>
                    <item>
                     <layout class="QGridLayout" name="box_position_layout">
+                     <item row="1" column="1">
+                      <widget class="QLineEdit" name="box_longitude_lineEdit"/>
+                     </item>
                      <item row="1" column="0">
                       <widget class="QLabel" name="box_longitude_label">
                        <property name="font">
@@ -482,8 +503,25 @@
                      <item row="0" column="1">
                       <widget class="QLineEdit" name="box_latitude_lineEdit"/>
                      </item>
-                     <item row="1" column="1">
-                      <widget class="QLineEdit" name="box_longitude_lineEdit"/>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="box_altitude_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Box alt: </string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QLineEdit" name="box_altitude_lineEdit"/>
                      </item>
                     </layout>
                    </item>
@@ -608,7 +646,7 @@
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,10,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,10,0,0,0,0,0">
                  <item>
                   <widget class="Line" name="line_10">
                    <property name="orientation">
@@ -664,14 +702,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="1">
-                    <widget class="Line" name="line_11">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
+                   <item row="3" column="1">
                     <widget class="QPushButton" name="pushButton_3">
                      <property name="font">
                       <font>
@@ -689,7 +720,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="0">
+                   <item row="4" column="0">
                     <widget class="QPushButton" name="pushButton_4">
                      <property name="font">
                       <font>
@@ -707,7 +738,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="0">
+                   <item row="3" column="0">
                     <widget class="QPushButton" name="pushButton">
                      <property name="font">
                       <font>
@@ -725,14 +756,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="Line" name="line_12">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
+                   <item row="4" column="1">
                     <widget class="QPushButton" name="pushButton_2">
                      <property name="font">
                       <font>
@@ -758,19 +782,6 @@
                     <enum>Qt::Horizontal</enum>
                    </property>
                   </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                  <item>
                   <widget class="Line" name="line_17">
@@ -1137,7 +1148,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>818</x>
-     <y>390</y>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
@@ -1153,7 +1164,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>729</x>
-     <y>394</y>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>871</x>
@@ -1169,7 +1180,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>740</x>
-     <y>345</y>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>865</x>
@@ -1185,7 +1196,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>877</x>
-     <y>345</y>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1201,7 +1212,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>823</x>
-     <y>208</y>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1217,7 +1228,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>689</x>
-     <y>224</y>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>

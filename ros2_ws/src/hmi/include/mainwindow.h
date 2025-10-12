@@ -87,6 +87,7 @@ private:
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
     bool new_box_request;
+    int currentBoxIndex;
 };
 
 #endif
