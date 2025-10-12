@@ -13,6 +13,7 @@ uint8 REQUEST_LOG = 10
 uint8 REQUEST_OCCUPANCY = 11
 uint8 TRACK_DRONE = 12
 uint8 EXECUTE_PATH = 13
+uint8 REQUEST_SYSTEM_STATUS = 14
 
 uint8 command
 bool confirm

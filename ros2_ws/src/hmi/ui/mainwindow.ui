@@ -74,6 +74,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="updateSystem">
+          <property name="text">
+           <string>Update System Status</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButton1">
           <property name="font">
            <font>
@@ -132,7 +139,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -621,8 +628,8 @@
                  </item>
                  <item>
                   <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="5" column="0">
-                    <widget class="QPushButton" name="pushButton">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="pushButton_5">
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>
@@ -631,32 +638,11 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Arm</string>
+                      <string>Path Upload</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="Line" name="line_11">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="pushButton_9">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>PushButton</string>
+                       <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -678,43 +664,14 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="pushButton_5">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Path Upload</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
+                   <item row="1" column="1">
+                    <widget class="Line" name="line_11">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="1">
-                    <widget class="QPushButton" name="pushButton_2">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Land</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
+                   <item row="4" column="1">
                     <widget class="QPushButton" name="pushButton_3">
                      <property name="font">
                       <font>
@@ -732,14 +689,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
-                    <widget class="Line" name="line_12">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
+                   <item row="5" column="0">
                     <widget class="QPushButton" name="pushButton_4">
                      <property name="font">
                       <font>
@@ -757,8 +707,8 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="pushButton_8">
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="pushButton">
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>
@@ -767,7 +717,36 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Change Drone</string>
+                      <string>Arm</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="Line" name="line_12">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QPushButton" name="pushButton_2">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Land</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1109,7 +1088,7 @@
    <slot>on_zoom_in_out_slider_valueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>518</x>
+     <x>398</x>
      <y>607</y>
     </hint>
     <hint type="destinationlabel">
@@ -1125,7 +1104,7 @@
    <slot>on_zoom_out_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>875</x>
+     <x>899</x>
      <y>612</y>
     </hint>
     <hint type="destinationlabel">
@@ -1141,7 +1120,7 @@
    <slot>on_zoom_in_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>268</x>
+     <x>292</x>
      <y>612</y>
     </hint>
     <hint type="destinationlabel">
@@ -1215,22 +1194,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_8</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_changedrone_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>698</x>
-     <y>261</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>871</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_6</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -1285,8 +1248,8 @@
    <slot>on_boxComboBox_currentIndexChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>306</y>
+     <x>195</x>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>182</x>
@@ -1301,12 +1264,28 @@
    <slot>on_add_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>591</y>
+     <x>107</x>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel">
      <x>163</x>
      <y>528</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>updateSystem</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_updateSystem_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>130</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
+     <y>473</y>
     </hint>
    </hints>
   </connection>
@@ -1329,5 +1308,6 @@
   <slot>on_path_upload_pushButton_clicked()</slot>
   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
   <slot>on_addBox_pushButton_clicked()</slot>
+  <slot>on_updateSystem_pushButton_clicked()</slot>
  </slots>
 </ui>

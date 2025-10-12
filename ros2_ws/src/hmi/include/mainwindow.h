@@ -60,15 +60,12 @@ private slots:
     void on_upload_path_pushButton_clicked();
     void on_zoom_in_pushButton_clicked();
     void on_zoom_out_pushButton_clicked();
-    void on_assign_drone_pushButton_clicked();
-    void on_removedrone_pushButton_clicked();
-    void on_changedrone_pushButton_clicked();
     void on_remove_box_pushButton_clicked();
     void on_path_upload_pushButton_clicked();
-
-    void on_boxComboBox_currentIndexChanged(int);
+    void on_updateSystem_pushButton_clicked();
+    void on_boxComboBox_currentIndexChanged(int index);
     
-    void on_zoom_in_out_slider_valueChanged(int);
+    void on_zoom_in_out_slider_valueChanged(int value);
 
     void on_add_box_pushButton_clicked();
 

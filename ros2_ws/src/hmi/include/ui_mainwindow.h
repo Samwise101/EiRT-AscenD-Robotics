@@ -59,6 +59,7 @@ public:
     QComboBox *boxComboBox;
     QPushButton *addBox;
     QFrame *line_20;
+    QPushButton *updateSystem;
     QPushButton *pushButton1;
     QVBoxLayout *verticalLayout_2;
     QLabel *label;
@@ -120,16 +121,14 @@ public:
     QFrame *line_10;
     QLabel *label_8;
     QGridLayout *gridLayout_3;
-    QPushButton *pushButton;
-    QFrame *line_11;
-    QPushButton *pushButton_9;
-    QPushButton *pushButton_6;
     QPushButton *pushButton_5;
-    QPushButton *pushButton_2;
+    QPushButton *pushButton_6;
+    QFrame *line_11;
     QPushButton *pushButton_3;
-    QFrame *line_12;
     QPushButton *pushButton_4;
-    QPushButton *pushButton_8;
+    QPushButton *pushButton;
+    QFrame *line_12;
+    QPushButton *pushButton_2;
     QFrame *line_16;
     QSpacerItem *verticalSpacer;
     QFrame *line_17;
@@ -259,6 +258,11 @@ public:
         line_20->setFrameShadow(QFrame::Sunken);
 
         verticalLayout->addWidget(line_20);
+
+        updateSystem = new QPushButton(centralwidget);
+        updateSystem->setObjectName(QString::fromUtf8("updateSystem"));
+
+        verticalLayout->addWidget(updateSystem);
 
         pushButton1 = new QPushButton(centralwidget);
         pushButton1->setObjectName(QString::fromUtf8("pushButton1"));
@@ -610,27 +614,14 @@ public:
 
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        pushButton = new QPushButton(verticalLayoutWidget_2);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setFont(font);
+        pushButton_5 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
+        pushButton_5->setFont(font);
         QIcon icon13;
-        icon13.addFile(QString::fromUtf8(":/images/icons/arm_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton->setIcon(icon13);
+        icon13.addFile(QString::fromUtf8(":/images/icons/path.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_5->setIcon(icon13);
 
-        gridLayout_3->addWidget(pushButton, 5, 0, 1, 1);
-
-        line_11 = new QFrame(verticalLayoutWidget_2);
-        line_11->setObjectName(QString::fromUtf8("line_11"));
-        line_11->setFrameShape(QFrame::HLine);
-        line_11->setFrameShadow(QFrame::Sunken);
-
-        gridLayout_3->addWidget(line_11, 2, 1, 1, 1);
-
-        pushButton_9 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_9->setObjectName(QString::fromUtf8("pushButton_9"));
-        pushButton_9->setFont(font);
-
-        gridLayout_3->addWidget(pushButton_9, 1, 1, 1, 1);
+        gridLayout_3->addWidget(pushButton_5, 0, 0, 1, 1);
 
         pushButton_6 = new QPushButton(verticalLayoutWidget_2);
         pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
@@ -641,54 +632,55 @@ public:
 
         gridLayout_3->addWidget(pushButton_6, 0, 1, 1, 1);
 
-        pushButton_5 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
-        pushButton_5->setFont(font);
-        QIcon icon15;
-        icon15.addFile(QString::fromUtf8(":/images/icons/path.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_5->setIcon(icon15);
+        line_11 = new QFrame(verticalLayoutWidget_2);
+        line_11->setObjectName(QString::fromUtf8("line_11"));
+        line_11->setFrameShape(QFrame::HLine);
+        line_11->setFrameShadow(QFrame::Sunken);
 
-        gridLayout_3->addWidget(pushButton_5, 0, 0, 1, 1);
-
-        pushButton_2 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setFont(font);
-        QIcon icon16;
-        icon16.addFile(QString::fromUtf8(":/images/icons/drone_land.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_2->setIcon(icon16);
-
-        gridLayout_3->addWidget(pushButton_2, 6, 1, 1, 1);
+        gridLayout_3->addWidget(line_11, 1, 1, 1, 1);
 
         pushButton_3 = new QPushButton(verticalLayoutWidget_2);
         pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
         pushButton_3->setFont(font);
-        QIcon icon17;
-        icon17.addFile(QString::fromUtf8(":/images/icons/drone_takeoff.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_3->setIcon(icon17);
+        QIcon icon15;
+        icon15.addFile(QString::fromUtf8(":/images/icons/drone_takeoff.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_3->setIcon(icon15);
 
-        gridLayout_3->addWidget(pushButton_3, 5, 1, 1, 1);
+        gridLayout_3->addWidget(pushButton_3, 4, 1, 1, 1);
+
+        pushButton_4 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
+        pushButton_4->setFont(font);
+        QIcon icon16;
+        icon16.addFile(QString::fromUtf8(":/images/icons/return_home.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_4->setIcon(icon16);
+
+        gridLayout_3->addWidget(pushButton_4, 5, 0, 1, 1);
+
+        pushButton = new QPushButton(verticalLayoutWidget_2);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setFont(font);
+        QIcon icon17;
+        icon17.addFile(QString::fromUtf8(":/images/icons/arm_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton->setIcon(icon17);
+
+        gridLayout_3->addWidget(pushButton, 4, 0, 1, 1);
 
         line_12 = new QFrame(verticalLayoutWidget_2);
         line_12->setObjectName(QString::fromUtf8("line_12"));
         line_12->setFrameShape(QFrame::HLine);
         line_12->setFrameShadow(QFrame::Sunken);
 
-        gridLayout_3->addWidget(line_12, 2, 0, 1, 1);
+        gridLayout_3->addWidget(line_12, 1, 0, 1, 1);
 
-        pushButton_4 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
-        pushButton_4->setFont(font);
+        pushButton_2 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButton_2->setFont(font);
         QIcon icon18;
-        icon18.addFile(QString::fromUtf8(":/images/icons/return_home.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_4->setIcon(icon18);
+        icon18.addFile(QString::fromUtf8(":/images/icons/drone_land.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_2->setIcon(icon18);
 
-        gridLayout_3->addWidget(pushButton_4, 6, 0, 1, 1);
-
-        pushButton_8 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_8->setObjectName(QString::fromUtf8("pushButton_8"));
-        pushButton_8->setFont(font);
-
-        gridLayout_3->addWidget(pushButton_8, 1, 0, 1, 1);
+        gridLayout_3->addWidget(pushButton_2, 5, 1, 1, 1);
 
 
         verticalLayout_5->addLayout(gridLayout_3);
@@ -845,14 +837,14 @@ public:
         QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
         QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(on_takeoff_pushButton_clicked()));
-        QObject::connect(pushButton_8, SIGNAL(clicked()), MainWindow, SLOT(on_changedrone_pushButton_clicked()));
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_status_pushButton_clicked()));
         QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_path_upload_pushButton_clicked()));
         QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
         QObject::connect(boxComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_boxComboBox_currentIndexChanged(int)));
         QObject::connect(addBox, SIGNAL(clicked()), MainWindow, SLOT(on_add_box_pushButton_clicked()));
+        QObject::connect(updateSystem, SIGNAL(clicked()), MainWindow, SLOT(on_updateSystem_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -876,6 +868,7 @@ public:
         actionOpen_Presets->setText(QCoreApplication::translate("MainWindow", "Open Presets", nullptr));
         current_box_label->setText(QCoreApplication::translate("MainWindow", "Selected Box:", nullptr));
         addBox->setText(QCoreApplication::translate("MainWindow", "Add Box", nullptr));
+        updateSystem->setText(QCoreApplication::translate("MainWindow", "Update System Status", nullptr));
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Drone Hive HMI", nullptr));
         label_6->setText(QString());
@@ -899,14 +892,12 @@ public:
 
         color_drone_label->setText(QString());
         label_8->setText(QCoreApplication::translate("MainWindow", "Requests", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
-        pushButton_9->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
-        pushButton_6->setText(QCoreApplication::translate("MainWindow", "Request Status", nullptr));
         pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
+        pushButton_6->setText(QCoreApplication::translate("MainWindow", "Request Status", nullptr));
         pushButton_3->setText(QCoreApplication::translate("MainWindow", "Take-Off", nullptr));
         pushButton_4->setText(QCoreApplication::translate("MainWindow", "Return Home", nullptr));
-        pushButton_8->setText(QCoreApplication::translate("MainWindow", "Change Drone", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
         longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lon:", nullptr));
         latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lat:", nullptr));
         altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Alt:", nullptr));

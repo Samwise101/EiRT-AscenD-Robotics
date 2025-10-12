@@ -166,92 +166,89 @@ bool MainWindow::get_master_exists()
 
 void MainWindow::on_settings_pushButton_clicked(bool)
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from settings button!";
-    pub_->publish(msg);
-}
-
-void MainWindow::on_removedrone_pushButton_clicked()
-{
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from remove drone button!";
-    pub_->publish(msg);
+    std::cout << "Hello from settings button!\n";
 }
 
 void MainWindow::on_path_upload_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from path upload button!";
-    pub_->publish(msg);
+    std::cout << "Hello from path upload button!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::PATH_UPLOAD;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_updateSystem_pushButton_clicked()
+{
+    std::cout << "Hello from update system button!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_SYSTEM_STATUS;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_remove_box_pushButton_clicked()
 {
     std::cout << "Hello from remove box button!\n";
-
-    // if(this->ui->boxComboBox->currentText().isEmpty()) return;
-
     auto command = dronehive_interfaces::msg::GuiCommand();
     command.command = dronehive_interfaces::msg::GuiCommand::REMOVE_BOX;
-
     QString current_data = this->ui->boxComboBox->currentText();
     command.box_id = current_data.toStdString();
     gui_cmd_pub_->publish(command);
 }
 
-void MainWindow::on_changedrone_pushButton_clicked()
-{
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from remove drone button!";
-    pub_->publish(msg);
-}
-
-
-void MainWindow::on_boxComboBox_currentIndexChanged(int index)
-{
-
-}
-
 void MainWindow::on_arm_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from Arm Button! Can not ARM since safety is of the essence!";
-    pub_->publish(msg);
+    std::cout << "Hello from Arm Button! Can not ARM since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_ARMING;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_takeoff_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from Takeoff Button! Can not TAKEOFF since safety is of the essence!";
-    pub_->publish(msg);
+    std::cout << "Hello from Takeoff Button! Can not TAKEOFF since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_TAKEOFF;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_return_home_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from Return Home Button! Can not Return Home since safety is of the essence!";
-    pub_->publish(msg);
+    std::cout << "Hello from Return Home Button! Can not Return Home since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_land_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from land button! Can not Land since safety is of the essence!";
-    pub_->publish(msg);
+    std::cout << "Hello from land button! Can not Land since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_request_status_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from request status button!";
-    pub_->publish(msg);
+    std::cout << "Hello from request status button!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_STATUS;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_upload_path_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from upload path button!";
-    pub_->publish(msg);
+    std::cout << "Hello from upload path button!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::PATH_UPLOAD;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_add_box_pushButton_clicked()
+{
+    std::cout << "Hello from the add box button\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
+    gui_cmd_pub_->publish(command);
 }
 
 void MainWindow::on_zoom_in_pushButton_clicked()
@@ -268,13 +265,6 @@ void MainWindow::on_zoom_out_pushButton_clicked()
     pub_->publish(msg);
 }
 
-void MainWindow::on_assign_drone_pushButton_clicked()
-{
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from assign drone button!";
-    pub_->publish(msg);
-}
-
 // Slider slots
 void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 {
@@ -283,12 +273,4 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     pub_->publish(msg);
 }
 
-void MainWindow::on_add_box_pushButton_clicked()
-{
-    std::cout << "Hello from the add box button\n";
-
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
-
-    gui_cmd_pub_->publish(command);
-}
+void MainWindow::on_boxComboBox_currentIndexChanged(int index){}
