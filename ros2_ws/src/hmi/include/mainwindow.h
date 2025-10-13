@@ -56,15 +56,17 @@ private slots:
     void on_takeoff_pushButton_clicked();
     void on_return_home_pushButton_clicked();
     void on_land_pushButton_clicked();
-    void on_request_status_pushButton_clicked();
+    void on_request_drone_status_pushButton_clicked();
     void on_upload_path_pushButton_clicked();
     void on_zoom_in_pushButton_clicked();
     void on_zoom_out_pushButton_clicked();
     void on_remove_box_pushButton_clicked();
     void on_path_upload_pushButton_clicked();
     void on_updateSystem_pushButton_clicked();
+    void on_request_box_status_pushButton_clicked();
+
     void on_boxComboBox_currentIndexChanged(int index);
-    
+
     void on_zoom_in_out_slider_valueChanged(int value);
 
     void on_add_box_pushButton_clicked();

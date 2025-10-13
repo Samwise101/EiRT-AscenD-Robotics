@@ -25,6 +25,13 @@ App::App() : Node("app_node")
         "/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
     );
 
+
+    box_status_client_ = this->create_client<dronehive_interfaces::srv::RequestBoxStatus>("dronehive/request_status");
+    drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("dronehive/request_drone_status");
+    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneLanding>("dronehive/request_landing");
+    drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("dronehive/request_return_home");
+    system_status_client_ = this->create_client<dronehive_interfaces::srv::RequestFullSystemStatus>("dronehive/request_full_status");
+
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
     [this]() {
@@ -51,11 +58,30 @@ App::App() : Node("app_node")
             this->box_timeout_timer++;
         }
     });
+
+     // One timer for all service requests
+    service_timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&App::onServiceTimer, this));
 }
 
 App::~App()
 {
     rclcpp::shutdown();
+}
+
+void App::onServiceTimer()
+{
+    // add requests
+    if(system_status_client_->wait_for_service(std::chrono::seconds(0))){
+
+    }
+
+    if(box_status_client_->wait_for_service(std::chrono::seconds(0))){
+        
+    }
+
+    if(drone_status_client_->wait_for_service(std::chrono::seconds(0))){
+        
+    }
 }
 
 void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
@@ -106,22 +132,30 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
             this->onRemoveBoxGuiCommand(command->box_id);
             break;
         }
-        case dronehive_interfaces::msg::GuiCommand::REQUEST_STATUS:
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS:
         {
-            this->onRequestStatusGuiCommand();
+            // add flag for serice to start polling
             break;   
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING:
         {
+            // add flag for serice to start polling
             break;
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME:
         {
+            // add flag for serice to start polling
             break;
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS:
         {
+            // add flag for serice to start polling
             break;
+        }
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS:
+        {
+            // add flag for serice to start polling
+            break;   
         }
     };
 }
@@ -138,5 +172,3 @@ void App::onRemoveBoxGuiCommand(const std::string& box_id)
     auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profile);
     pub->publish(deinit_msg);
 }
-
-void App::onRequestStatusGuiCommand(){}

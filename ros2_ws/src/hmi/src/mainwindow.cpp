@@ -150,11 +150,6 @@ void MainWindow::onBackEndCrashed()
     delete this->backEndManager;
 }
 
-void MainWindow::update_box_comboBox(int& new_box_number)
-{
-    this->ui->comboBox->addItem(QString::number(new_box_number));
-}
-
 std::vector<Box> MainWindow::get_boxes()
 {
     return this->boxes;
@@ -205,9 +200,9 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->box_latitude_lineEdit->clear();
     this->ui->box_longitude_lineEdit->clear();
     this->ui->box_altitude_lineEdit->clear();
-    this->ui->boxIdLabel->setText("Box ID");
-    this->ui->boxNumberLabel->setText("Box number");
-    this->ui->boxTypeLabel->setText("Box Type");
+    this->ui->boxIdValueLabel->setText("Unknown");
+    this->ui->boxNumberValueLabel->setText("Unknown");
+    this->ui->boxTypeValueLabel->setText("Unknown");
 }
 
 void MainWindow::on_arm_pushButton_clicked()
@@ -242,11 +237,11 @@ void MainWindow::on_land_pushButton_clicked()
     gui_cmd_pub_->publish(command);
 }
 
-void MainWindow::on_request_status_pushButton_clicked()
+void MainWindow::on_request_drone_status_pushButton_clicked()
 {
     std::cout << "Hello from request status button!\n";
     auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_STATUS;
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS;
     gui_cmd_pub_->publish(command);
 }
 
@@ -263,6 +258,14 @@ void MainWindow::on_add_box_pushButton_clicked()
     std::cout << "Hello from the add box button\n";
     auto command = dronehive_interfaces::msg::GuiCommand();
     command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_request_box_status_pushButton_clicked()
+{
+    std::cout << "Hello from the request box status button\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS;
     gui_cmd_pub_->publish(command);
 }
 
@@ -304,12 +307,12 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
         this->ui->box_altitude_lineEdit->setText(QString::number(box_altitude));
         this->ui->box_longitude_lineEdit->setText(QString::number(box_longitude));
         this->ui->box_latitude_lineEdit->setText(QString::number(box_latitude));
-        this->ui->boxIdLabel->setText("Box ID: " + QString::fromStdString(box_id));
-        this->ui->boxNumberLabel->setText("Box number: " + QString::number(box_number));
+        this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
+        this->ui->boxNumberValueLabel->setText(QString::number(box_number));
 
         if(box_type == BoxType::SLAVE)
-            this->ui->boxTypeLabel->setText("Box type: Slave");
+            this->ui->boxTypeValueLabel->setText("Slave");
         else if(box_type == BoxType::MASTER)
-            this->ui->boxTypeLabel->setText("Box type: Master");
+            this->ui->boxTypeValueLabel->setText("Master");
     }
 }

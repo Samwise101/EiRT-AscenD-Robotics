@@ -5,12 +5,24 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/timer.hpp>
+
 #include <std_msgs/msg/string.hpp>
+
 #include <dronehive_interfaces/msg/box_broadcast_message.hpp>
 #include <dronehive_interfaces/msg/box_setup_confirmation_message.hpp>
-#include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/msg/gui_command.hpp>
 #include <dronehive_interfaces/msg/backend_command.hpp>
+
+#include <dronehive_interfaces/srv/box_broadcast_service.hpp>
+#include <dronehive_interfaces/srv/occupancy_service.hpp>
+#include <dronehive_interfaces/srv/request_box_status.h>
+#include <dronehive_interfaces/srv/request_drone_status.hpp>
+#include <dronehive_interfaces/srv/request_drone_landing.hpp>
+#include <dronehive_interfaces/srv/request_return_home.hpp>
+#include <dronehive_interfaces/srv/request_full_system_status.hpp>
+#include <dronehive_interfaces/srv/request_box_status.hpp>
+#include <dronehive_interfaces/srv/get_config.hpp>
+#include <dronehive_interfaces/srv/get_flightlog.hpp>
 
 #include <thread>
 #include <mutex>
@@ -29,8 +41,9 @@ class App : public rclcpp::Node
         void onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command);
         void onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
         void onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
+        void onServiceTimer();
+
         void onRemoveBoxGuiCommand(const std::string& box_id);
-        void onRequestStatusGuiCommand();
 
     private:
         int count;
@@ -47,11 +60,15 @@ class App : public rclcpp::Node
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_msg_pub_;
         rclcpp::Publisher<dronehive_interfaces::msg::BackendCommand>::SharedPtr to_gui_command_pub_;
 
-        std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Request> pending_request_;
-        std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Response> pending_response_;
+        rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedPtr drone_landing_client_;
+        rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedPtr drone_home_return_client_;
+        rclcpp::Client<dronehive_interfaces::srv::RequestFullSystemStatus>::SharedPtr system_status_client_;
+        rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedPtr drone_status_client_;
+        rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedPtr box_status_client_;
 
         rclcpp::TimerBase::SharedPtr heartbeat_timer_;
-        rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;        
+        rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;   
+        rclcpp::TimerBase::SharedPtr service_timer_;     
 };
 
 #endif
