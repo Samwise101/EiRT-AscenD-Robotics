@@ -48,6 +48,7 @@ class App : public rclcpp::Node
         void onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedFuture f);
         void onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f);
         void onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedFuture f);
+        void onDroneReturnHomeRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedFuture f);
 
         void onRemoveBoxGuiCommand(const std::string& box_id);
 
@@ -57,8 +58,8 @@ class App : public rclcpp::Node
         bool new_box_message_arrived;
         bool new_box_confirm;
         bool new_search_retry;
-        bool landing_request_appeared;
-        bool return_home_request_appeared;
+        bool drone_landing_request_appeared;
+        bool drone_return_home_request_appeared;
         bool get_system_status_request_appeared;
         bool get_box_status_request_appeared;
         bool get_drone_status_request_appeared;

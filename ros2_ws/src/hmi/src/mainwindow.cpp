@@ -203,6 +203,12 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxIdValueLabel->setText("Unknown");
     this->ui->boxNumberValueLabel->setText("Unknown");
     this->ui->boxTypeValueLabel->setText("Unknown");
+    this->ui->boxBatteryValueLabel->setText("Unknown");
+
+    this->ui->droneBatteryValueLabel->setText("Unknown");
+    this->ui->drone_altitude_lineEdit->clear();
+    this->ui->drone_latitude_lineEdit->clear();
+    this->ui->drone_longitude_lineEdit->clear();
 }
 
 void MainWindow::on_arm_pushButton_clicked()

@@ -46,6 +46,7 @@ set(HEADERS
   include/new_box_dialog.h
   include/box_timeout_dialog.h
   include/backend_manager.h
+  include/helper.h
 )
 
 # Create the executable (only once!)

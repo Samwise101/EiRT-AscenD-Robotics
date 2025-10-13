@@ -9,12 +9,8 @@
 #include <QThread>
 #include <string>
 
-typedef struct
-{
-    float lat;
-    float lon;
-    float alt;
-} Coordinates;
+#include "helper.h"
+#include "drone.h"
 
 enum BoxType {
     SLAVE,

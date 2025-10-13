@@ -157,7 +157,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -294,14 +294,35 @@
               <enum>QLayout::SetNoConstraint</enum>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="box_cicle_layout" stretch="0,5">
+              <layout class="QHBoxLayout" name="box_cicle_layout" stretch="0,0,5">
                <property name="sizeConstraint">
                 <enum>QLayout::SetNoConstraint</enum>
                </property>
                <item>
                 <widget class="QLabel" name="boxBatterLabel">
+                 <property name="font">
+                  <font>
+                   <pointsize>13</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Box battery level: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="boxBatteryValueLabel">
+                 <property name="font">
+                  <font>
+                   <pointsize>13</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Unknown</string>
                  </property>
                 </widget>
                </item>
@@ -363,22 +384,33 @@
                   </widget>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0">
+                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
                    <item>
-                    <widget class="QPushButton" name="pushButton_7">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Remove Box</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
+                    <layout class="QHBoxLayout" name="horizontalLayout_6">
+                     <item>
+                      <widget class="QPushButton" name="pushButton_7">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Remove Box</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../resources/resources.qrc">
+                         <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_19">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
@@ -392,11 +424,19 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Request Box Status</string>
+                      <string>Request 
+Box Status</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
                        <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_11">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
@@ -437,6 +477,13 @@
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_12">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
                    </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -567,6 +614,13 @@
                     </layout>
                    </item>
                    <item>
+                    <widget class="Line" name="line_18">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <layout class="QGridLayout" name="box_position_layout">
                      <item row="1" column="1">
                       <widget class="QLineEdit" name="box_longitude_lineEdit"/>
@@ -661,8 +715,29 @@
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
                 <widget class="QLabel" name="current_drone_label">
+                 <property name="font">
+                  <font>
+                   <pointsize>13</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Drone Battery level:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="droneBatteryValueLabel">
+                 <property name="font">
+                  <font>
+                   <pointsize>13</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Unknown</string>
                  </property>
                 </widget>
                </item>
@@ -859,16 +934,16 @@
                  <item>
                   <layout class="QGridLayout" name="gridLayout_6">
                    <item row="1" column="1">
-                    <widget class="QLineEdit" name="longitude_lineEdit"/>
+                    <widget class="QLineEdit" name="drone_longitude_lineEdit"/>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QLineEdit" name="altitude_lineEdit"/>
+                    <widget class="QLineEdit" name="drone_altitude_lineEdit"/>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QLineEdit" name="latitude_lineEdit"/>
+                    <widget class="QLineEdit" name="drone_latitude_lineEdit"/>
                    </item>
                    <item row="1" column="0">
-                    <widget class="QLabel" name="longitude_label">
+                    <widget class="QLabel" name="drone_longitude_label">
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>

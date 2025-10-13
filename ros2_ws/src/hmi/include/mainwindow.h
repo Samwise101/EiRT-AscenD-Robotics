@@ -84,6 +84,7 @@ private:
     rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
 
     std::vector<Box> boxes;
+    std::vector<Drone> drones;
     int number_of_boxes;
     bool master_exists;
     BackEndManager* backEndManager;
