@@ -1,0 +1,5 @@
+# Service to request drone to emergancy land
+
+string box_id
+---
+bool confirm

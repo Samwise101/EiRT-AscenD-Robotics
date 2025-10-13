@@ -69,12 +69,6 @@ void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfi
     to_box_new_box_confirmation_pub->publish(*msg);
 }
 
-
-void App::onGuiMessage(const std_msgs::msg::String::SharedPtr msg)
-{
-    RCLCPP_INFO(this->get_logger(), "Got message: %s", msg->data.c_str());
-}
-
 void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
 {
     if(!this->new_box_message_arrived) return;
@@ -94,8 +88,6 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 
 void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command)
 {
-    RCLCPP_INFO(this->get_logger(), "Got command: %d", command->command);
-
     auto msg = std_msgs::msg::String();
     msg.data = "Got command: " + std::to_string(command->command);
     to_gui_msg_pub_->publish(msg);
@@ -110,17 +102,41 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
             break;
         }
         case dronehive_interfaces::msg::GuiCommand::REMOVE_BOX:
+        {   
+            this->onRemoveBoxGuiCommand(command->box_id);
+            break;
+        }
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_STATUS:
         {
-            auto deinit_msg = std_msgs::msg::String();
-            deinit_msg.data = command->box_id;
-
-            rclcpp::QoS qos_profile(rclcpp::KeepLast(1));
-            qos_profile.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
-            qos_profile.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
-            
-            auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profile);
-            pub->publish(deinit_msg);
+            this->onRequestStatusGuiCommand();
+            break;   
+        }
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING:
+        {
+            break;
+        }
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME:
+        {
+            break;
+        }
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS:
+        {
             break;
         }
     };
 }
+
+void App::onRemoveBoxGuiCommand(const std::string& box_id)
+{
+    auto deinit_msg = std_msgs::msg::String();
+    deinit_msg.data = box_id;
+
+    rclcpp::QoS qos_profile(rclcpp::KeepLast(1));
+    qos_profile.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+    qos_profile.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+    
+    auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profile);
+    pub->publish(deinit_msg);
+}
+
+void App::onRequestStatusGuiCommand(){}

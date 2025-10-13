@@ -30,12 +30,18 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetFlightlog.srv"
   "srv/RequestStatus.srv"
   "srv/BoxBroadcastService.srv"
+  "srv/RequestBoxStatus.srv"
+  "srv/RequestDroneLanding.srv"
+  "srv/RequestDroneStatus.srv"
+  "srv/RequestFullSystemStatus.srv"
+  "srv/RequestReturnHome.srv"
 
   "msg/BoxBroadcastMessage.msg"
   "msg/BoxSetupConfirmationMessage.msg"
   "msg/PositionMessage.msg"
   "msg/GuiCommand.msg"
   "msg/BackendCommand.msg"
+  "msg/BoxFullStatus.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

@@ -182,7 +182,7 @@ void MainWindow::on_updateSystem_pushButton_clicked()
 {
     std::cout << "Hello from update system button!\n";
     auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_SYSTEM_STATUS;
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS;
     gui_cmd_pub_->publish(command);
 }
 

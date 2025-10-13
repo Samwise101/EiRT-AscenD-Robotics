@@ -12,27 +12,25 @@
 #include <dronehive_interfaces/msg/gui_command.hpp>
 #include <dronehive_interfaces/msg/backend_command.hpp>
 
-#include <memory>
-#include <QTimer>
-#include <QThread>
-#include <string>
-
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+
+#include <memory>
+#include <string>
 
 class App : public rclcpp::Node
 {
 
     public:
-        App();
+        explicit App();
         ~App();
 
-    public:
-        void onGuiMessage(const std_msgs::msg::String::SharedPtr msg);
         void onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command);
         void onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
         void onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
+        void onRemoveBoxGuiCommand(const std::string& box_id);
+        void onRequestStatusGuiCommand();
 
     private:
         int count;
@@ -52,10 +50,8 @@ class App : public rclcpp::Node
         std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Request> pending_request_;
         std::shared_ptr<dronehive_interfaces::srv::BoxBroadcastService::Response> pending_response_;
 
-        
         rclcpp::TimerBase::SharedPtr heartbeat_timer_;
-        rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;
-        
+        rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;        
 };
 
 #endif
