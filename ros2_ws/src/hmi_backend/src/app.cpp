@@ -1,6 +1,16 @@
 #include <iostream>
 #include <app.h>
 
+namespace qos_profiles
+{
+    static const rclcpp::QoS master_qos = [] {
+        rclcpp::QoS qos(rclcpp::KeepLast(1));
+        qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+        qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+        return qos;
+    }();
+}
+
 App::App() : Node("app_node") 
 {
     this->count = 0;
@@ -8,6 +18,9 @@ App::App() : Node("app_node")
     this->new_box_message_arrived = false;
     this->new_box_confirm = false;
     this->new_search_retry = false;
+    this->get_system_status_request_appeared = false;
+    this->get_box_status_request_appeared = false;
+    this->get_drone_status_request_appeared = false;
 
     auto qos = rclcpp::QoS(10).best_effort();
 
@@ -41,7 +54,7 @@ App::App() : Node("app_node")
     }); 
 
     newbox_timeout_timer_ = this->create_wall_timer(
-    std::chrono::seconds(1),
+    std::chrono::milliseconds(200),
     [this](){
         if(this->box_timeout_timer > 10)
         {
@@ -60,7 +73,7 @@ App::App() : Node("app_node")
     });
 
      // One timer for all service requests
-    service_timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&App::onServiceTimer, this));
+    service_timer_ = this->create_wall_timer(std::chrono::seconds(5), std::bind(&App::onServiceTimer, this));
 }
 
 App::~App()
@@ -71,17 +84,43 @@ App::~App()
 void App::onServiceTimer()
 {
     // add requests
-    if(system_status_client_->wait_for_service(std::chrono::seconds(0))){
-
+    if(this->system_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_system_status_request_appeared){
+        auto req = std::make_shared<dronehive_interfaces::srv::RequestFullSystemStatus::Request>();
+        this->system_status_client_->async_send_request(req, std::bind(&App::onSystemStatusRequestResponse, this, std::placeholders::_1));
+        this->get_system_status_request_appeared = false;
     }
 
-    if(box_status_client_->wait_for_service(std::chrono::seconds(0))){
-        
+    if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared){
+        auto req = std::make_shared<dronehive_interfaces::srv::RequestBoxStatus::Request>();
+        this->box_status_client_->async_send_request(req, std::bind(&App::onBoxStatusRequestResponse, this, std::placeholders::_1));
+        this->get_box_status_request_appeared = false;
     }
 
-    if(drone_status_client_->wait_for_service(std::chrono::seconds(0))){
-        
+    if(this->drone_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_drone_status_request_appeared){
+        auto req = std::make_shared<dronehive_interfaces::srv::RequestDroneStatus::Request>();
+        this->drone_status_client_->async_send_request(req, std::bind(&App::onDroneStatusRequestResponse, this, std::placeholders::_1));
+        this->get_drone_status_request_appeared = false;
     }
+}
+
+void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestFullSystemStatus>::SharedFuture f)
+{
+    auto response = f.get();
+}
+
+void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedFuture f)
+{
+    auto response = f.get();
+}
+
+void App::onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f)
+{
+    auto response = f.get();
+}
+
+void App::onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedFuture f)
+{
+    auto response = f.get();
 }
 
 void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
@@ -134,7 +173,7 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS:
         {
-            // add flag for serice to start polling
+            this->get_box_status_request_appeared = true;
             break;   
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING:
@@ -149,13 +188,19 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS:
         {
-            // add flag for serice to start polling
+            this->get_system_status_request_appeared = true;
             break;
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS:
         {
-            // add flag for serice to start polling
+            this->get_drone_status_request_appeared = true;
             break;   
+        }
+
+        case dronehive_interfaces::msg::GuiCommand::REQUEST_EXECUTE_PATH:
+        {
+            // add flag to enable a timer to recieve the path
+            break;
         }
     };
 }
@@ -164,11 +209,7 @@ void App::onRemoveBoxGuiCommand(const std::string& box_id)
 {
     auto deinit_msg = std_msgs::msg::String();
     deinit_msg.data = box_id;
-
-    rclcpp::QoS qos_profile(rclcpp::KeepLast(1));
-    qos_profile.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
-    qos_profile.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
     
-    auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profile);
+    auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
     pub->publish(deinit_msg);
 }

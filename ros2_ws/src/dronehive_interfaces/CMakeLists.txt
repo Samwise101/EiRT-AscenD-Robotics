@@ -42,6 +42,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GuiCommand.msg"
   "msg/BackendCommand.msg"
   "msg/BoxFullStatus.msg"
+  "msg/ExecutePathMessage.msg"
+  "msg/SetConfigMessage.msg"
+  "msg/SetPathMessage.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

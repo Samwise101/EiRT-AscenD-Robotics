@@ -12,6 +12,7 @@
 #include <dronehive_interfaces/msg/box_setup_confirmation_message.hpp>
 #include <dronehive_interfaces/msg/gui_command.hpp>
 #include <dronehive_interfaces/msg/backend_command.hpp>
+#include <dronehive_interfaces/msg/execute_path_message.hpp>
 
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/srv/occupancy_service.hpp>
@@ -43,6 +44,11 @@ class App : public rclcpp::Node
         void onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
         void onServiceTimer();
 
+        void onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestFullSystemStatus>::SharedFuture f);
+        void onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedFuture f);
+        void onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f);
+        void onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedFuture f);
+
         void onRemoveBoxGuiCommand(const std::string& box_id);
 
     private:
@@ -51,6 +57,11 @@ class App : public rclcpp::Node
         bool new_box_message_arrived;
         bool new_box_confirm;
         bool new_search_retry;
+        bool landing_request_appeared;
+        bool return_home_request_appeared;
+        bool get_system_status_request_appeared;
+        bool get_box_status_request_appeared;
+        bool get_drone_status_request_appeared;
 
         rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr gui_box_confirm_sub_;
