@@ -124,6 +124,11 @@ class SlaveBoxNode(Node):
 	##################
 
 	def provide_box_status(self, request: BoxStatusService.Request, response: BoxStatusService.Response) -> BoxStatusService.Response:
+		if request.box_id != self.config.box_id:
+			response.accept = False
+			return response
+
+		response.accept = True
 		response.landing_pos = self.config.landing_position
 		response.drone_id = self.config.drone_id
 

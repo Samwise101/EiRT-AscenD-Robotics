@@ -48,7 +48,6 @@ class MasterBoxNode(Node):
 		super().__init__('master_box_node')
 
 		self.config: dh.Config = dh.dronehive_initialise()
-		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 
@@ -111,6 +110,9 @@ class MasterBoxNode(Node):
 		# Add slave box statuses
 		def callback(future: Future, box_id: str) -> None:
 			response: BoxStatusService.Response | None = future.result()
+			if response and not response.accept:
+				self.get_logger().error(f"Service call to get box status for box ID: {box_id} was not accepted.")
+				return
 
 			if response is not None:
 				self.get_logger().info(f"Got box status for box ID: {box_id}: {response}")
