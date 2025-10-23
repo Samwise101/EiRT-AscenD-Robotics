@@ -4,7 +4,7 @@
 namespace qos_profiles
 {
     static const rclcpp::QoS master_qos = [] {
-        rclcpp::QoS qos(rclcpp::KeepLast(1));
+        rclcpp::QoS qos(rclcpp::KeepLast(10));
         qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
         qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
         return qos;
@@ -41,11 +41,11 @@ App::App() : Node("app_node")
     );
 
 
-    box_status_client_ = this->create_client<dronehive_interfaces::srv::RequestBoxStatus>("dronehive/request_status");
-    drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("dronehive/request_drone_status");
-    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneLanding>("dronehive/request_landing");
-    drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("dronehive/request_return_home");
-    system_status_client_ = this->create_client<dronehive_interfaces::srv::RequestFullSystemStatus>("dronehive/request_full_status");
+    box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
+    drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("/dronehive/gui_drone_id_service");
+    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneLanding>("/dronehive/request_landing");
+    drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("/dronehive/request_return_home");
+    system_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxIDsService>("/dronehive/gui_boxes_id_service");
 
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
@@ -88,13 +88,13 @@ void App::onServiceTimer()
     // add requests
     if(this->system_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_system_status_request_appeared)
     {
-        auto req = std::make_shared<dronehive_interfaces::srv::RequestFullSystemStatus::Request>();
+        auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxIDsService::Request>();
         this->system_status_client_->async_send_request(req, std::bind(&App::onSystemStatusRequestResponse, this, std::placeholders::_1));
     }
 
     if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared)
     {
-        auto req = std::make_shared<dronehive_interfaces::srv::RequestBoxStatus::Request>();
+        auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
         this->box_status_client_->async_send_request(req, std::bind(&App::onBoxStatusRequestResponse, this, std::placeholders::_1));
     }
 
@@ -117,13 +117,17 @@ void App::onServiceTimer()
     }
 }
 
-void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestFullSystemStatus>::SharedFuture f)
+void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedFuture f)
 {
     auto response = f.get();
     this->get_system_status_request_appeared = false;
+
+    auto msg2 = std_msgs::msg::String();
+    msg2.data = "Confirming:";
+    to_gui_msg_pub_->publish(msg2);
 }
 
-void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedFuture f)
+void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
 {
     auto response = f.get();
     this->get_box_status_request_appeared = false;

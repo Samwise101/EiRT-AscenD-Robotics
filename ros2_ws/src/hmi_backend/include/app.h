@@ -24,6 +24,8 @@
 #include <dronehive_interfaces/srv/request_box_status.hpp>
 #include <dronehive_interfaces/srv/get_config.hpp>
 #include <dronehive_interfaces/srv/get_flightlog.hpp>
+#include <dronehive_interfaces/srv/slave_box_information_service.hpp>
+#include <dronehive_interfaces/srv/slave_box_i_ds_service.hpp>
 
 #include <thread>
 #include <mutex>
@@ -44,8 +46,8 @@ class App : public rclcpp::Node
         void onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg);
         void onServiceTimer();
 
-        void onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestFullSystemStatus>::SharedFuture f);
-        void onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedFuture f);
+        void onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedFuture f);
+        void onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f);
         void onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f);
         void onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedFuture f);
         void onDroneReturnHomeRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedFuture f);
@@ -74,9 +76,9 @@ class App : public rclcpp::Node
 
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedPtr drone_landing_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedPtr drone_home_return_client_;
-        rclcpp::Client<dronehive_interfaces::srv::RequestFullSystemStatus>::SharedPtr system_status_client_;
+        rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedPtr system_status_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedPtr drone_status_client_;
-        rclcpp::Client<dronehive_interfaces::srv::RequestBoxStatus>::SharedPtr box_status_client_;
+        rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedPtr box_status_client_;
 
         rclcpp::TimerBase::SharedPtr heartbeat_timer_;
         rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;   
