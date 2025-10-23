@@ -19,6 +19,7 @@
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/msg/gui_command.hpp>
 #include <dronehive_interfaces/msg/backend_command.hpp>
+#include <dronehive_interfaces/msg/box_full_status.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -44,6 +45,7 @@ public:
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
     void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
+    void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
 
 private slots:
 
@@ -65,6 +67,7 @@ private slots:
     void on_updateSystem_pushButton_clicked();
     void on_request_box_status_pushButton_clicked();
 
+
     void on_boxComboBox_currentIndexChanged(int index);
 
     void on_zoom_in_out_slider_valueChanged(int value);
@@ -82,6 +85,7 @@ private:
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr backend_msg_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::BoxFullStatus>::SharedPtr backend_box_status_sub_;
 
     std::vector<Box> boxes;
     std::vector<Drone> drones;

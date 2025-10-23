@@ -25,6 +25,8 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts)
 set(UI_FILES
   ui/mainwindow.ui
   ui/new_box_pupup.ui
+  ui/box_search_timeout_dialog.ui
+  ui/update_system_dialog.ui
 )
 qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 
@@ -45,6 +47,7 @@ set(HEADERS
   include/drone.h
   include/new_box_dialog.h
   include/box_timeout_dialog.h
+  include/update_system_dialog.h
   include/backend_manager.h
   include/helper.h
 )

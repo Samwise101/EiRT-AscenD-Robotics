@@ -24,6 +24,7 @@ App::App() : Node("app_node")
     this->drone_return_home_request_appeared = false;
     this->drone_landing_request_appeared = false;
 
+    this->pending_box_responses_ = 0;
     auto qos = rclcpp::QoS(10).best_effort();
 
     this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", 10);
@@ -123,14 +124,52 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
     this->get_system_status_request_appeared = false;
 
     auto msg2 = std_msgs::msg::String();
-    msg2.data = "Confirming:";
+    msg2.data = "Confirming, got SYSTEM status response";
     to_gui_msg_pub_->publish(msg2);
+
+    std::vector<std::string> box_ids = response->box_ids;
+    int box_ids_size = response->size;
+
+    this->pending_box_responses_ = box_ids_size;
+
+    for (int i = 0; i < box_ids_size; ++i)
+    {
+        if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
+        {
+            auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
+            req->box_id = box_ids[i];
+
+            this->box_status_client_->async_send_request(
+                req,
+                std::bind(&App::onBoxStatusRequestResponse, this, std::placeholders::_1)
+            );
+        }
+        else
+        {
+            pending_box_responses_--;
+        }
+    }
 }
 
 void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
 {
     auto response = f.get();
     this->get_box_status_request_appeared = false;
+
+    auto msg2 = std_msgs::msg::String();
+    msg2.data = "Confirming, got BOX status response";
+    to_gui_msg_pub_->publish(msg2);
+
+    if(this->pending_box_responses_ != 0) this->pending_box_responses_--;
+
+
+    auto msg = dronehive_interfaces::msg::BoxFullStatus();
+    // msg.box_id = response->box_id;
+    msg.drone_id = response->drone_id;
+    msg.landing_pos = response->landing_pos;
+
+    auto box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
+    box_status_pub_->publish(msg);
 }
 
 void App::onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f)

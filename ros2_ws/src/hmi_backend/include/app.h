@@ -13,6 +13,7 @@
 #include <dronehive_interfaces/msg/gui_command.hpp>
 #include <dronehive_interfaces/msg/backend_command.hpp>
 #include <dronehive_interfaces/msg/execute_path_message.hpp>
+#include <dronehive_interfaces/msg/box_full_status.hpp>
 
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/srv/occupancy_service.hpp>
@@ -65,6 +66,7 @@ class App : public rclcpp::Node
         bool get_system_status_request_appeared;
         bool get_box_status_request_appeared;
         bool get_drone_status_request_appeared;
+        int pending_box_responses_;
 
         rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr gui_box_confirm_sub_;

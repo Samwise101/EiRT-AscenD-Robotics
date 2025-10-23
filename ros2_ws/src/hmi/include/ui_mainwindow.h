@@ -64,7 +64,6 @@ public:
     QFrame *line;
     QPushButton *pushButton1;
     QVBoxLayout *verticalLayout_2;
-    QLabel *label;
     QTabWidget *tabWidget;
     QWidget *map_tab;
     QWidget *verticalLayoutWidget;
@@ -234,6 +233,7 @@ public:
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         verticalLayout = new QVBoxLayout();
+        verticalLayout->setSpacing(50);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         horizontalLayout_11 = new QHBoxLayout();
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
@@ -309,26 +309,15 @@ public:
 
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        label = new QLabel(centralwidget);
-        label->setObjectName(QString::fromUtf8("label"));
-        QFont font2;
-        font2.setPointSize(15);
-        font2.setBold(true);
-        font2.setWeight(75);
-        label->setFont(font2);
-        label->setAlignment(Qt::AlignCenter);
-
-        verticalLayout_2->addWidget(label);
-
         tabWidget = new QTabWidget(centralwidget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tabWidget->setMinimumSize(QSize(0, 0));
         tabWidget->setBaseSize(QSize(0, 0));
-        QFont font3;
-        font3.setPointSize(13);
-        font3.setBold(true);
-        font3.setWeight(75);
-        tabWidget->setFont(font3);
+        QFont font2;
+        font2.setPointSize(13);
+        font2.setBold(true);
+        font2.setWeight(75);
+        tabWidget->setFont(font2);
         map_tab = new QWidget();
         map_tab->setObjectName(QString::fromUtf8("map_tab"));
         verticalLayoutWidget = new QWidget(map_tab);
@@ -411,17 +400,17 @@ public:
         box_cicle_layout->setSizeConstraint(QLayout::SetNoConstraint);
         boxBatterLabel = new QLabel(verticalLayoutWidget_3);
         boxBatterLabel->setObjectName(QString::fromUtf8("boxBatterLabel"));
-        QFont font4;
-        font4.setPointSize(13);
-        font4.setBold(false);
-        font4.setWeight(50);
-        boxBatterLabel->setFont(font4);
+        QFont font3;
+        font3.setPointSize(13);
+        font3.setBold(false);
+        font3.setWeight(50);
+        boxBatterLabel->setFont(font3);
 
         box_cicle_layout->addWidget(boxBatterLabel);
 
         boxBatteryValueLabel = new QLabel(verticalLayoutWidget_3);
         boxBatteryValueLabel->setObjectName(QString::fromUtf8("boxBatteryValueLabel"));
-        boxBatteryValueLabel->setFont(font4);
+        boxBatteryValueLabel->setFont(font3);
 
         box_cicle_layout->addWidget(boxBatteryValueLabel);
 
@@ -680,13 +669,13 @@ public:
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         current_drone_label = new QLabel(verticalLayoutWidget_2);
         current_drone_label->setObjectName(QString::fromUtf8("current_drone_label"));
-        current_drone_label->setFont(font4);
+        current_drone_label->setFont(font3);
 
         horizontalLayout_8->addWidget(current_drone_label);
 
         droneBatteryValueLabel = new QLabel(verticalLayoutWidget_2);
         droneBatteryValueLabel->setObjectName(QString::fromUtf8("droneBatteryValueLabel"));
-        droneBatteryValueLabel->setFont(font4);
+        droneBatteryValueLabel->setFont(font3);
 
         horizontalLayout_8->addWidget(droneBatteryValueLabel);
 
@@ -950,7 +939,7 @@ public:
         QObject::connect(requestStatusPushButtin, SIGNAL(clicked()), MainWindow, SLOT(on_request_box_status_pushButton_clicked()));
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -976,7 +965,6 @@ public:
         addBox->setText(QCoreApplication::translate("MainWindow", "Add Box", nullptr));
         updateSystem->setText(QCoreApplication::translate("MainWindow", "Update System Status", nullptr));
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
-        label->setText(QCoreApplication::translate("MainWindow", "Drone Hive HMI", nullptr));
         label_6->setText(QString());
         zoom_in_pushButton->setText(QString());
         zoom_out_pushButton->setText(QString());

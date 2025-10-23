@@ -4,6 +4,15 @@
 #include <chrono>
 #include <thread>
    
+namespace qos_profiles
+{
+    static const rclcpp::QoS master_qos = [] {
+        rclcpp::QoS qos(rclcpp::KeepLast(10));
+        qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+        qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+        return qos;
+    }();
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0)
@@ -24,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
-    
+    backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>("/backedn/box_status", qos_profiles::master_qos, std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1));
+
     backEndManager = new BackEndManager(this);
 
     connect(backEndManager, &BackEndManager::backEndCrashed, this, &MainWindow::onBackEndCrashed);
@@ -60,6 +70,11 @@ void MainWindow::cleanup()
 
     delete this->spinTimer_;
     delete this->ui;
+}
+
+void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg)
+{
+    // RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box id : %d", msg->box_id);
 }
 
 void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)
