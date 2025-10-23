@@ -386,13 +386,11 @@ class MasterBoxNode(Node):
 		closest_distance: float = float('inf')
 		landing_pos: PositionMessage = PositionMessage()
 
-		*_, drone_easing, drone_northing = dh.utmconv().geodetic_to_utm(request.drone_pos.lat, request.drone_pos.lon)
 		for box_id, box_status in self.linked_slave_boxes.items():
 			if box_status.status != BoxStatusEnum.EMPTY:
 				continue
 
-			*_, box_easting, box_northing = dh.utmconv().geodetic_to_utm(box_status.position.lat, box_status.position.lon)
-			distance = ((box_easting - drone_easing) ** 2 + (box_northing - drone_northing) ** 2) ** 0.5
+			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
 			if distance < closest_distance:
 				closest_distance = distance
 				closest_box_id = box_id
