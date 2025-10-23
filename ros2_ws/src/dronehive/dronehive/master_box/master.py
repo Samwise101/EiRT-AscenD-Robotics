@@ -453,6 +453,7 @@ class MasterBoxNode(Node):
 			status).
 		"""
 		box_info = self.linked_slave_boxes.get(request.box_id, None)
+		response.box_id = request.box_id
 
 		if box_info is None:
 			self.get_logger().warn(f"Slave box info request received for unknown box ID: '{request.box_id}'. Responding with empty info.")
