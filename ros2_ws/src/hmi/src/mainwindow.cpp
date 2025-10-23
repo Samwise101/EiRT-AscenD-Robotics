@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
-    backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>("/backedn/box_status", qos_profiles::master_qos, std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1));
+    backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos, std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1));
 
     backEndManager = new BackEndManager(this);
 
@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
         rclcpp::spin_some(node_);
     });
     spinTimer_->start(5);
+
+    box_update_happened = false;
 }
 
 MainWindow::~MainWindow()
@@ -74,7 +76,48 @@ void MainWindow::cleanup()
 
 void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg)
 {
-    // RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box id : %d", msg->box_id);
+    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box status : %s", msg->box_status);
+
+    std::cout << msg->box_id << ", " << msg->box_status << std::endl;
+    std::string box_id = msg->box_id;
+    std::string drone_id = msg->drone_id;
+    std::string box_status =  msg->box_status;
+    float box_lat = msg->landing_pos.lat;
+    float box_lon = msg->landing_pos.lon;
+    float box_elv = msg->landing_pos.elv;
+
+    bool box_exists = false;
+
+    for(Box box : this->boxes)
+    {
+        if(box.get_box_id() == box_id)
+        {
+            std::cout << "Box exists\n";
+            box_exists = true;
+            break;
+        }
+    }
+
+    if(!box_exists)
+    {
+        QString id = QString::fromStdString(msg->box_id);
+        if (ui->boxComboBox) {
+            box_update_happened = true;
+            ui->boxComboBox->addItem(id);
+        }
+        Coordinates coord{box_lat, box_lon, box_elv};
+        Box box(SLAVE, coord, box_id, this->boxes.size() + 1);
+        this->boxes.push_back(box);
+    }
+
+    this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
+    this->ui->boxTypeValueLabel->setText("Slave");
+    this->ui->boxNumberValueLabel->setText(QString::number(this->boxes.size()));
+    this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
+    this->ui->box_latitude_lineEdit->setText(QString::number(box_lat));
+    this->ui->box_longitude_lineEdit->setText(QString::number(box_lon));
+    this->ui->box_altitude_lineEdit->setText(QString::number(box_elv));
+    box_update_happened = false;
 }
 
 void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)
@@ -220,10 +263,10 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxTypeValueLabel->setText("Unknown");
     this->ui->boxBatteryValueLabel->setText("Unknown");
 
-    this->ui->droneBatteryValueLabel->setText("Unknown");
-    this->ui->drone_altitude_lineEdit->clear();
-    this->ui->drone_latitude_lineEdit->clear();
-    this->ui->drone_longitude_lineEdit->clear();
+    // this->ui->droneBatteryValueLabel->setText("Unknown");
+    // this->ui->drone_altitude_lineEdit->clear();
+    // this->ui->drone_latitude_lineEdit->clear();
+    // this->ui->drone_longitude_lineEdit->clear();
 }
 
 void MainWindow::on_arm_pushButton_clicked()
@@ -314,7 +357,7 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {
-    if(this->ui->boxComboBox->count() > 0)
+    if(this->ui->boxComboBox->count() > 0 && !box_update_happened)
     {
         this->currentBoxIndex = index;
 

@@ -17,7 +17,7 @@
 
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/srv/occupancy_service.hpp>
-#include <dronehive_interfaces/srv/request_box_status.h>
+#include <dronehive_interfaces/srv/request_box_status.hpp>
 #include <dronehive_interfaces/srv/request_drone_status.hpp>
 #include <dronehive_interfaces/srv/request_drone_landing.hpp>
 #include <dronehive_interfaces/srv/request_return_home.hpp>

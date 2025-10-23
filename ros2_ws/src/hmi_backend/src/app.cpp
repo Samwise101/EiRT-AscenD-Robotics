@@ -157,16 +157,18 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     this->get_box_status_request_appeared = false;
 
     auto msg2 = std_msgs::msg::String();
-    msg2.data = "Confirming, got BOX status response";
+    msg2.data = "Got box status request";
     to_gui_msg_pub_->publish(msg2);
+    
 
     if(this->pending_box_responses_ != 0) this->pending_box_responses_--;
 
 
     auto msg = dronehive_interfaces::msg::BoxFullStatus();
-    // msg.box_id = response->box_id;
+    msg.box_id = response->box_id;
     msg.drone_id = response->drone_id;
     msg.landing_pos = response->landing_pos;
+    msg.box_status = response->status;
 
     auto box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
     box_status_pub_->publish(msg);

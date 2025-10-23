@@ -95,6 +95,8 @@ private:
     QTimer* spinTimer_;
     bool new_box_request;
     int currentBoxIndex;
+    bool box_update_happened;
+
 };
 
 #endif
