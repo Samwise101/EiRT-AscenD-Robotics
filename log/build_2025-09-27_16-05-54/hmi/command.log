@@ -1,6 +1,0 @@
-Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi -DCMAKE_INSTALL_PREFIX=/home/samuel/EiRT-AscenD-Robotics/install/hmi
-Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi -DCMAKE_INSTALL_PREFIX=/home/samuel/EiRT-AscenD-Robotics/install/hmi
-Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi -- -j16 -l16
-Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi -- -j16 -l16
-Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/samuel/EiRT-AscenD-Robotics/build/hmi
-Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/samuel/EiRT-AscenD-Robotics/build/hmi
