@@ -92,9 +92,9 @@ class Initialiser:
 			self.config.landing_position = msg.landing_pos
 			dh.dronehive_update_config(self.config)
 
-			# self.node.destroy_timer(self._initialise_timer)
-			# self.node.destroy_publisher(self._pub_box_broadcast)
-			# self.node.destroy_subscription(self._sub_confirm_initialisation)
+			self.node.destroy_timer(self._initialise_timer)
+			self.node.destroy_publisher(self._pub_box_broadcast)
+			self.node.destroy_subscription(self._sub_confirm_initialisation)
 
 			self.on_initialised()
 
