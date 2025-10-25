@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>968</width>
-    <height>669</height>
+    <width>975</width>
+    <height>644</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,8 +22,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>875</width>
-     <height>625</height>
+     <width>1000</width>
+     <height>600</height>
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
@@ -143,7 +143,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -280,51 +280,10 @@
               <enum>QLayout::SetNoConstraint</enum>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="box_cicle_layout" stretch="0,0,5">
+              <layout class="QHBoxLayout" name="box_cicle_layout">
                <property name="sizeConstraint">
                 <enum>QLayout::SetNoConstraint</enum>
                </property>
-               <item>
-                <widget class="QLabel" name="boxBatterLabel">
-                 <property name="font">
-                  <font>
-                   <pointsize>13</pointsize>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Box battery level: </string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="boxBatteryValueLabel">
-                 <property name="font">
-                  <font>
-                   <pointsize>13</pointsize>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Unknown</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
               </layout>
              </item>
              <item>
@@ -351,7 +310,7 @@
                  <item>
                   <layout class="QVBoxLayout" name="Box_show_layout">
                    <item>
-                    <widget class="QFrame" name="frame">
+                    <widget class="QFrame" name="frame_box">
                      <property name="frameShape">
                       <enum>QFrame::StyledPanel</enum>
                      </property>
@@ -696,52 +655,7 @@ Box Status</string>
               <height>511</height>
              </rect>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,10">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_8">
-               <item>
-                <widget class="QLabel" name="current_drone_label">
-                 <property name="font">
-                  <font>
-                   <pointsize>13</pointsize>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Drone Battery level:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="droneBatteryValueLabel">
-                 <property name="font">
-                  <font>
-                   <pointsize>13</pointsize>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Unknown</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
+            <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,10">
              <item>
               <widget class="Line" name="line_7">
                <property name="orientation">
@@ -752,7 +666,7 @@ Box Status</string>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="2,0,0">
                <item>
-                <widget class="QFrame" name="frame_2">
+                <widget class="QFrame" name="frame_drone">
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
@@ -1054,7 +968,7 @@ Box Status</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>968</width>
+     <width>975</width>
      <height>22</height>
     </rect>
    </property>

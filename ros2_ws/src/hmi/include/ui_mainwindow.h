@@ -81,15 +81,12 @@ public:
     QWidget *verticalLayoutWidget_3;
     QVBoxLayout *box_main_layout;
     QHBoxLayout *box_cicle_layout;
-    QLabel *boxBatterLabel;
-    QLabel *boxBatteryValueLabel;
-    QSpacerItem *horizontalSpacer;
     QFrame *line_3;
     QFrame *line_6;
     QGridLayout *box_grid_layout;
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *Box_show_layout;
-    QFrame *frame;
+    QFrame *frame_box;
     QFrame *line_14;
     QVBoxLayout *box_information_layout;
     QHBoxLayout *horizontalLayout_6;
@@ -123,13 +120,9 @@ public:
     QWidget *drone_tab;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_4;
-    QHBoxLayout *horizontalLayout_8;
-    QLabel *current_drone_label;
-    QLabel *droneBatteryValueLabel;
-    QSpacerItem *horizontalSpacer_2;
     QFrame *line_7;
     QHBoxLayout *horizontalLayout_9;
-    QFrame *frame_2;
+    QFrame *frame_drone;
     QFrame *line_15;
     QVBoxLayout *verticalLayout_5;
     QFrame *line_10;
@@ -168,7 +161,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(968, 669);
+        MainWindow->resize(975, 644);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         QIcon icon;
@@ -227,7 +220,7 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(centralwidget->sizePolicy().hasHeightForWidth());
         centralwidget->setSizePolicy(sizePolicy);
-        centralwidget->setMinimumSize(QSize(875, 625));
+        centralwidget->setMinimumSize(QSize(1000, 600));
         gridLayout_2 = new QGridLayout(centralwidget);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         horizontalLayout = new QHBoxLayout();
@@ -398,27 +391,6 @@ public:
         box_cicle_layout = new QHBoxLayout();
         box_cicle_layout->setObjectName(QString::fromUtf8("box_cicle_layout"));
         box_cicle_layout->setSizeConstraint(QLayout::SetNoConstraint);
-        boxBatterLabel = new QLabel(verticalLayoutWidget_3);
-        boxBatterLabel->setObjectName(QString::fromUtf8("boxBatterLabel"));
-        QFont font3;
-        font3.setPointSize(13);
-        font3.setBold(false);
-        font3.setWeight(50);
-        boxBatterLabel->setFont(font3);
-
-        box_cicle_layout->addWidget(boxBatterLabel);
-
-        boxBatteryValueLabel = new QLabel(verticalLayoutWidget_3);
-        boxBatteryValueLabel->setObjectName(QString::fromUtf8("boxBatteryValueLabel"));
-        boxBatteryValueLabel->setFont(font3);
-
-        box_cicle_layout->addWidget(boxBatteryValueLabel);
-
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        box_cicle_layout->addItem(horizontalSpacer);
-
-        box_cicle_layout->setStretch(2, 5);
 
         box_main_layout->addLayout(box_cicle_layout);
 
@@ -443,12 +415,12 @@ public:
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         Box_show_layout = new QVBoxLayout();
         Box_show_layout->setObjectName(QString::fromUtf8("Box_show_layout"));
-        frame = new QFrame(verticalLayoutWidget_3);
-        frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setFrameShape(QFrame::StyledPanel);
-        frame->setFrameShadow(QFrame::Raised);
+        frame_box = new QFrame(verticalLayoutWidget_3);
+        frame_box->setObjectName(QString::fromUtf8("frame_box"));
+        frame_box->setFrameShape(QFrame::StyledPanel);
+        frame_box->setFrameShadow(QFrame::Raised);
 
-        Box_show_layout->addWidget(frame);
+        Box_show_layout->addWidget(frame_box);
 
 
         horizontalLayout_2->addLayout(Box_show_layout);
@@ -665,27 +637,6 @@ public:
         verticalLayout_4 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-        horizontalLayout_8 = new QHBoxLayout();
-        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
-        current_drone_label = new QLabel(verticalLayoutWidget_2);
-        current_drone_label->setObjectName(QString::fromUtf8("current_drone_label"));
-        current_drone_label->setFont(font3);
-
-        horizontalLayout_8->addWidget(current_drone_label);
-
-        droneBatteryValueLabel = new QLabel(verticalLayoutWidget_2);
-        droneBatteryValueLabel->setObjectName(QString::fromUtf8("droneBatteryValueLabel"));
-        droneBatteryValueLabel->setFont(font3);
-
-        horizontalLayout_8->addWidget(droneBatteryValueLabel);
-
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_8->addItem(horizontalSpacer_2);
-
-
-        verticalLayout_4->addLayout(horizontalLayout_8);
-
         line_7 = new QFrame(verticalLayoutWidget_2);
         line_7->setObjectName(QString::fromUtf8("line_7"));
         line_7->setFrameShape(QFrame::HLine);
@@ -695,12 +646,12 @@ public:
 
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
-        frame_2 = new QFrame(verticalLayoutWidget_2);
-        frame_2->setObjectName(QString::fromUtf8("frame_2"));
-        frame_2->setFrameShape(QFrame::StyledPanel);
-        frame_2->setFrameShadow(QFrame::Raised);
+        frame_drone = new QFrame(verticalLayoutWidget_2);
+        frame_drone->setObjectName(QString::fromUtf8("frame_drone"));
+        frame_drone->setFrameShape(QFrame::StyledPanel);
+        frame_drone->setFrameShadow(QFrame::Raised);
 
-        horizontalLayout_9->addWidget(frame_2);
+        horizontalLayout_9->addWidget(frame_drone);
 
         line_15 = new QFrame(verticalLayoutWidget_2);
         line_15->setObjectName(QString::fromUtf8("line_15"));
@@ -859,7 +810,7 @@ public:
 
         verticalLayout_4->addLayout(horizontalLayout_9);
 
-        verticalLayout_4->setStretch(2, 10);
+        verticalLayout_4->setStretch(1, 10);
         tabWidget->addTab(drone_tab, icon5, QString());
         stat_tab = new QWidget();
         stat_tab->setObjectName(QString::fromUtf8("stat_tab"));
@@ -889,7 +840,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 968, 22));
+        menubar->setGeometry(QRect(0, 0, 975, 22));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menubar);
@@ -939,7 +890,7 @@ public:
         QObject::connect(requestStatusPushButtin, SIGNAL(clicked()), MainWindow, SLOT(on_request_box_status_pushButton_clicked()));
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -969,8 +920,6 @@ public:
         zoom_in_pushButton->setText(QString());
         zoom_out_pushButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(map_tab), QCoreApplication::translate("MainWindow", "Map", nullptr));
-        boxBatterLabel->setText(QCoreApplication::translate("MainWindow", "Box battery level: ", nullptr));
-        boxBatteryValueLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         pushButton_7->setText(QCoreApplication::translate("MainWindow", "Remove Box", nullptr));
         requestStatusPushButtin->setText(QCoreApplication::translate("MainWindow", "Request \n"
 "Box Status", nullptr));
@@ -986,8 +935,6 @@ public:
         box_latitude_label->setText(QCoreApplication::translate("MainWindow", "Box Lat: ", nullptr));
         box_altitude_label->setText(QCoreApplication::translate("MainWindow", "Box alt: ", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(box_tab), QCoreApplication::translate("MainWindow", "Box", nullptr));
-        current_drone_label->setText(QCoreApplication::translate("MainWindow", "Drone Battery level:", nullptr));
-        droneBatteryValueLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         label_8->setText(QCoreApplication::translate("MainWindow", "Requests", nullptr));
         pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
         pushButton_6->setText(QCoreApplication::translate("MainWindow", "Request Drone\n"

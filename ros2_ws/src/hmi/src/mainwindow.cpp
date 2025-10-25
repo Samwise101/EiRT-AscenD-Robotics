@@ -19,6 +19,20 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->frame_box->setFrameShape(QFrame::Box);
+    ui->frame_box->setStyleSheet("background-color:rgb(255,255,255)");
+
+    ui->frame_drone->setFrameShape(QFrame::Box);
+    ui->frame_drone->setStyleSheet("background-color:rgb(255,255,255)");
+
+    QLabel* imageLabel = new QLabel(ui->frame_drone);
+    QPixmap pixmap("src/hmi/resources/quad_copter.png");  // or absolute path
+    imageLabel->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    imageLabel->setAlignment(Qt::AlignCenter);
+    imageLabel->setFixedSize(400, 400);
+    imageLabel->move(28, 50); // <-- offset from top-left corner (x=20, y=20)
+    imageLabel->show();
+
     // Create ROS2 node
     node_ = std::make_shared<rclcpp::Node>("gui_node");
     auto qos = rclcpp::QoS(10).best_effort();
@@ -106,7 +120,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             ui->boxComboBox->addItem(id);
         }
         Coordinates coord{box_lat, box_lon, box_elv};
-        Box box(SLAVE, coord, box_id, this->boxes.size() + 1);
+        Box box(SLAVE, coord, box_id, box_status, this->boxes.size() + 1);
         this->boxes.push_back(box);
     }
 
@@ -118,6 +132,8 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     this->ui->box_longitude_lineEdit->setText(QString::number(box_lon));
     this->ui->box_altitude_lineEdit->setText(QString::number(box_elv));
     box_update_happened = false;
+
+    this->setBoxStateGraphics(box_status);
 }
 
 void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)
@@ -182,7 +198,7 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
 
         Coordinates coord{dialog.get_box_lat(),dialog.get_box_lon(),dialog.get_box_alt()};
         std::cout << "Coord" << coord.alt << std::endl;
-        Box newBox(SLAVE, coord, return_msg.box_id, this->boxes.size() + 1);
+        Box newBox(BoxType::SLAVE, coord, return_msg.box_id, boxStatusToString(BoxState::EMPTY) ,this->boxes.size() + 1);
         this->boxes.push_back(newBox);
 
         this->ui->boxComboBox->addItem(QString::fromStdString(return_msg.box_id));
@@ -261,7 +277,6 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxIdValueLabel->setText("Unknown");
     this->ui->boxNumberValueLabel->setText("Unknown");
     this->ui->boxTypeValueLabel->setText("Unknown");
-    this->ui->boxBatteryValueLabel->setText("Unknown");
 
     // this->ui->droneBatteryValueLabel->setText("Unknown");
     // this->ui->drone_altitude_lineEdit->clear();
@@ -367,16 +382,42 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
         std::string box_id = this->boxes[this->currentBoxIndex].get_box_id();
         int box_number = this->boxes[this->currentBoxIndex].get_box_number();
         int box_type = this->boxes[this->currentBoxIndex].get_box_type();
+        std::string box_status = this->boxes[this->currentBoxIndex].get_box_status();
 
         this->ui->box_altitude_lineEdit->setText(QString::number(box_altitude));
         this->ui->box_longitude_lineEdit->setText(QString::number(box_longitude));
         this->ui->box_latitude_lineEdit->setText(QString::number(box_latitude));
         this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
         this->ui->boxNumberValueLabel->setText(QString::number(box_number));
+        this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
+
+        this->setBoxStateGraphics(box_status);
 
         if(box_type == BoxType::SLAVE)
             this->ui->boxTypeValueLabel->setText("Slave");
         else if(box_type == BoxType::MASTER)
             this->ui->boxTypeValueLabel->setText("Master");
     }
+}
+
+void MainWindow::setBoxStateGraphics(std::string& box_status)
+{
+    QLabel* imageLabel = new QLabel(ui->frame_box);
+
+    if(boxStateFromString(box_status) == BoxState::EMPTY)
+    {
+        QPixmap pixmap("src/hmi/resources/box_empty.png");
+        imageLabel->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(boxStateFromString(box_status) == BoxState::OCCUPIED)
+    {
+        QPixmap pixmap("src/hmi/resources/box_full.png");
+        imageLabel->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+
+    imageLabel->setAlignment(Qt::AlignCenter);
+    imageLabel->setFixedSize(400, 400);
+    imageLabel->move(50, 50); // <-- offset from top-left corner (x=20, y=20)
+    imageLabel->show();
+
 }

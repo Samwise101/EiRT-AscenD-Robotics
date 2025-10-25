@@ -1,8 +1,8 @@
 #include <iostream>
 #include "box.h"
 
-Box::Box(int type, Coordinates coord, std::string id, int number) : 
-box_type(type), coord(coord), id(id), number(number)
+Box::Box(int type, Coordinates coord, std::string id, std::string status, int number) : 
+box_type(type), coord(coord), id(id), number(number), status(status)
 {
 
 }
@@ -42,4 +42,14 @@ std::string Box::get_box_id(void)
 int Box::get_box_number(void)
 {
     return this->number;
+}
+
+void Box::set_box_status(std::string status)
+{
+    this->status = status;
+}
+
+std::string Box::get_box_status()
+{
+    return this->status;
 }
