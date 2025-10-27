@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'offboard = offboard.offboard:main'
+            'offboard = offboard.offboard:main',
+            'serv = offboard.mock_landing_service:main'
         ],
     },
 )

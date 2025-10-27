@@ -1,293 +1,520 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+Landing Control Node
+
+----------------------------
+
+1) Simulation mode (--simulation):
+   - Streams setpoints, auto-switches to OFFBOARD, auto-arms
+   - Takes off to a configured altitude, then "loiters" by flying a small circle
+   - Requests a landing position from the masterbox DroneLandingService and waits up to N seconds
+   - If a landing position arrives -> executes a smooth, two-segment cubic landing trajectory
+   - If no position arrives in time -> lands at the takeoff/home XY and descends to z=0
+
+2) Real mode (default, if --simulation is NOT passed):
+   - Streams setpoints to keep offboard alive, but does NOT arm or switch modes
+   - Waits for the operator to arm + switch to OFFBOARD
+   - When ready, holds/loiters while requesting landing from the service
+   - If landing target arrives -> executes the same smooth landing
+   - If it doesn't arrive in time -> lands at recorded home XY
+
+ROS Interfaces:
+- Sub: /mavros/state              (mavros_msgs/State)
+- Sub: /mavros/local_position/pose (geometry_msgs/PoseStamped)
+- Pub: /mavros/setpoint_position/local (geometry_msgs/PoseStamped)
+- Srv: /drone_landing_request      (dronehive_interfaces/srv/DroneLandingService)
+
+Usage:
+------
+# Simulation (auto arm & OFFBOARD, auto takeoff, loiter, wait, smooth-land)
+ros2 run offboard offboard --simulation
+
+# Real system (wait for operator to arm & OFFBOARD; then same landing logic)
+ros2 run offboard offboard
+
+# Extra arguments
+ros2 run offboard offboard \
+  --drone-id drone69 \
+  --takeoff-alt 2.0 \
+  --loiter-radius 2.0 \
+  --landing-timeout 15.0
+
+How to simulate a landing position:
+---------------------------------------------------------
+
+"""
+
 import math
+import time
+import argparse
+from enum import Enum
+
 import numpy as np
 import rclpy
-import argparse
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
-import time
 
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
-# Project specific imports
-#from dronehive_interfaces.msg import PositionMessage
-#from dronehive_interfaces.srv import RequestDroneLanding
 
-def get_quaternion_from_euler(roll, pitch, yaw):
+from dronehive_interfaces.srv import DroneLandingService
+from dronehive_interfaces.msg import PositionMessage
+
+
+# ---------------------- helpers ---------------------------------
+
+def yaw_to_quaternion(yaw_rad: float):
+    """Return xyzw quaternion for a given yaw (roll=pitch=0)"""
+    qz = math.sin(yaw_rad / 2.0)
+    qw = math.cos(yaw_rad / 2.0)
+    return (0.0, 0.0, qz, qw)
+
+
+def cubic_coeffs_from_boundary(p0, p1, v0, a0, T):
     """
-	Convert an Euler angle to a quaternion.
-
-	Input
-		:param roll: The roll (rotation around x-axis) angle in radians.
-		:param pitch: The pitch (rotation around y-axis) angle in radians.
-		:param yaw: The yaw (rotation around z-axis) angle in radians.
-
-	Output
-		:return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
-	"""
-    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-    return [qx, qy, qz, qw]
+    Compute cubic coefficients given start pos/vel/acc and end pos
+    Returns coeffs [c0, c1, c2, c3] such that:
+        p(t) = c0 + c1 t + c2 t^2 + c3 t^3
+    """
+    c0 = p0
+    c1 = v0
+    c2 = a0 / 2.0
+    c3 = (p1 - (c0 + c1*T + c2*T**2)) / (T**3)
+    return np.array([c0, c1, c2, c3], dtype=float)
 
 
-class OffboardControl(Node):
+def eval_cubic(coeffs, t):
+    """Evaluate cubic p, v, a at time t"""
+    c0, c1, c2, c3 = coeffs
+    p = c0 + c1*t + c2*t**2 + c3*t**3
+    v = c1 + 2*c2*t + 3*c3*t**2
+    a = 2*c2 + 6*c3*t
+    return p, v, a
 
-    def __init__(self, simulation_mode=False):
-        super().__init__('offboard_ctrl')
 
-        # QoS
-        qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+# ---------------------- node ----------------------------------
 
-        # Publishers
-        self.local_pos_pub = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', qos)
+class FlightState(Enum):
+    INIT = 0
+    WAIT_OFFBOARD_AND_ARM = 1        # Used in real mode
+    TAKEOFF = 2                      # Used in simulation mode
+    LOITER_WAIT_SERVICE = 3
+    EXECUTE_TRAJ = 4
+    LANDING_HOME = 5
+    DONE = 6
 
-        # Subscribers
-        self.state_sub = self.create_subscription(State, '/mavros/state', self.state_cb, 10)
-        self.pose_sub = self.create_subscription(PoseStamped, '/mavros/local_position/pose', self.pose_cb, qos_profile_sensor_data)
-        
-        #self.sub_pose = self.create_subscription(
-		#	PoseStamped,
-		#	'/mavros/vision_pose/pose',
-		#	self.update_last_pos,
-		#	10)
-        
-        # Service clients
-        self.set_mode_client = self.create_client(SetMode, '/mavros/set_mode')
-        self.arming_client = self.create_client(CommandBool, '/mavros/cmd/arming')
 
-        # === Service Server ===
-        # The box node will call this to send the landing position.
-        #self.landing_service = self.create_service(
-        #    RequestDroneLanding,
-        #    '/drone_landing_request',
-        #    self.handle_landing_request
-        #)
+class LandingControl(Node):
+    """
+    LandingControl
+    ---------------------
+    A node that can operate in simulation or real-system mode and perform a smooth landing
+    using a target provided by DroneLandingService.
 
-        # Simulation mode argument
+    Main methods:
+      - request_landing_position(): call the service and wait for response
+      - plan_landing_traj(): build a two-segment cubic trajectory (above target -> target)
+      - circle_motion(): loiter while waiting
+      - auto_land(): descend to z=0 at the recorded home XY
+    """
+
+    def __init__(self,
+                 simulation_mode: bool,
+                 drone_id: str,
+                 takeoff_alt: float = 2.0,
+                 loiter_radius: float = 2.0,
+                 landing_timeout: float = 15.0,
+                 publish_hz: float = 30.0):
+        super().__init__('landing_control')
+
         self.simulation_mode = simulation_mode
+        self.drone_id = drone_id
+        self.takeoff_alt = float(takeoff_alt)
+        self.loiter_radius = float(loiter_radius)
+        self.landing_timeout = float(landing_timeout)
+        self.publish_dt = 1.0 / float(publish_hz)
 
-        # Variables
+        # ---------------- ROS I/O ----------------
+        #qos_best_effort = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
 
-        self.current_state = State()
-        self.current_pose = PoseStamped()
-        self.altitude = 2.0
-        self.i = 0
-        self.target_reached = False
-        self.risen = False
-        self.distance = None
-        self.trajectory = None
-        self.index = 0
-        # Setpoint message
+        self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
+        self.sub_state = self.create_subscription(State, '/mavros/state', self._state_cb, 10)
+        self.sub_pose = self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
+
+        self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
+        self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
+        self.cli_landing = self.create_client(DroneLandingService, '/drone_landing_request')
+
+        # Wait for MAVROS services
+        self.get_logger().info("Waiting for MAVROS services...")
+        self.cli_mode.wait_for_service()
+        self.cli_arm.wait_for_service()
+        self.get_logger().info("MAVROS services available.")
+
+        # Landing service
+        # ---------------- State ----------------
+        self.state = FlightState.INIT
+        self.mav_state = State()
+        self.have_pose = False
+        self.curr_xyz = np.zeros(3)
+        self.curr_yaw = 0.0
+
+        self.home_xy = None       # set when we take off (sim) or first detect OFFBOARD+armed (real)
+        self.home_alt0 = None     # initial ground altitude, to land back to z=0 frame
+        self.takeoff_reached = False
+
+        # Loiter (circle) tracking
+        self._circle_angle_deg = 0.0
+
+        # Landing service request/response
+        self.request_sent = False
+        self.request_start_wall = None
+        self.landing_received = False
+        self.landing_target = None  # np.array([x, y, z]) in local frame
+
+        # Trajectory tracking
+        self.traj_segments = []   # list of [coeffs_x, coeffs_y, coeffs_z] per segment
+        self.segment_times = []   # durations per segment
+        self.traj_total_T = 0.0
+        self.traj_t0_wall = None
+
+        # Pre-allocate outgoing setpoint
         self.sp = PoseStamped()
+        self.sp.header.frame_id = 'map'
+        _, _, qz, qw = yaw_to_quaternion(0.0)
+        self.sp.pose.orientation.z = qz
+        self.sp.pose.orientation.w = qw
 
-		#TARGET POINT FOR LANDING
-        self.pose_land = PoseStamped()
-        self.pose_land.pose.position.x = self.sp.pose.position.x
-        self.pose_land.pose.position.y = self.sp.pose.position.y
-        self.pose_land.pose.position.z = 0.0
+        # Main timer
+        self.timer = self.create_timer(self.publish_dt, self._timer_cb)
 
-		#TEST TARGET POINT
-        self.pose_test = PoseStamped()
-        self.pose_test.pose.position.x = 5.0
-        self.pose_test.pose.position.y = 4.0
-        self.pose_test.pose.position.z = 7.0
-        
-        rot = get_quaternion_from_euler(0, 0, 0)
-        self.pose_test.pose.orientation.x = rot[0]
-        self.pose_test.pose.orientation.y = rot[1]
-        self.pose_test.pose.orientation.z = rot[2]
-        self.pose_test.pose.orientation.w = rot[3]
+        # Simulation-only helper timer to request OFFBOARD/ARM if needed
+        if self.simulation_mode:
+            self.sim_timer = self.create_timer(0.5, self._simulation_mode_switcher)
 
-        #Wait for services
-        self.get_logger().info("Waiting for services...")
-        self.set_mode_client.wait_for_service()
-        self.arming_client.wait_for_service()
-        self.get_logger().info("Services ready")
+        self.get_logger().info(f"UnifiedLandingControl started (simulation_mode={self.simulation_mode}).")
 
-        # Timer for publishing setpoints
-        self.timer = self.create_timer(0.1, self.timer_cb)
+    # -------------------- Callbacks --------------------
 
-        # Background timer to manage mode switching
-        # ONLY IN SIMULATION MODE
-        if(self.simulation_mode):
-            self.create_timer(2.0, self.sim_mode_sw)
+    def _state_cb(self, msg: State):
+        self.mav_state = msg
 
-        self.get_logger().info(f"Starting OffboardControl (simulation_mode={self.simulation_mode})")
+    def _pose_cb(self, msg: PoseStamped):
+        self.have_pose = True
+        self.curr_xyz = np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z], dtype=float)
+        # Record home altitude reference the first time we get pose (used for auto-land target z)
+        if self.home_alt0 is None:
+            self.home_alt0 = float(self.curr_xyz[2])
 
-    def state_cb(self, msg: State):
-        self.current_state = msg
+    # -------------------- Main Timer --------------------
 
-    def pose_cb(self, msg: PoseStamped):
-        self.current_pose = msg
+    def _timer_cb(self):
+        """
+        Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
+        """
+        now = time.time()
 
-    def create_traj(self, waypoints, n_points_per_segment=50, yaw_fixed=0.0):
-        
-        # Extract XYZ positions from PoseStamped waypoints
-        positions = np.array([[wp.pose.position.x,
-                           wp.pose.position.y,
-                           wp.pose.position.z] for wp in waypoints])
+        if self.state == FlightState.INIT:
+            # Need valid pose before proceeding
+            if not self.have_pose:
+                self._publish_hold_here()
+                return
 
-        # Generate smooth trajectory using cubic interpolation per segment
-        self.trajectory = []
-        for i in range(len(positions) - 1):
+            if self.simulation_mode:
+                # Record home XY at start; we will take off to takeoff_alt
+                self.home_xy = self.curr_xyz[:2].copy()
+                self._publish_takeoff_sp()
+                self.state = FlightState.TAKEOFF
+                self.get_logger().info("State -> TAKEOFF (simulation)")
+            else:
+                # Real: wait for OFFBOARD + ARMED by operator
+                self.state = FlightState.WAIT_OFFBOARD_AND_ARM
+                self.get_logger().info("State -> WAIT_OFFBOARD_AND_ARM (real)")
 
-           p0 = positions[i]
-           p1 = positions[i + 1]
+        elif self.state == FlightState.WAIT_OFFBOARD_AND_ARM:
+            # Keep feeding setpoints so offboard won't drop if operator switches
+            self._publish_hold_here()
+            if self._is_offboard_and_armed():
+                # Record "home" where we first see OFFBOARD+armed
+                if self.home_xy is None:
+                    self.home_xy = self.curr_xyz[:2].copy()
+                if self.home_alt0 is None:
+                    self.home_alt0 = float(self.curr_xyz[2])
+                self._begin_loiter_and_request(now)
+                self.get_logger().info("Operator set OFFBOARD+ARMED. Loitering & requesting landing target.")
+                self.state = FlightState.LOITER_WAIT_SERVICE
 
-           t = np.linspace(0, 1, n_points_per_segment)
-           t2 = t**2
-           t3 = t**3
-           interp = (2*t3 - 3*t2 + 1)[:, None]*p0 + (-2*t3 + 3*t2)[:, None]*p1
+        elif self.state == FlightState.TAKEOFF:
+            # Drive Z to takeoff altitude over home XY
+            self._publish_takeoff_sp()
+            # Consider takeoff completed when close in altitude
+            if abs(self.curr_xyz[2] - self.takeoff_alt) < 0.3:
+                self.takeoff_reached = True
+                self._begin_loiter_and_request(now)
+                self.get_logger().info("Takeoff reached. Loitering & requesting landing target.")
+                self.state = FlightState.LOITER_WAIT_SERVICE
 
-           for j in range(n_points_per_segment):
-               pose = PoseStamped()
-               pose.pose.position.x = float(interp[j, 0])
-               pose.pose.position.y = float(interp[j, 1])
-               pose.pose.position.z = float(interp[j, 2])
+        elif self.state == FlightState.LOITER_WAIT_SERVICE:
+            # Circle while waiting. Publish continuously.
+            self._publish_circle_loiter()
 
-               # Convert yaw to quaternion
-               qz = math.sin(yaw_fixed / 2.0)
-               qw = math.cos(yaw_fixed / 2.0)
-               pose.pose.orientation.z = qz
-               pose.pose.orientation.w = qw
+            # Send the request once when entering this state (or if service becomes available later)
+            if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=0.1):
+                self._call_landing_service(now)
 
-               self.trajectory.append(pose)
-        self.get_logger().info("Created target trajectory")
+            # Check for landing response
+            if self.landing_received and self.landing_target is not None:
+                self._plan_landing_traj()
+                self.traj_t0_wall = now
+                self.state = FlightState.EXECUTE_TRAJ
+                self.get_logger().info("Landing target received. Executing landing trajectory.")
+                return
 
-    def timer_cb(self):
-        # publish setpoints
+            # Timeout -> go land at home
+            if self.request_start_wall is not None and (now - self.request_start_wall) > self.landing_timeout:
+                self.state = FlightState.LANDING_HOME
+                self.get_logger().warn("Landing request timed out. Landing back at home.")
+                return
 
+        elif self.state == FlightState.EXECUTE_TRAJ:
+            # Follow the planned trajectory (two segments)
+            t = now - self.traj_t0_wall
+            if t >= self.traj_total_T:
+                # Final point of second segment is the landing target (z at ground)
+                self._publish_xyz(self.landing_target[0], self.landing_target[1], 0.0)
+                if self.curr_xyz[2] < 0.15:
+                    self.state = FlightState.DONE
+                    self.get_logger().info("Landing trajectory complete.")
+            else:
+                self._publish_traj_at_time(t)
+
+        elif self.state == FlightState.LANDING_HOME:
+            # Go to home XY and descend to z=0 (or initial ground ref)
+            self._publish_xyz(self.home_xy[0], self.home_xy[1], 0.0)
+            # Once close to ground, consider done (you can add disarm / mode change if you want)
+            if self.curr_xyz[2] < 0.15:
+                self.state = FlightState.DONE
+                self.get_logger().info("Landed at home. Done.")
+
+        elif self.state == FlightState.DONE:
+            # Keep publishing last SP for a short while to avoid offboard drops
+            #self._publish_hold_here()
+            self._disarm()
+
+    # -------------------- Simulation helper --------------------
+
+    def _simulation_mode_switcher(self):
+        """In simulation, periodically request OFFBOARD and ARM."""
+        if not self.simulation_mode:
+            return
+        if self.mav_state.mode != "OFFBOARD" and self.state != FlightState.DONE:
+            req = SetMode.Request()
+            req.custom_mode = "OFFBOARD"
+            self.cli_mode.call_async(req)
+            self.get_logger().info("SIM: requesting OFFBOARD...")
+        elif not self.mav_state.armed and self.state != FlightState.DONE:
+            req = CommandBool.Request()
+            req.value = True
+            self.cli_arm.call_async(req)
+            self.get_logger().info("SIM: requesting ARM...")
+
+    def _disarm(self):
+        if self.mav_state.armed:
+            req = CommandBool.Request()
+            req.value = False
+            self.cli_arm.call_async(req)
+            self.get_logger().info("SIM: requesting DISARM...")
+
+    # -------------------- Landing service --------------------
+
+    def _call_landing_service(self, now_wall: float):
+        """Send landing request to the masterbox."""
+        self.request_sent = True
+        self.request_start_wall = now_wall
+
+        req = DroneLandingService.Request()
+        pm = PositionMessage()
+        # Interpret current local XYZ as lat/lon/elv
+        pm.lat = float(self.curr_xyz[0])
+        pm.lon = float(self.curr_xyz[1])
+        pm.elv = float(self.curr_xyz[2])
+        #pm.drone_id = self.drone_id
+        req.drone_pos = pm
+
+        future = self.cli_landing.call_async(req)
+        future.add_done_callback(self._landing_future_cb)
+        self.get_logger().info(f"Requested landing position from service '/drone_landing_request'.")
+
+    def _landing_future_cb(self, future):
+        """Handle the landing service response."""
+        try:
+            resp = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"Landing service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'landing_pos') or resp.landing_pos is None:
+            self.get_logger().warn("Landing service returned no data.")
+            return
+
+        lp = resp.landing_pos
+        # Interpret fields as local XYZ
+        self.landing_target = np.array([float(lp.lat), float(lp.lon), float(lp.elv)], dtype=float)
+        self.landing_received = True
+        self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, "
+                               f"y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
+
+    # -------------------- Trajectory planning & execution --------------------
+
+    def _plan_landing_traj(self):
+        """
+        Build a two-segment cubic trajectory:
+          1) current position -> 1 m above landing target
+          2) 1 m above landing target -> landing target
+        Each axis planned independently; durations scale with distance (slow descent ~0.5 m/s).
+        """
+        if self.landing_target is None or not self.have_pose:
+            return
+
+        p0 = self.curr_xyz.copy()
+        above = self.landing_target.copy()
+        above[2] += 1.0  # 1 m above
+
+        waypoints = [p0, above, self.landing_target]
+        self.traj_segments.clear()
+        self.segment_times.clear()
+        total_T = 0.0
+
+        v0 = np.zeros(3)
+        a0 = np.zeros(3)
+
+        for i in range(len(waypoints) - 1):
+            A = waypoints[i]
+            B = waypoints[i + 1]
+            d = float(np.linalg.norm(B - A))
+            T = max(1.0, d / 0.5)  # ~0.5 m/s nominal
+            coeffs_xyz = []
+            for axis in range(3):
+                coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
+                coeffs_xyz.append(coeffs)
+            self.traj_segments.append(coeffs_xyz)
+            self.segment_times.append(T)
+            total_T += T
+
+        self.traj_total_T = total_T
+        self.get_logger().info(f"Planned landing trajectory: {len(self.traj_segments)} segments, total {self.traj_total_T:.2f}s")
+
+    def _publish_traj_at_time(self, t):
+        """Publish position along the multi-segment cubic trajectory at elapsed time t(s)."""
+        t_rem = t
+        for seg_idx, T in enumerate(self.segment_times):
+            if t_rem <= T:
+                coeffs_x, coeffs_y, coeffs_z = self.traj_segments[seg_idx]
+                px, _, _ = eval_cubic(coeffs_x, t_rem)
+                py, _, _ = eval_cubic(coeffs_y, t_rem)
+                pz, _, _ = eval_cubic(coeffs_z, t_rem)
+                self._publish_xyz(px, py, pz)
+                return
+            t_rem -= T
+
+        # If time exceeded, publish last point of final segment
+        coeffs_x, coeffs_y, coeffs_z = self.traj_segments[-1]
+        px, _, _ = eval_cubic(coeffs_x, self.segment_times[-1])
+        py, _, _ = eval_cubic(coeffs_y, self.segment_times[-1])
+        pz, _, _ = eval_cubic(coeffs_z, self.segment_times[-1])
+        self._publish_xyz(px, py, pz)
+
+    # -------------------- publishers --------------------
+
+    def _publish_hold_here(self):
+        """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
+        if not self.have_pose:
+            return
+        self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.curr_xyz[2])
+
+    def _publish_takeoff_sp(self):
+        """Publish a setpoint at home XY and takeoff_alt Z (simulation takeoff)."""
+        if self.home_xy is None:
+            self.home_xy = self.curr_xyz[:2].copy()
+        self._publish_xyz(self.home_xy[0], self.home_xy[1], self.takeoff_alt)
+
+    def _publish_circle_loiter(self):
+        """Generate a small horizontal circle at the takeoff altitude."""
+        if self.home_xy is None:
+            self.home_xy = self.curr_xyz[:2].copy()
+        ang = math.radians(self._circle_angle_deg)
+        x = self.home_xy[0] + self.loiter_radius * math.cos(ang)
+        y = self.home_xy[1] + self.loiter_radius * math.sin(ang)
+        z = self.takeoff_alt if self.simulation_mode else self.curr_xyz[2]  # in real, don't force altitude jumps
+        self._publish_xyz(x, y, z)
+
+        self._circle_angle_deg = (self._circle_angle_deg + 2.0) % 360.0  # ~2 deg per tick -> smoother circle
+
+    def _publish_xyz(self, x: float, y: float, z: float, yaw: float = 0.0):
+        """Publish a simple position setpoint with yaw (roll/pitch=0)."""
         self.sp.header.stamp = self.get_clock().now().to_msg()
-        #self.circle_callback()
-        self.test_timer_callback()
-        self.publish_setpoint()
+        qx, qy, qz, qw = yaw_to_quaternion(yaw)
+        self.sp.pose.position.x = float(x)
+        self.sp.pose.position.y = float(y)
+        self.sp.pose.position.z = float(z)
+        self.sp.pose.orientation.x = qx
+        self.sp.pose.orientation.y = qy
+        self.sp.pose.orientation.z = qz
+        self.sp.pose.orientation.w = qw
+        self.pub_sp.publish(self.sp)
 
-    # Switch flight modes automaticly
-    # ONLY IN SIMULATION MODE
-    def sim_mode_sw(self):
-        if self.current_state.mode != "OFFBOARD":
-            req = SetMode.Request(custom_mode="OFFBOARD")
-            self.set_mode_client.call_async(req)
-            self.get_logger().info("Requesting OFFBOARD mode...")
-        elif not self.current_state.armed:
-            req = CommandBool.Request(value=True)
-            self.arming_client.call_async(req)
-            self.get_logger().info("Requesting arm...")
+    # -------------------- Utilities --------------------
 
-    def rise(self):
-        self.sp.pose.position.x = 0.0
-        self.sp.pose.position.y = 0.0
-        self.sp.pose.position.z = self.altitude
+    def _is_offboard_and_armed(self) -> bool:
+        return (self.mav_state.mode == "OFFBOARD") and bool(self.mav_state.armed)
 
-        if(self.current_pose.pose.position.z >= self.altitude-0.5):
-            self.risen = True
-            self.get_logger().info("Risen to desired altitude")
-            self.create_traj([self.sp, self.pose_test],40)
-            return
-
-    def go_to_pos(self, pos: PoseStamped):
-
-        self.sp.pose.position.x = pos.pose.position.x
-        self.sp.pose.position.y = pos.pose.position.y
-        self.sp.pose.position.z = pos.pose.position.z
-
-        self.sp.pose.orientation.x = pos.pose.orientation.x
-        self.sp.pose.orientation.y = pos.pose.orientation.y
-        self.sp.pose.orientation.z = pos.pose.orientation.z
-        self.sp.pose.orientation.w = pos.pose.orientation.w
-
-    def send_landing_request(self, box_id, x, y, z):
-        self.landing_req.box_id = box_id
-
-
-    def dest_callback(self, pos: PoseStamped):
-        dx = self.current_pose.pose.position.x - pos.pose.position.x 
-        dy = self.current_pose.pose.position.y - pos.pose.position.x
-        dz = self.current_pose.pose.position.z - pos.pose.position.x
-
-        self.distance = (dx**2+dy**2+dz**2)**0.5
-        self.get_logger().info(f"Distance from A to B: {self.distance}")
-
-		#Stop the drone at target
-
-        if self.distance < 2.3:
-            self.get_logger().info("Target reached")
-            return True
-
-    def circle_callback(self):
-        # Circle trajectory at fixed altitude
-        angle = math.radians(self.i)
-        radius = 2.0
-        self.sp.pose.position.x = radius * math.cos(angle)
-        self.sp.pose.position.y = radius * math.sin(angle)
-        self.sp.pose.position.z = self.altitude
-
-        q = get_quaternion_from_euler(0, 0, angle)
-        self.sp.pose.orientation.x = q[0]
-        self.sp.pose.orientation.y = q[1]
-        self.sp.pose.orientation.z = q[2]
-        self.sp.pose.orientation.w = q[3]
-
-        self.i = (self.i + 2) % 360
-
-        self.local_pos_pub.publish(self.sp)
-        self.get_logger().info(f"Publishing circle setpoints at Z={self.altitude:.1f}")
-
-    def test_timer_callback(self):
-        if self.pose_test == None:
-            self.get_logger().info("Waiting for target position")
-            return
+    def _begin_loiter_and_request(self, now_wall: float):
+        """Start loitering and the landing request."""
+        # Try to call the service ASAP
+        if self.cli_landing.wait_for_service(timeout_sec=0.1):
+            self._call_landing_service(now_wall)
         else:
-            if not self.risen:
-                self.get_logger().info(f"Target position received at X={self.pose_test.pose.position.x}, Y={self.pose_test.pose.position.y}, Z={self.pose_test.pose.position.z}")
-                self.rise()
-                return
-            elif self.risen and not self.target_reached:
-                self.get_logger().info("Executing trajectory")
-                if self.index >= len(self.trajectory):
-                    self.get_logger().info("Reached end of trajectory")
-                    self.target_reached = True
-                    return
-                self.sp = self.trajectory[self.index]
-                if self.dest_callback(self.trajectory[self.index]):
-                    self.get_logger().info(f"Moving to next trajectory element {self.index}")
-                    self.index+=1
-                    return
-                return
-            if self.target_reached:
-                self.get_logger().info(f"Landing")
-                self.go_to_pos(self.pose_land)
-                return
-            return
-        
-    def publish_setpoint(self):
-        self.local_pos_pub.publish(self.sp)
+            # Will retry call as soon as service comes up (handled in LOITER_WAIT_SERVICE)
+            self.request_sent = False
+            self.request_start_wall = now_wall
 
 
-def main(args=None):
-    parser = argparse.ArgumentParser(description="Offboard control node with simulation toggle.")
-    parser.add_argument(
-        "--simulation",
-        action="store_true",
-        help="Run in simulation mode (auto arm + offboard + takeoff)."
-    )
-    cli_args = parser.parse_args()
+# ------------------------- Main ---------------------------------------
 
-    rclpy.init(args=args)
-    node = OffboardControl(simulation_mode=cli_args.simulation)
+def main():
+    parser = argparse.ArgumentParser(description="Unified Landing Control (simulation or real).")
+    parser.add_argument("--simulation", action="store_true",
+                        help="Run in simulation mode (auto-arm, OFFBOARD, takeoff, loiter).")
+    parser.add_argument("--drone-id", type=str, default="drone69",
+                        help="Drone identifier sent to the landing service.")
+    parser.add_argument("--takeoff-alt", type=float, default=2.0,
+                        help="Takeoff altitude in meters (simulation mode).")
+    parser.add_argument("--loiter-radius", type=float, default=2.0,
+                        help="Loiter circle radius in meters.")
+    parser.add_argument("--landing-timeout", type=float, default=15.0,
+                        help="Seconds to wait for landing position before landing at home.")
+    parser.add_argument("--publish-hz", type=float, default=30.0,
+                        help="Setpoint publish rate (Hz).")
+    args = parser.parse_args()
+
+    rclpy.init()
+    node = LandingControl(simulation_mode=args.simulation,
+                                 drone_id=args.drone_id,
+                                 takeoff_alt=args.takeoff_alt,
+                                 loiter_radius=args.loiter_radius,
+                                 landing_timeout=args.landing_timeout,
+                                 publish_hz=args.publish_hz)
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info("Shutting down node.")
+        node.get_logger().info("Shutting down")
     finally:
         node.destroy_node()
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
