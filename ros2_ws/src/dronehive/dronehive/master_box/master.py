@@ -6,11 +6,18 @@ from rclpy.task import Future
 from std_msgs.msg import String
 
 # Project specific imports
-from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage, PositionMessage
+from dronehive_interfaces.msg import (
+	BoxBroadcastMessage,
+	BoxSetupConfirmationMessage,
+	DroneForceLandingMessage,
+	PositionMessage
+)
+
 from dronehive_interfaces.srv import (
 	BoxBroadcastService,
 	BoxStatusService,
 	DroneLandingService,
+	RequestReturnHome,
 	SlaveBoxIDsService,
 	SlaveBoxInformationService
 )
@@ -204,6 +211,12 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.drone_rth_pub = self.create_publisher(
+			DroneForceLandingMessage,
+			dh.DRONEHIVE_DRONE_RETURN_TO_HOME,
+			qos_profile
+		)
+
 	#####################
 	# Message callbacks #
 	#####################
@@ -352,6 +365,12 @@ class MasterBoxNode(Node):
 		)
 
 		self.create_service(
+			RequestReturnHome,
+			dh.DRONEHIVE_HMI_REQUEST_RETURN_HOME_TOPIC,
+			self.return_home_request
+		)
+
+		self.create_service(
 			SlaveBoxIDsService,
 			dh.DRONEHIVE_GUI_BOXES_ID_SERVICE,
 			self._handle_slave_box_ids_request
@@ -417,6 +436,26 @@ class MasterBoxNode(Node):
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
 		response.landing_pos = landing_pos
+		return response
+
+
+	def return_home_request(self, request: RequestReturnHome.Request, response: RequestReturnHome.Response) -> RequestReturnHome.Response:
+		status: BoxStatus = self.linked_slave_boxes[request.box_id]
+		if status.drone_id == "":
+			self.get_logger().warn(f"Return home request for box ID: {request.box_id} but no drone is present.")
+			response.confirm = False
+			return response
+
+		self.get_logger().info(f"Return home request for box ID: {request.box_id} with drone ID: {status.drone_id}.")
+		if request.box_id == self.config.box_id:
+			self.get_logger().info(f"Box ID: {request.box_id} is the master box. Setting drone ID: {status.drone_id} to return home.")
+
+		msg = DroneForceLandingMessage()
+		msg.drone_id = status.drone_id
+		msg.landing_pos = status.position
+		self.drone_rth_pub.publish(msg)
+
+		response.confirm = True
 		return response
 
 
