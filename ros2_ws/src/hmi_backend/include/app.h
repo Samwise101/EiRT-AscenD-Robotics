@@ -75,6 +75,7 @@ class App : public rclcpp::Node
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_heart_pub_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_msg_pub_;
         rclcpp::Publisher<dronehive_interfaces::msg::BackendCommand>::SharedPtr to_gui_command_pub_;
+        rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr to_box_new_box_confirmation_pub;
 
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedPtr drone_landing_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedPtr drone_home_return_client_;

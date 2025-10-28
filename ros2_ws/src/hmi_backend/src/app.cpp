@@ -30,6 +30,7 @@ App::App() : Node("app_node")
     this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", 10);
     this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
     this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10);
+    this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
 
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
@@ -198,9 +199,7 @@ void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfi
     msg2.data = "Confirming:";
     to_gui_msg_pub_->publish(msg2);
 
-    auto qos = rclcpp::QoS(10).best_effort();
-    auto to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
-    to_box_new_box_confirmation_pub->publish(*msg);
+    this->to_box_new_box_confirmation_pub->publish(*msg);
 }
 
 void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
