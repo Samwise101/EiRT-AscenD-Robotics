@@ -43,6 +43,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
   "msg/BoxBroadcastMessage.msg"
   "msg/BoxSetupConfirmationMessage.msg"
+  "msg/DroneForceLandingMessage.msg"
   "msg/PositionMessage.msg"
   "msg/GuiCommand.msg"
   "msg/BackendCommand.msg"
