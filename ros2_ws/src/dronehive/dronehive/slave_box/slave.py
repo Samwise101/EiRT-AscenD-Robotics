@@ -9,8 +9,7 @@ from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMe
 from dronehive_interfaces.srv import BoxStatusService
 
 qos_profile = QoSProfile(
-	reliability=QoSReliabilityPolicy.RELIABLE,
-	durability=QoSDurabilityPolicy.VOLATILE,
+	reliability=QoSReliabilityPolicy.BEST_EFFORT,
 	history=QoSHistoryPolicy.KEEP_LAST,
 	depth=1
 )
