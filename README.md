@@ -8,8 +8,27 @@
 cd ros2_ws
 colcon build --symlink-install
 source install/setup.bash
-ros2 run dronehive box_node
 ```
+
+### Run
+
+#### Run box nodes
+```bash
+# Master box
+ros2 run dronehive box_node
+# Slave box
+ros2 run dronehive slave node
+```
+
+#### Run the nodes locally on your pc
+
+The config files are originally located in `~/.config/dronehive` to make multiple boxes run on the same machine you need to change the this location. As on linux this location is indicated by `XDG_CONFIG_HOME` you just need to change it to a different location. Thus, see the example below:
+
+```bash
+ros2 run dronehive box_node
+XDG_CONFIG_HOME=$HOME/delete ros2 run dronehive slave_node
+```
+
 
 ### Usage
 
