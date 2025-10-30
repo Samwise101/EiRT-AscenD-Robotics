@@ -86,8 +86,8 @@ class LandingControl(Node):
 
         # ---------------- ROS I/O ----------------
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
-        self.sub_state = self.create_subscription(State, '/mavros/state', self._state_cb, 10)
-        self.sub_pose = self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
+        self.create_subscription(State, '/mavros/state', self._state_cb, 10)
+        self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
