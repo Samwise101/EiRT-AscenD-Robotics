@@ -31,6 +31,13 @@ void WarehouseFrame::loadWarehouseJson(QString filename)
     update(); // trigger repaint
 }
 
+void WarehouseFrame::clearVisuals()
+{
+    this->dronePaths.clear();
+    this->warehouseLines.clear();
+    update();
+}
+
 void WarehouseFrame::loadTrajectoryXml(QString filename)
 {
     QFile file(filename);
@@ -65,10 +72,16 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing, true);
 
+    p.fillRect(rect(), Qt::white);
+
     // Draw warehouse
     p.setPen(QPen(Qt::green, 2));
-    for (const auto &l : warehouseLines)
-        p.drawLine(l.x1, l.y1, l.x2, l.y2);
+    
+    if(!warehouseLines.empty())
+    {
+        for (const auto &l : warehouseLines)
+            p.drawLine(l.x1, l.y1, l.x2, l.y2);
+    }
 
     if(dronePaths.empty()) return;
 

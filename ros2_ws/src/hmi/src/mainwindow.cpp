@@ -560,3 +560,9 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
 
     this->warehouseFrame->loadTrajectoryXml(filename);
 }
+
+
+void MainWindow::on_clearVisualsButton_pushButton_clicked()
+{
+    this->warehouseFrame->clearVisuals();
+}

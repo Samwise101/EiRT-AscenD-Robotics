@@ -28,6 +28,7 @@ public:
 
     void loadWarehouseJson(QString filename);
     void loadTrajectoryXml(QString filename);
+    void clearVisuals();
 
 protected:   // <-- paintEvent should be protected, not private
     void paintEvent(QPaintEvent *event) override;

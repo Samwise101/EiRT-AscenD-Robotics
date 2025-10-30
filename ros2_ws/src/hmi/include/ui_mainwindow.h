@@ -82,6 +82,7 @@ public:
     QPushButton *loadMapButton;
     QFrame *line_22;
     QPushButton *loadTrajectoryButton;
+    QPushButton *clearVisualsButton;
     QSpacerItem *verticalSpacer;
     QWidget *box_tab;
     QWidget *verticalLayoutWidget_3;
@@ -404,6 +405,12 @@ public:
         loadTrajectoryButton->setFont(font);
 
         verticalLayout_3->addWidget(loadTrajectoryButton);
+
+        clearVisualsButton = new QPushButton(horizontalLayoutWidget);
+        clearVisualsButton->setObjectName(QString::fromUtf8("clearVisualsButton"));
+        clearVisualsButton->setFont(font);
+
+        verticalLayout_3->addWidget(clearVisualsButton);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -931,6 +938,7 @@ public:
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
         QObject::connect(loadMapButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadMapButton_pushButton_clicked()));
         QObject::connect(loadTrajectoryButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadTrajectoryButton_pushButton_clicked()));
+        QObject::connect(clearVisualsButton, SIGNAL(clicked()), MainWindow, SLOT(on_clearVisualsButton_pushButton_clicked()));
 
         tabWidget->setCurrentIndex(0);
 
@@ -963,6 +971,7 @@ public:
         loadMapButton->setText(QCoreApplication::translate("MainWindow", "Load Map", nullptr));
         loadTrajectoryButton->setText(QCoreApplication::translate("MainWindow", "Load\n"
 " Trajectory", nullptr));
+        clearVisualsButton->setText(QCoreApplication::translate("MainWindow", "Clear Visuals", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(map_tab), QCoreApplication::translate("MainWindow", "Map", nullptr));
         pushButton_7->setText(QCoreApplication::translate("MainWindow", "Remove Box", nullptr));
         requestStatusPushButtin->setText(QCoreApplication::translate("MainWindow", "Request \n"

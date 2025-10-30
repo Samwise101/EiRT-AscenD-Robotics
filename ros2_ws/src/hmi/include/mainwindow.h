@@ -73,6 +73,7 @@ private slots:
     void on_request_box_status_pushButton_clicked();
     void on_loadMapButton_pushButton_clicked();
     void on_loadTrajectoryButton_pushButton_clicked();
+    void on_clearVisualsButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
 

@@ -288,6 +288,20 @@
                 </widget>
                </item>
                <item>
+                <widget class="QPushButton" name="clearVisualsButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Clear Visuals</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="verticalSpacer">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -1197,7 +1211,7 @@ Box Status</string>
    <hints>
     <hint type="sourcelabel">
      <x>678</x>
-     <y>596</y>
+     <y>481</y>
     </hint>
     <hint type="destinationlabel">
      <x>430</x>
@@ -1212,8 +1226,8 @@ Box Status</string>
    <slot>on_zoom_out_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>819</x>
-     <y>601</y>
+     <x>806</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
      <x>822</x>
@@ -1229,7 +1243,7 @@ Box Status</string>
    <hints>
     <hint type="sourcelabel">
      <x>283</x>
-     <y>601</y>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
      <x>238</x>
@@ -1244,8 +1258,8 @@ Box Status</string>
    <slot>on_land_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>912</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
@@ -1260,8 +1274,8 @@ Box Status</string>
    <slot>on_return_home_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>787</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel">
      <x>871</x>
@@ -1276,8 +1290,8 @@ Box Status</string>
    <slot>on_arm_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>787</x>
+     <y>301</y>
     </hint>
     <hint type="destinationlabel">
      <x>865</x>
@@ -1292,8 +1306,8 @@ Box Status</string>
    <slot>on_takeoff_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>912</x>
+     <y>301</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1308,8 +1322,8 @@ Box Status</string>
    <slot>on_request_status_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>912</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1324,8 +1338,8 @@ Box Status</string>
    <slot>on_path_upload_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>787</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1340,8 +1354,8 @@ Box Status</string>
    <slot>on_remove_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>815</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>673</x>
@@ -1404,8 +1418,8 @@ Box Status</string>
    <slot>on_request_box_status_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>814</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
      <x>906</x>
@@ -1420,8 +1434,8 @@ Box Status</string>
    <slot>on_request_drone_status_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>104</y>
+     <x>912</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>966</x>
@@ -1461,6 +1475,22 @@ Box Status</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>clearVisualsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_clearVisualsButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>954</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_add_box_pushButton_clicked()</slot>
@@ -1485,5 +1515,6 @@ Box Status</string>
   <slot>on_request_drone_status_pushButton_clicked()</slot>
   <slot>on_loadMapButton_pushButton_clicked()</slot>
   <slot>on_loadTrajectoryButton_pushButton_clicked()</slot>
+  <slot>on_clearVisualsButton_pushButton_clicked()</slot>
  </slots>
 </ui>
