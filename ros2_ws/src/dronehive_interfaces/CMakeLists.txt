@@ -40,6 +40,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DroneStatusService.srv"
   "srv/SlaveBoxIDsService.srv"
   "srv/SlaveBoxInformationService.srv"
+  "srv/DroneTrajectoryWaypointsService.srv"
 
   "msg/BoxBroadcastMessage.msg"
   "msg/BoxSetupConfirmationMessage.msg"
