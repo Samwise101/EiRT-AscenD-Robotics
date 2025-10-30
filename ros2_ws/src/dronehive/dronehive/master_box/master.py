@@ -252,7 +252,7 @@ class MasterBoxNode(Node):
 			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
 
 		# Defer to next spin cycle
-		self.timer = self.create_timer(0.1, deferred_reinit)
+		self.create_timer(0.1, deferred_reinit)
 
 
 	def __init_new_slave_box(self, msg: BoxBroadcastMessage) -> None:
