@@ -33,6 +33,24 @@ from dronehive_interfaces.msg import PositionMessage
 
 # ---------------------- helpers ---------------------------------
 
+def quat_to_euler(q):
+    # roll (x-axis rotation)
+    sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+    cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+    roll = np.atan2(sinr_cosp, cosr_cosp);
+
+    # pitch (y-axis rotation)
+    sinp = np.sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+    cosp = np.sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+    pitch = 2 * np.atan2(sinp, cosp) - np.pi / 2;
+
+    # yaw (z-axis rotation)
+    siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+    cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+    yaw = np.atan2(siny_cosp, cosy_cosp);
+
+    return roll, pitch, yaw;
+
 def yaw_to_quaternion(yaw_rad: float):
     qz = math.sin(yaw_rad / 2.0)
     qw = math.cos(yaw_rad / 2.0)
@@ -110,7 +128,7 @@ class LandingControl(Node):
         self.mav_state = State()
         self.have_pose = False
         self.curr_xyz = np.zeros(3)
-        self.curr_yaw = 0.0
+        self.curr_heading = np.zeros(3)  # roll, pitch, yaw
         self.home_xy = None
         self.home_alt0 = None
         self.takeoff_reached = False
@@ -156,6 +174,8 @@ class LandingControl(Node):
     def _pose_cb(self, msg: PoseStamped):
         self.have_pose = True
         self.curr_xyz = np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z], dtype=float)
+        self.curr_heading = quat_to_euler(msg.pose.orientation)
+
         if self.home_alt0 is None:
             self.home_alt0 = float(self.curr_xyz[2])
 
@@ -468,7 +488,7 @@ class LandingControl(Node):
                 px, _, _ = eval_cubic(coeffs_x, t_rem)
                 py, _, _ = eval_cubic(coeffs_y, t_rem)
                 pz, _, _ = eval_cubic(coeffs_z, t_rem)
-                self._publish_xyz(px, py, pz)
+                self._publish_xyz(px, py, pz, self.curr_heading[2])
                 return
             t_rem -= T
 
