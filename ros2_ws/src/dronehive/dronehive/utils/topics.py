@@ -18,6 +18,11 @@ DRONEHIVE_INITIALISE_BOX_TOPIC = "/dronehive/box_initialise"
 DRONEHIVE_INITIALISE_SLAVE_BOX_TOPIC = "/dronehive/box_slave_initialise"
 DRONEHIVE_DEINITIALISE_SLAVE_BOX_TOPIC = "/dronehive/deinitialise_slave_box"
 
+# HMI sends request to return a drone to home position
+DRONEHIVE_HMI_REQUEST_RETURN_HOME_TOPIC = "/dronehive/request_return_home"
+# Topic that sends a request to the drone to land at a specific position.
+DRONEHIVE_DRONE_RETURN_TO_HOME = "/dronehive/drone_land_request"
+
 # Topic that sends a request for landing position, the drone ID should be formatted in the topic.
 DRONEHIVE_DRONE_LAND_REQUEST = "/dronehive/drone_land_request"
 # Topic that receives a request for a drone to lend at a specific position.
