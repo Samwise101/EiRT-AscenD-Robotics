@@ -31,6 +31,9 @@ App::App() : Node("app_node")
     this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
     this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10);
     this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
+    this->box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
+    this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10);
+    this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
 
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
@@ -41,7 +44,6 @@ App::App() : Node("app_node")
     gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>(
         "/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
     );
-
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
     drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("/dronehive/gui_drone_id_service");
@@ -162,8 +164,8 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     to_gui_msg_pub_->publish(msg2);
     
 
-    if(this->pending_box_responses_ != 0) this->pending_box_responses_--;
-
+    if(this->pending_box_responses_ != 0)
+        this->pending_box_responses_--; 
 
     auto msg = dronehive_interfaces::msg::BoxFullStatus();
     msg.box_id = response->box_id;
@@ -171,7 +173,6 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     msg.landing_pos = response->landing_pos;
     msg.box_status = response->status;
 
-    auto box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
     box_status_pub_->publish(msg);
 }
 
@@ -209,8 +210,6 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
     this->new_box_message_arrived = false;
 
     this->new_search_retry = false;
-
-    auto box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10);
 
     auto gui_msg = dronehive_interfaces::msg::BoxSetupConfirmationMessage();
 
@@ -278,6 +277,5 @@ void App::onRemoveBoxGuiCommand(const std::string& box_id)
     auto deinit_msg = std_msgs::msg::String();
     deinit_msg.data = box_id;
     
-    auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
-    pub->publish(deinit_msg);
+    this->box_deinit_pub_->publish(deinit_msg);
 }

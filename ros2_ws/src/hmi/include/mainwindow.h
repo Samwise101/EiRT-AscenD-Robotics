@@ -7,6 +7,7 @@
 #include "ui_mainwindow.h"
 #include <QTimer>
 #include <QString>
+#include <QLabel>
 
 #include <memory>
 #include <QThread>
@@ -46,7 +47,7 @@ public:
     void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
-    void setBoxStateGraphics(std::string& box_status);
+    void setBoxStateGraphics(std::string& box_status, float box_battery_level);
 
 private slots:
 
@@ -68,7 +69,6 @@ private slots:
     void on_updateSystem_pushButton_clicked();
     void on_request_box_status_pushButton_clicked();
 
-
     void on_boxComboBox_currentIndexChanged(int index);
 
     void on_zoom_in_out_slider_valueChanged(int value);
@@ -81,6 +81,7 @@ private:
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_cmd_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr response_pub_;
 
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
@@ -97,7 +98,12 @@ private:
     bool new_box_request;
     int currentBoxIndex;
     bool box_update_happened;
-
+    QLabel* imageLabel_drone; 
+    QLabel* imageLabel_box;
+    QLabel* batteryImageLabel_drone;
+    QLabel* batteryTextLabel_drone;
+    QLabel* batteryImageLabel_box;
+    QLabel* batteryTextLabel_box;
 };
 
 #endif
