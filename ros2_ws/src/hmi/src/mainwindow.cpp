@@ -108,6 +108,12 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     float box_lon = msg->landing_pos.lon;
     float box_elv = msg->landing_pos.elv;
 
+    if(box_id.empty()) 
+    {
+        std::cout << "Got an empty box id string" << std::endl;
+        return;
+    }
+
     bool box_exists = false;
 
     for(Box box : this->boxes)
@@ -285,6 +291,8 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxTypeValueLabel->setText("Unknown");
 
     this->imageLabel_box->clear();
+    this->batteryTextLabel_box->clear();
+    this->batteryImageLabel_box->clear();
 }
 
 void MainWindow::on_arm_pushButton_clicked()
