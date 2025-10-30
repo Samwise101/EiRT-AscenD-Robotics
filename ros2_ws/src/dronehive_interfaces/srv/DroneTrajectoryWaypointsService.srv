@@ -1,0 +1,5 @@
+# Service used forr the box to send Trajectory waypoints to the drone
+
+PositionMessage[] waypoints
+---
+bool ack
