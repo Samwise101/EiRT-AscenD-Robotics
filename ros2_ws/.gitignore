@@ -15,3 +15,7 @@ log
 *.ui.h
 
 /.vscode
+
+/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/maps
+/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/logs
+/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/trajectories

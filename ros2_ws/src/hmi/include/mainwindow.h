@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QString>
 #include <QLabel>
+#include <QFileDialog>
 
 #include <memory>
 #include <QThread>
@@ -27,6 +28,7 @@
 #include "new_box_dialog.h"
 #include "box_timeout_dialog.h"
 #include "backend_manager.h"
+#include "warehouseframe.h"
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +50,7 @@ public:
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
+    void setDroneGraphics(float box_battery_level);
 
 private slots:
 
@@ -68,6 +71,8 @@ private slots:
     void on_path_upload_pushButton_clicked();
     void on_updateSystem_pushButton_clicked();
     void on_request_box_status_pushButton_clicked();
+    void on_loadMapButton_pushButton_clicked();
+    void on_loadTrajectoryButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
 
@@ -93,6 +98,7 @@ private:
     std::vector<Drone> drones;
     int number_of_boxes;
     bool master_exists;
+    WarehouseFrame* warehouseFrame;
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
     bool new_box_request;

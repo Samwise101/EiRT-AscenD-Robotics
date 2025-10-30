@@ -64,6 +64,15 @@ MainWindow::MainWindow(QWidget *parent)
     spinTimer_->start(5);
 
     box_update_happened = false;
+
+    this->setDroneGraphics(0.0f);
+
+    warehouseFrame = new WarehouseFrame();
+    warehouseFrame->setStyleSheet("background-color:rgb(255,255,255)");
+    warehouseFrame->setFrameShape(QFrame::Box);
+    warehouseFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    warehouseFrame->setMinimumSize(200, 200); // optional safety
+    this->ui->verticalLayout_6->addWidget(warehouseFrame);
 }
 
 MainWindow::~MainWindow()
@@ -73,6 +82,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::cleanup()
 {
+    delete this->warehouseFrame;
     delete this->imageLabel_box;
     delete this->imageLabel_drone;
     delete this->batteryImageLabel_box;
@@ -471,4 +481,82 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
     this->batteryImageLabel_box->move(450, 15);
     this->batteryImageLabel_box->raise();
     this->batteryImageLabel_box->show();
+}
+
+void MainWindow::setDroneGraphics(float box_battery_level)
+{
+    QPixmap pixmap("src/hmi/resources/hexa_copter.png");
+    this->imageLabel_drone->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    this->imageLabel_drone->setAlignment(Qt::AlignCenter);
+    this->imageLabel_drone->setFixedSize(400, 400);
+    this->imageLabel_drone->move(25, 50); // <-- offset from top-left corner (x=20, y=20)
+    this->imageLabel_drone->show();
+
+    if(box_battery_level <= 0.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+
+    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1);
+    this->batteryTextLabel_drone->setText(battery_level);
+    this->batteryTextLabel_drone->setAlignment(Qt::AlignCenter);
+    this->batteryTextLabel_drone->setFixedSize(250, 50);
+    this->batteryTextLabel_drone->move(200, 15);
+
+    this->batteryImageLabel_drone->setAlignment(Qt::AlignCenter);
+    this->batteryImageLabel_drone->setFixedSize(50, 50);
+    this->batteryImageLabel_drone->move(400, 15);
+    this->batteryImageLabel_drone->raise();
+    this->batteryImageLabel_drone->show();
+}
+
+
+void MainWindow::on_loadMapButton_pushButton_clicked()
+{
+    QString filename =  QFileDialog::getOpenFileName(
+          this,
+          "Open Map File",
+          QDir::currentPath(),
+          "Document files (*.json)"
+    );
+
+    this->warehouseFrame->loadWarehouseJson(filename);
+}
+
+void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
+{
+    QString filename =  QFileDialog::getOpenFileName(
+          this,
+          "Open Trajectory File",
+          QDir::currentPath(),
+          "Document files (*.xml)"
+    );
+
+    this->warehouseFrame->loadTrajectoryXml(filename);
 }
