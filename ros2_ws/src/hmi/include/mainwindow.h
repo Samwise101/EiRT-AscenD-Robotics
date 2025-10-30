@@ -7,6 +7,8 @@
 #include "ui_mainwindow.h"
 #include <QTimer>
 #include <QString>
+#include <QLabel>
+#include <QFileDialog>
 
 #include <memory>
 #include <QThread>
@@ -26,6 +28,7 @@
 #include "new_box_dialog.h"
 #include "box_timeout_dialog.h"
 #include "backend_manager.h"
+#include "warehouseframe.h"
 
 class MainWindow : public QMainWindow
 {
@@ -46,7 +49,8 @@ public:
     void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
-    void setBoxStateGraphics(std::string& box_status);
+    void setBoxStateGraphics(std::string& box_status, float box_battery_level);
+    void setDroneGraphics(float box_battery_level);
 
 private slots:
 
@@ -67,7 +71,9 @@ private slots:
     void on_path_upload_pushButton_clicked();
     void on_updateSystem_pushButton_clicked();
     void on_request_box_status_pushButton_clicked();
-
+    void on_loadMapButton_pushButton_clicked();
+    void on_loadTrajectoryButton_pushButton_clicked();
+    void on_clearVisualsButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
 
@@ -81,6 +87,7 @@ private:
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_cmd_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr response_pub_;
 
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
@@ -92,12 +99,18 @@ private:
     std::vector<Drone> drones;
     int number_of_boxes;
     bool master_exists;
+    WarehouseFrame* warehouseFrame;
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
     bool new_box_request;
     int currentBoxIndex;
     bool box_update_happened;
-
+    QLabel* imageLabel_drone; 
+    QLabel* imageLabel_box;
+    QLabel* batteryImageLabel_drone;
+    QLabel* batteryTextLabel_drone;
+    QLabel* batteryImageLabel_box;
+    QLabel* batteryTextLabel_box;
 };
 
 #endif

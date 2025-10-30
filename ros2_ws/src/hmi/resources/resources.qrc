@@ -33,6 +33,6 @@
         <file>icons/update_system.png</file>
         <file>box_full.png</file>
         <file>box_empty.png</file>
-        <file>quad_copter.png</file>
+        <file>hexa_copter.png</file>
     </qresource>
 </RCC>

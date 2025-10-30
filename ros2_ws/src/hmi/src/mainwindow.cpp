@@ -17,30 +17,31 @@ namespace qos_profiles
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0)
 {
-    ui->setupUi(this);
+    this->ui->setupUi(this);
 
-    ui->frame_box->setFrameShape(QFrame::Box);
-    ui->frame_box->setStyleSheet("background-color:rgb(255,255,255)");
+    this->ui->frame_box->setFrameShape(QFrame::Box);
+    this->ui->frame_box->setStyleSheet("background-color:rgb(255,255,255)");
 
-    ui->frame_drone->setFrameShape(QFrame::Box);
-    ui->frame_drone->setStyleSheet("background-color:rgb(255,255,255)");
+    this->ui->frame_drone->setFrameShape(QFrame::Box);
+    this->ui->frame_drone->setStyleSheet("background-color:rgb(255,255,255)");
 
-    QLabel* imageLabel = new QLabel(ui->frame_drone);
-    QPixmap pixmap("src/hmi/resources/quad_copter.png");  // or absolute path
-    imageLabel->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    imageLabel->setAlignment(Qt::AlignCenter);
-    imageLabel->setFixedSize(400, 400);
-    imageLabel->move(28, 50); // <-- offset from top-left corner (x=20, y=20)
-    imageLabel->show();
+    this->imageLabel_drone = new QLabel(ui->frame_drone);
+    this->imageLabel_box = new QLabel(ui->frame_box);
 
+    this->batteryImageLabel_box = new QLabel(ui->frame_box);
+    this->batteryTextLabel_box = new QLabel(ui->frame_box);
+    
+    this->batteryImageLabel_drone = new QLabel(ui->frame_drone);
+    this->batteryTextLabel_drone = new QLabel(ui->frame_drone);
+    
     // Create ROS2 node
-    node_ = std::make_shared<rclcpp::Node>("gui_node");
-    auto qos = rclcpp::QoS(10).best_effort();
+    this->node_ = std::make_shared<rclcpp::Node>("gui_node");
 
     // Create publishers
     pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/msg", 10);
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
     gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10);
+    response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10);
 
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
@@ -63,6 +64,15 @@ MainWindow::MainWindow(QWidget *parent)
     spinTimer_->start(5);
 
     box_update_happened = false;
+
+    this->setDroneGraphics(0.0f);
+
+    warehouseFrame = new WarehouseFrame();
+    warehouseFrame->setStyleSheet("background-color:rgb(255,255,255)");
+    warehouseFrame->setFrameShape(QFrame::Box);
+    warehouseFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    warehouseFrame->setMinimumSize(200, 200); // optional safety
+    this->ui->verticalLayout_6->addWidget(warehouseFrame);
 }
 
 MainWindow::~MainWindow()
@@ -72,6 +82,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::cleanup()
 {
+    delete this->warehouseFrame;
+    delete this->imageLabel_box;
+    delete this->imageLabel_drone;
+    delete this->batteryImageLabel_box;
+    delete this->batteryTextLabel_box;
+    delete this->batteryImageLabel_drone;
+    delete this->batteryTextLabel_drone;
+
     delete this->backEndManager;
         // Stop timers first
     if (spinTimer_) {
@@ -99,6 +117,12 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     float box_lat = msg->landing_pos.lat;
     float box_lon = msg->landing_pos.lon;
     float box_elv = msg->landing_pos.elv;
+
+    if(box_id.empty()) 
+    {
+        std::cout << "Got an empty box id string" << std::endl;
+        return;
+    }
 
     bool box_exists = false;
 
@@ -133,7 +157,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     this->ui->box_altitude_lineEdit->setText(QString::number(box_elv));
     box_update_happened = false;
 
-    this->setBoxStateGraphics(box_status);
+    this->setBoxStateGraphics(box_status, 0.0f);
 }
 
 void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)
@@ -177,8 +201,6 @@ void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
 {
     std::cout << "Got new BOX request\n";
-
-    auto response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10);
 
     NewBoxDialog dialog(this, msg->landing_pos.lat, msg->landing_pos.lon, msg->landing_pos.elv, msg->box_id);
 
@@ -278,10 +300,9 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxNumberValueLabel->setText("Unknown");
     this->ui->boxTypeValueLabel->setText("Unknown");
 
-    // this->ui->droneBatteryValueLabel->setText("Unknown");
-    // this->ui->drone_altitude_lineEdit->clear();
-    // this->ui->drone_latitude_lineEdit->clear();
-    // this->ui->drone_longitude_lineEdit->clear();
+    this->imageLabel_box->clear();
+    this->batteryTextLabel_box->clear();
+    this->batteryImageLabel_box->clear();
 }
 
 void MainWindow::on_arm_pushButton_clicked()
@@ -391,7 +412,7 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
         this->ui->boxNumberValueLabel->setText(QString::number(box_number));
         this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
 
-        this->setBoxStateGraphics(box_status);
+        this->setBoxStateGraphics(box_status, 0.0f);
 
         if(box_type == BoxType::SLAVE)
             this->ui->boxTypeValueLabel->setText("Slave");
@@ -400,24 +421,148 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
     }
 }
 
-void MainWindow::setBoxStateGraphics(std::string& box_status)
+void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_level)
 {
-    QLabel* imageLabel = new QLabel(ui->frame_box);
-
     if(boxStateFromString(box_status) == BoxState::EMPTY)
     {
         QPixmap pixmap("src/hmi/resources/box_empty.png");
-        imageLabel->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(boxStateFromString(box_status) == BoxState::OCCUPIED)
     {
         QPixmap pixmap("src/hmi/resources/box_full.png");
-        imageLabel->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
-    imageLabel->setAlignment(Qt::AlignCenter);
-    imageLabel->setFixedSize(400, 400);
-    imageLabel->move(50, 50); // <-- offset from top-left corner (x=20, y=20)
-    imageLabel->show();
+    this->imageLabel_box->setAlignment(Qt::AlignCenter);
+    this->imageLabel_box->setFixedSize(400, 400);
+    this->imageLabel_box->move(50, 50); // <-- offset from top-left corner (x=20, y=20)
+    this->imageLabel_box->show();
 
+    if(box_battery_level <= 0.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+        this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+
+    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1);
+    this->batteryTextLabel_box->setText(battery_level);
+    this->batteryTextLabel_box->setAlignment(Qt::AlignCenter);
+    this->batteryTextLabel_box->setFixedSize(250, 50);
+    this->batteryTextLabel_box->move(265, 15);
+
+    this->batteryImageLabel_box->setAlignment(Qt::AlignCenter);
+    this->batteryImageLabel_box->setFixedSize(50, 50);
+    this->batteryImageLabel_box->move(450, 15);
+    this->batteryImageLabel_box->raise();
+    this->batteryImageLabel_box->show();
+}
+
+void MainWindow::setDroneGraphics(float box_battery_level)
+{
+    QPixmap pixmap("src/hmi/resources/hexa_copter.png");
+    this->imageLabel_drone->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    this->imageLabel_drone->setAlignment(Qt::AlignCenter);
+    this->imageLabel_drone->setFixedSize(400, 400);
+    this->imageLabel_drone->move(25, 50); // <-- offset from top-left corner (x=20, y=20)
+    this->imageLabel_drone->show();
+
+    if(box_battery_level <= 0.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    else
+    {
+        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+
+    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1);
+    this->batteryTextLabel_drone->setText(battery_level);
+    this->batteryTextLabel_drone->setAlignment(Qt::AlignCenter);
+    this->batteryTextLabel_drone->setFixedSize(250, 50);
+    this->batteryTextLabel_drone->move(200, 15);
+
+    this->batteryImageLabel_drone->setAlignment(Qt::AlignCenter);
+    this->batteryImageLabel_drone->setFixedSize(50, 50);
+    this->batteryImageLabel_drone->move(400, 15);
+    this->batteryImageLabel_drone->raise();
+    this->batteryImageLabel_drone->show();
+}
+
+
+void MainWindow::on_loadMapButton_pushButton_clicked()
+{
+    QString filename =  QFileDialog::getOpenFileName(
+          this,
+          "Open Map File",
+          QDir::currentPath(),
+          "Document files (*.json)"
+    );
+
+    this->warehouseFrame->loadWarehouseJson(filename);
+}
+
+void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
+{
+    QString filename =  QFileDialog::getOpenFileName(
+          this,
+          "Open Trajectory File",
+          QDir::currentPath(),
+          "Document files (*.xml)"
+    );
+
+    this->warehouseFrame->loadTrajectoryXml(filename);
+}
+
+
+void MainWindow::on_clearVisualsButton_pushButton_clicked()
+{
+    this->warehouseFrame->clearVisuals();
 }

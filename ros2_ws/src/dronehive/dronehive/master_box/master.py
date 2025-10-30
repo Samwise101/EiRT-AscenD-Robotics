@@ -29,8 +29,7 @@ from typing import Dict
 import time
 
 qos_profile = QoSProfile(
-	reliability=QoSReliabilityPolicy.RELIABLE,
-	durability=QoSDurabilityPolicy.VOLATILE,
+	reliability=QoSReliabilityPolicy.BEST_EFFORT,
 	history=QoSHistoryPolicy.KEEP_LAST,
 	depth=1
 )
@@ -284,9 +283,13 @@ class MasterBoxNode(Node):
 		Args:
 			msg: BoxSetupConfirmationMessage - The message containing the box ID and landing position.
 		"""
+		self.get_logger().info(f"Received box initialisation confirmation message: {msg}")
+		self.get_logger().info(f"Master box id: {self.config.box_id} | Message box id: {msg.box_id}")
+		self.get_logger().info(f"Current uninitialised slave boxes: {self.uninitialised_slave_boxes.keys()}")
+
 		# The message is for a slave box
 		if self.config.box_id != msg.box_id and msg.box_id in self.uninitialised_slave_boxes:
-			self.get_logger().info(f"Box initialization confirmed for slave box ID: '{msg.box_id}'. Forwarding to service...")
+			self.get_logger().info(f"\n\n\n\nBox initialization confirmed for slave box ID: '{msg.box_id}'. Forwarding to service...")
 			# Let the slave box know it has been initialised.
 			self.slave_box_confirm_init_pub.publish(msg)
 			self.slave_publish_timer.cancel()
@@ -321,7 +324,7 @@ class MasterBoxNode(Node):
 
 	def create_timers(self) -> None:
 		""" Creates the timers used by the master box node. """
-		self.slave_publish_timer = self.create_timer(2.0, self.__publish_slave_boxes)
+		self.slave_publish_timer = self.create_timer(1.0, self.__publish_slave_boxes)
 		self.slave_publish_timer.cancel()
 
 	###################
@@ -334,6 +337,7 @@ class MasterBoxNode(Node):
 		If all the uninitialised slave boxes have been initialised, the timer is cancelled.
 		"""
 		if len(self.uninitialised_slave_boxes) == 0:
+			self.get_logger().info("All slave boxes initialised. Cancelling slave publish timer.")
 			self.slave_publish_timer.cancel()
 			return
 
