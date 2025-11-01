@@ -118,11 +118,11 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     float box_lon = msg->landing_pos.lon;
     float box_elv = msg->landing_pos.elv;
 
-    if(box_id.empty()) 
-    {
-        std::cout << "Got an empty box id string" << std::endl;
-        return;
-    }
+    // if(box_id.empty()) 
+    // {
+    //     std::cout << "Got an empty box id string" << std::endl;
+    //     return;
+    // }
 
     bool box_exists = false;
 
@@ -470,10 +470,10 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
-    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1);
+    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1) + "%";
     this->batteryTextLabel_box->setText(battery_level);
     this->batteryTextLabel_box->setAlignment(Qt::AlignCenter);
-    this->batteryTextLabel_box->setFixedSize(250, 50);
+    this->batteryTextLabel_box->setFixedSize(240, 50);
     this->batteryTextLabel_box->move(265, 15);
 
     this->batteryImageLabel_box->setAlignment(Qt::AlignCenter);
@@ -523,11 +523,11 @@ void MainWindow::setDroneGraphics(float box_battery_level)
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
-    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1);
+    QString battery_level = "Battery level: " + QString::number(box_battery_level, 'f', 1) + "%";
     this->batteryTextLabel_drone->setText(battery_level);
     this->batteryTextLabel_drone->setAlignment(Qt::AlignCenter);
     this->batteryTextLabel_drone->setFixedSize(250, 50);
-    this->batteryTextLabel_drone->move(200, 15);
+    this->batteryTextLabel_drone->move(190, 15);
 
     this->batteryImageLabel_drone->setAlignment(Qt::AlignCenter);
     this->batteryImageLabel_drone->setFixedSize(50, 50);

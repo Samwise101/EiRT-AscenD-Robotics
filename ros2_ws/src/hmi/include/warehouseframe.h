@@ -22,6 +22,7 @@ public:
 
     struct Line { float x1, y1, x2, y2; };
     struct Point { float x, y; };
+    float scale_factor;
 
     std::vector<Line> warehouseLines;
     std::vector<std::vector<Point>> dronePaths;
@@ -29,6 +30,7 @@ public:
     void loadWarehouseJson(QString filename);
     void loadTrajectoryXml(QString filename);
     void clearVisuals();
+    void setScaleFactor(float value);
 
 protected:   // <-- paintEvent should be protected, not private
     void paintEvent(QPaintEvent *event) override;

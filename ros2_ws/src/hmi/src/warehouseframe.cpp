@@ -1,10 +1,15 @@
 #include "warehouseframe.h"
+#include <algorithm>
+
+#define MAX(x,y) ((x > y) ? x : y)
+#define MIN(x,y) ((x < y) ? x : y)
 
 WarehouseFrame::WarehouseFrame(QWidget *parent) : QFrame(parent)
 {
+    this->scale_factor = 1.0;
 }
 
-WarehouseFrame::~WarehouseFrame(){};
+WarehouseFrame::~WarehouseFrame(){}
 
 void WarehouseFrame::loadWarehouseJson(QString filename)
 {
@@ -76,11 +81,38 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
 
     // Draw warehouse
     p.setPen(QPen(Qt::green, 2));
-    
-    if(!warehouseLines.empty())
+
+    // Find bounding box
+    int minX = INT_MAX, minY = INT_MAX;
+    int maxX = INT_MIN, maxY = INT_MIN;
+
+    for (const auto &l : warehouseLines)
+    {
+        minX = MIN(minX, MIN(l.x1, l.x2));
+        minY = MIN(minY, MIN(l.y1, l.y2));
+        maxX = MAX(maxX, MAX(l.x1, l.x2));
+        maxY = MAX(maxY, MAX(l.y1, l.y2));
+    }
+
+    // Warehouse center
+    float warehouseCenterX = (minX * this->scale_factor + maxX * this->scale_factor) / 2.0f;
+    float warehouseCenterY = (minY * this->scale_factor + maxY * this->scale_factor) / 2.0f;
+
+    // Frame center
+    float frameCenterX = width() / 2.0f ;
+    float frameCenterY = height() / 2.0f;
+
+    // Offset to center the drawing
+    float offsetX = frameCenterX - warehouseCenterX;
+    float offsetY = frameCenterY - warehouseCenterY;
+
+    if (!warehouseLines.empty())
     {
         for (const auto &l : warehouseLines)
-            p.drawLine(l.x1, l.y1, l.x2, l.y2);
+        {
+            p.drawLine(l.x1 * this->scale_factor + offsetX, l.y1 * this->scale_factor + offsetY,
+                    l.x2 * this->scale_factor + offsetX, l.y2 * this->scale_factor + offsetY);
+        }
     }
 
     if(dronePaths.empty()) return;
@@ -92,12 +124,20 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
         {
             p.setPen(QPen(Qt::red, 2));
             for (size_t i = 0; i < dronePath.size() - 1; i++)
-                p.drawLine(dronePath[i].x, dronePath[i].y,
-                            dronePath[i+1].x, dronePath[i+1].y);
+                p.drawLine(dronePath[i].x* this->scale_factor + offsetX, dronePath[i].y* this->scale_factor + offsetY,
+                            dronePath[i+1].x* this->scale_factor + offsetX, dronePath[i+1].y* this->scale_factor + offsetY);
 
             p.setBrush(Qt::blue);
             for (auto &pt : dronePath)
-                p.drawEllipse(QPointF(pt.x, pt.y), 3, 3);
+                p.drawEllipse(QPointF(pt.x* this->scale_factor + offsetX, pt.y* this->scale_factor + offsetY), 3, 3);
         }
     }
+}
+
+void WarehouseFrame::setScaleFactor(float value)
+{
+    if(value == 0.0)
+        value = 1.0;
+
+    this->scale_factor = value;
 }
