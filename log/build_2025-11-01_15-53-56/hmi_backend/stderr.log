@@ -1,3 +1,0 @@
-gmake[2]: *** [CMakeFiles/backend_node.dir/build.make:104: CMakeFiles/backend_node.dir/src/app.cpp.o] Interrupt
-gmake[1]: *** [CMakeFiles/Makefile2:138: CMakeFiles/backend_node.dir/all] Interrupt
-gmake: *** [Makefile:146: all] Interrupt
