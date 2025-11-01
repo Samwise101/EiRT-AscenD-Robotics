@@ -1,0 +1,22 @@
+running egg_info
+writing ../../../build/dronehive/dronehive.egg-info/PKG-INFO
+writing dependency_links to ../../../build/dronehive/dronehive.egg-info/dependency_links.txt
+writing entry points to ../../../build/dronehive/dronehive.egg-info/entry_points.txt
+writing requirements to ../../../build/dronehive/dronehive.egg-info/requires.txt
+writing top-level names to ../../../build/dronehive/dronehive.egg-info/top_level.txt
+reading manifest file '../../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+writing manifest file '../../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+running build
+running build_py
+running install
+running install_lib
+running install_data
+running install_egg_info
+removing '/home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../../build/dronehive/dronehive.egg-info to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive-0.0.0-py3.10.egg-info
+running install_scripts
+Installing box_node script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+Installing dummy_confirm script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+Installing dummy_drone script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+Installing slave_node script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+writing list of installed files to '/home/samuel/EiRT-AscenD-Robotics/build/dronehive/install.log'

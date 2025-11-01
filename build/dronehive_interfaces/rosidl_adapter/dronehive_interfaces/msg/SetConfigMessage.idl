@@ -1,0 +1,22 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from dronehive_interfaces/msg/SetConfigMessage.msg
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "command to set drone config")
+    struct SetConfigMessage {
+      string box_id;
+
+      string drone_id;
+
+      string drone_name;
+
+      string drone_type;
+
+      string drone_setup;
+    };
+  };
+};

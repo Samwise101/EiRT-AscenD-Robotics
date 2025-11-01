@@ -369,18 +369,16 @@ void MainWindow::on_request_box_status_pushButton_clicked()
     gui_cmd_pub_->publish(command);
 }
 
-void MainWindow::on_zoom_in_pushButton_clicked()
+void MainWindow::on_zoomPlusButton_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from zoom in button!";
-    pub_->publish(msg);
+    std::cout << "Hello from the zoom in button\n";
+    this->warehouseFrame->incrementScaleFactor();
 }
 
-void MainWindow::on_zoom_out_pushButton_clicked()
+void MainWindow::on_zoomOutButton_pushButton_clicked()
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from zoom out button!";
-    pub_->publish(msg);
+    std::cout << "Hello from the zoom in button\n";
+    this->warehouseFrame->decrementScaleFactor();
 }
 
 // Slider slots

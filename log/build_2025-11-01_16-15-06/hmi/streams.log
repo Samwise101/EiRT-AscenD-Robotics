@@ -1,0 +1,66 @@
+[0.226s] Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/dronehive:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi -- -j16 -l16
+[0.269s] [  7%] [34m[1mAutomatic MOC for target frontend_node[0m
+[0.292s] [  7%] Built target frontend_node_autogen
+[0.309s] [35m[1mConsolidate compiler generated dependencies of target frontend_node[0m
+[0.345s] [ 23%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/mainwindow.cpp.o[0m
+[0.345s] [ 23%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/warehouseframe.cpp.o[0m
+[3.161s] In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:2[m[K:
+[3.161s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:[m[K In constructor ‘[01m[KMainWindow::MainWindow(QWidget*)[m[K’:
+[3.161s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:103:10:[m[K [01;35m[Kwarning: [m[K‘[01m[KMainWindow::master_exists[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+[3.161s]   103 |     bool [01;35m[Kmaster_exists[m[K;
+[3.161s]       |          [01;35m[K^~~~~~~~~~~~~[m[K
+[3.162s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:102:9:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kint MainWindow::number_of_boxes[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+[3.162s]   102 |     int [01;35m[Knumber_of_boxes[m[K;
+[3.162s]       |         [01;35m[K^~~~~~~~~~~~~~~[m[K
+[3.162s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:17:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+[3.162s]    17 | [01;35m[KMainWindow[m[K::MainWindow(QWidget *parent)
+[3.162s]       | [01;35m[K^~~~~~~~~~[m[K
+[3.180s] In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/logging.hpp:24[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/client.hpp:40[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/callback_group.hpp:24[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/any_executable.hpp:20[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/memory_strategy.hpp:25[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/memory_strategies.hpp:18[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executor_options.hpp:20[m[K,
+[3.180s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executor.hpp:37[m[K,
+[3.181s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp:25[m[K,
+[3.181s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:21[m[K,
+[3.181s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+[3.181s]                  from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:18[m[K,
+[3.181s]                  from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:2[m[K:
+[3.181s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:[m[K In member function ‘[01m[Kvoid MainWindow::onBackendBoxStatusMessage(dronehive_interfaces::msg::BoxFullStatus_<std::allocator<void> >::SharedPtr)[m[K’:
+[3.181s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:111:51:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%s[m[K’ expects argument of type ‘[01m[Kchar*[m[K’, but argument 5 has type ‘[01m[Kdronehive_interfaces::msg::BoxFullStatus_<std::allocator<void> >::_box_status_type[m[K’ {aka ‘[01m[Kstd::__cxx11::basic_string<char>[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wformat=-Wformat=]8;;[m[K]
+[3.181s]   111 |     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), [01;35m[K"Got box status : %s"[m[K, msg->box_status);
+[3.181s]       |                                                   [01;35m[K^~~~~~~~~~~~~~~~~~~~~[m[K
+[3.181s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:111:70:[m[K [01;36m[Knote: [m[Kformat string is defined here
+[3.181s]   111 |     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box status : [01;36m[K%s[m[K", msg->box_status);
+[3.181s]       |                                                                     [01;36m[K~^[m[K
+[3.181s]       |                                                                      [01;36m[K|[m[K
+[3.181s]       |                                                                      [01;36m[Kchar*[m[K
+[3.199s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:[m[K In member function ‘[01m[Kvoid MainWindow::on_zoom_in_out_slider_valueChanged(int)[m[K’:
+[3.199s] [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:385:57:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kvalue[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+[3.199s]   385 | void MainWindow::on_zoom_in_out_slider_valueChanged([01;35m[Kint value[m[K)
+[3.199s]       |                                                     [01;35m[K~~~~^~~~~[m[K
+[13.623s] [ 30%] [32m[1mLinking CXX executable frontend_node[0m
+[14.452s] [100%] Built target frontend_node
+[14.463s] Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/dronehive:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi -- -j16 -l16
+[14.464s] Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/dronehive:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble /usr/bin/cmake --install /home/samuel/EiRT-AscenD-Robotics/build/hmi
+[14.471s] -- Install configuration: ""
+[14.471s] -- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/lib/hmi/frontend_node
+[14.484s] -- Set runtime path of "/home/samuel/EiRT-AscenD-Robotics/install/hmi/lib/hmi/frontend_node" to ""
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/package_run_dependencies/hmi
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/parent_prefix_path/hmi
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/ament_prefix_path.sh
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/ament_prefix_path.dsv
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/path.sh
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/path.dsv
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.bash
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.sh
+[14.484s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.zsh
+[14.485s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.dsv
+[14.485s] -- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/package.dsv
+[14.485s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/packages/hmi
+[14.485s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/cmake/hmiConfig.cmake
+[14.485s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/cmake/hmiConfig-version.cmake
+[14.485s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/package.xml
+[14.486s] Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/install/dronehive:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble /usr/bin/cmake --install /home/samuel/EiRT-AscenD-Robotics/build/hmi

@@ -7,7 +7,6 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QDomDocument>
-
 #include <vector>
 
 #include "drone.h"
@@ -31,6 +30,9 @@ public:
     void loadTrajectoryXml(QString filename);
     void clearVisuals();
     void setScaleFactor(float value);
+    float getScaleFactor();
+    void incrementScaleFactor();
+    void decrementScaleFactor();
 
 protected:   // <-- paintEvent should be protected, not private
     void paintEvent(QPaintEvent *event) override;

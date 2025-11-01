@@ -141,3 +141,26 @@ void WarehouseFrame::setScaleFactor(float value)
 
     this->scale_factor = value;
 }
+
+float WarehouseFrame::getScaleFactor()
+{
+    return this->scale_factor;
+}
+
+void WarehouseFrame::incrementScaleFactor()
+{
+    this->scale_factor += 0.1;
+
+    std::cout << "Increasing scale factor to " << this->scale_factor << std::endl;
+    update();
+}
+
+void WarehouseFrame::decrementScaleFactor()
+{
+    this->scale_factor -= 0.1;
+    if(this->scale_factor <= 0.1)
+        this->scale_factor = 0.1;
+    
+    std::cout << "Decreasing scale factor to " << this->scale_factor << std::endl;
+    update();
+}

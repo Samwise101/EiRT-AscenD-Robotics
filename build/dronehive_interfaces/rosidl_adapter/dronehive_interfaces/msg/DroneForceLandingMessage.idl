@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from dronehive_interfaces/msg/DroneForceLandingMessage.msg
+// generated code does not contain a copyright notice
+
+#include "dronehive_interfaces/msg/PositionMessage.idl"
+
+module dronehive_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "Service used by a drone to request the position to land on")
+    struct DroneForceLandingMessage {
+      dronehive_interfaces::msg::PositionMessage landing_pos;
+
+      string drone_id;
+    };
+  };
+};

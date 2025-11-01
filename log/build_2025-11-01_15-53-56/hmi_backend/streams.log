@@ -1,0 +1,53 @@
+[0.222s] Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi_backend': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi_backend -DCMAKE_INSTALL_PREFIX=/home/samuel/EiRT-AscenD-Robotics/install/hmi_backend
+[0.266s] -- The C compiler identification is GNU 11.4.0
+[0.313s] -- The CXX compiler identification is GNU 11.4.0
+[0.319s] -- Detecting C compiler ABI info
+[0.378s] -- Detecting C compiler ABI info - done
+[0.383s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.383s] -- Detecting C compile features
+[0.384s] -- Detecting C compile features - done
+[0.386s] -- Detecting CXX compiler ABI info
+[0.457s] -- Detecting CXX compiler ABI info - done
+[0.462s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.462s] -- Detecting CXX compile features
+[0.462s] -- Detecting CXX compile features - done
+[0.465s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.592s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.674s] -- Found rclcpp: 16.0.15 (/opt/ros/humble/share/rclcpp/cmake)
+[0.715s] -- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.719s] -- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.726s] -- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.736s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.749s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.794s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.798s] -- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.896s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.924s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.966s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.975s] -- Looking for pthread.h
+[1.037s] -- Looking for pthread.h - found
+[1.038s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[1.101s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[1.102s] -- Found Threads: TRUE  
+[1.147s] -- Found dronehive_interfaces: 0.0.0 (/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/share/dronehive_interfaces/cmake)
+[1.164s] -- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[1.242s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[1.242s] -- Configured cppcheck include dirs: /home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi_backend/include
+[1.242s] -- Configured cppcheck exclude dirs and/or files: 
+[1.243s] -- Added test 'lint_cmake' to check CMake code style
+[1.244s] -- Added test 'uncrustify' to check C / C++ code style
+[1.244s] -- Configured uncrustify additional arguments: 
+[1.244s] -- Added test 'xmllint' to check XML markup files
+[1.245s] -- Configuring done
+[1.268s] -- Generating done
+[1.271s] -- Build files have been written to: /home/samuel/EiRT-AscenD-Robotics/build/hmi_backend
+[1.281s] Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi_backend' returned '0': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi_backend -DCMAKE_INSTALL_PREFIX=/home/samuel/EiRT-AscenD-Robotics/install/hmi_backend
+[1.283s] Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi_backend': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi_backend -- -j16 -l16
+[1.330s] [ 20%] [34m[1mAutomatic MOC for target backend_node[0m
+[1.357s] [ 20%] Built target backend_node_autogen
+[1.378s] [ 80%] [32mBuilding CXX object CMakeFiles/backend_node.dir/backend_node_autogen/mocs_compilation.cpp.o[0m
+[1.378s] [ 80%] [32mBuilding CXX object CMakeFiles/backend_node.dir/src/main.cpp.o[0m
+[1.378s] [ 80%] [32mBuilding CXX object CMakeFiles/backend_node.dir/src/app.cpp.o[0m
+[12.852s] gmake[2]: *** [CMakeFiles/backend_node.dir/build.make:104: CMakeFiles/backend_node.dir/src/app.cpp.o] Interrupt
+[12.853s] gmake[1]: *** [CMakeFiles/Makefile2:138: CMakeFiles/backend_node.dir/all] Interrupt
+[12.853s] gmake: *** [Makefile:146: all] Interrupt

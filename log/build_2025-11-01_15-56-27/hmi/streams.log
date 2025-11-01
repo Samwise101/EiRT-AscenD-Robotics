@@ -1,0 +1,28 @@
+[0.220s] Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi -- -j16 -l16
+[0.262s] [  7%] [34m[1mAutomatic MOC for target frontend_node[0m
+[0.287s] [  7%] Built target frontend_node_autogen
+[0.302s] [35m[1mConsolidate compiler generated dependencies of target frontend_node[0m
+[0.339s] [ 15%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/warehouseframe.cpp.o[0m
+[3.303s] [ 23%] [32m[1mLinking CXX executable frontend_node[0m
+[4.134s] [100%] Built target frontend_node
+[4.147s] Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/samuel/EiRT-AscenD-Robotics/build/hmi -- -j16 -l16
+[4.148s] Invoking command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/samuel/EiRT-AscenD-Robotics/build/hmi
+[4.154s] -- Install configuration: ""
+[4.154s] -- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/lib/hmi/frontend_node
+[4.166s] -- Set runtime path of "/home/samuel/EiRT-AscenD-Robotics/install/hmi/lib/hmi/frontend_node" to ""
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/package_run_dependencies/hmi
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/parent_prefix_path/hmi
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/ament_prefix_path.sh
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/ament_prefix_path.dsv
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/path.sh
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/path.dsv
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.bash
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.sh
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.zsh
+[4.167s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.dsv
+[4.168s] -- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/package.dsv
+[4.168s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/packages/hmi
+[4.168s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/cmake/hmiConfig.cmake
+[4.168s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/cmake/hmiConfig-version.cmake
+[4.168s] -- Up-to-date: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/package.xml
+[4.169s] Invoked command in '/home/samuel/EiRT-AscenD-Robotics/build/hmi' returned '0': AMENT_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi_backend:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/hmi:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:/home/samuel/EiRT-AscenD-Robotics/ros2_ws/install/dronehive:/opt/ros/humble LD_LIBRARY_PATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/samuel/EiRT-AscenD-Robotics/build/hmi

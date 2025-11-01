@@ -194,7 +194,7 @@
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="zoom_in_pushButton">
+                  <widget class="QPushButton" name="zoomPlusButton">
                    <property name="text">
                     <string/>
                    </property>
@@ -212,7 +212,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="zoom_out_pushButton">
+                  <widget class="QPushButton" name="zoomOutButton">
                    <property name="text">
                     <string/>
                    </property>
@@ -1220,38 +1220,6 @@ Box Status</string>
    </hints>
   </connection>
   <connection>
-   <sender>zoom_out_pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_zoom_out_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>806</x>
-     <y>486</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>822</x>
-     <y>643</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoom_in_pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_zoom_in_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>283</x>
-     <y>486</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>238</x>
-     <y>643</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_2</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -1491,6 +1459,38 @@ Box Status</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>zoomPlusButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_zoomPlusButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>478</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>611</x>
+     <y>616</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomOutButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_zoomOutButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>786</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>934</x>
+     <y>612</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_add_box_pushButton_clicked()</slot>
@@ -1516,5 +1516,8 @@ Box Status</string>
   <slot>on_loadMapButton_pushButton_clicked()</slot>
   <slot>on_loadTrajectoryButton_pushButton_clicked()</slot>
   <slot>on_clearVisualsButton_pushButton_clicked()</slot>
+  <slot>on_zoomIn_pushButton_clicked()</slot>
+  <slot>on_zoomPlusButton_pushButton_clicked()</slot>
+  <slot>on_zoomOutButton_pushButton_clicked()</slot>
  </slots>
 </ui>

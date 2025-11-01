@@ -1,0 +1,19 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/OccupancyService.srv
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "service to ask for the occupancy of the boxes")
+    struct OccupancyService_Request {
+      string drone_id;
+
+      string box_id;
+    };
+    struct OccupancyService_Response {
+      boolean occupancy_status;
+    };
+  };
+};

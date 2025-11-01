@@ -73,9 +73,9 @@ public:
     QFrame *line_13;
     QHBoxLayout *slider_layout;
     QSpacerItem *horizontalSpacer_3;
-    QPushButton *zoom_in_pushButton;
+    QPushButton *zoomPlusButton;
     QSlider *zoom_slider;
-    QPushButton *zoom_out_pushButton;
+    QPushButton *zoomOutButton;
     QSpacerItem *horizontalSpacer_4;
     QFrame *line_21;
     QVBoxLayout *verticalLayout_3;
@@ -346,13 +346,13 @@ public:
 
         slider_layout->addItem(horizontalSpacer_3);
 
-        zoom_in_pushButton = new QPushButton(horizontalLayoutWidget);
-        zoom_in_pushButton->setObjectName(QString::fromUtf8("zoom_in_pushButton"));
+        zoomPlusButton = new QPushButton(horizontalLayoutWidget);
+        zoomPlusButton->setObjectName(QString::fromUtf8("zoomPlusButton"));
         QIcon icon11;
         icon11.addFile(QString::fromUtf8(":/images/icons/zoom_in.png"), QSize(), QIcon::Normal, QIcon::Off);
-        zoom_in_pushButton->setIcon(icon11);
+        zoomPlusButton->setIcon(icon11);
 
-        slider_layout->addWidget(zoom_in_pushButton);
+        slider_layout->addWidget(zoomPlusButton);
 
         zoom_slider = new QSlider(horizontalLayoutWidget);
         zoom_slider->setObjectName(QString::fromUtf8("zoom_slider"));
@@ -360,13 +360,13 @@ public:
 
         slider_layout->addWidget(zoom_slider);
 
-        zoom_out_pushButton = new QPushButton(horizontalLayoutWidget);
-        zoom_out_pushButton->setObjectName(QString::fromUtf8("zoom_out_pushButton"));
+        zoomOutButton = new QPushButton(horizontalLayoutWidget);
+        zoomOutButton->setObjectName(QString::fromUtf8("zoomOutButton"));
         QIcon icon12;
         icon12.addFile(QString::fromUtf8(":/images/icons/zoom_out.png"), QSize(), QIcon::Normal, QIcon::Off);
-        zoom_out_pushButton->setIcon(icon12);
+        zoomOutButton->setIcon(icon12);
 
-        slider_layout->addWidget(zoom_out_pushButton);
+        slider_layout->addWidget(zoomOutButton);
 
         horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
 
@@ -922,8 +922,6 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(pushButton1, SIGNAL(clicked()), MainWindow, SLOT(on_settings_pushButton_clicked()));
         QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_zoom_in_out_slider_valueChanged(int)));
-        QObject::connect(zoom_out_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoom_out_pushButton_clicked()));
-        QObject::connect(zoom_in_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoom_in_pushButton_clicked()));
         QObject::connect(pushButton_2, SIGNAL(clicked()), MainWindow, SLOT(on_land_pushButton_clicked()));
         QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
         QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
@@ -939,6 +937,8 @@ public:
         QObject::connect(loadMapButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadMapButton_pushButton_clicked()));
         QObject::connect(loadTrajectoryButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadTrajectoryButton_pushButton_clicked()));
         QObject::connect(clearVisualsButton, SIGNAL(clicked()), MainWindow, SLOT(on_clearVisualsButton_pushButton_clicked()));
+        QObject::connect(zoomPlusButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomPlusButton_pushButton_clicked()));
+        QObject::connect(zoomOutButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomOutButton_pushButton_clicked()));
 
         tabWidget->setCurrentIndex(0);
 
@@ -966,8 +966,8 @@ public:
         addBox->setText(QCoreApplication::translate("MainWindow", "Add Box", nullptr));
         updateSystem->setText(QCoreApplication::translate("MainWindow", "Update System Status", nullptr));
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
-        zoom_in_pushButton->setText(QString());
-        zoom_out_pushButton->setText(QString());
+        zoomPlusButton->setText(QString());
+        zoomOutButton->setText(QString());
         loadMapButton->setText(QCoreApplication::translate("MainWindow", "Load Map", nullptr));
         loadTrajectoryButton->setText(QCoreApplication::translate("MainWindow", "Load\n"
 " Trajectory", nullptr));
