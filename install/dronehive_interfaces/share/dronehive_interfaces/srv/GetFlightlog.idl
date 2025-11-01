@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/GetFlightlog.srv
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "request flightlog from drone")
+    struct GetFlightlog_Request {
+      string box_id;
+    };
+    struct GetFlightlog_Response {
+      string log;
+    };
+  };
+};

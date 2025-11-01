@@ -1,0 +1,18 @@
+# GuiCommand.msg
+uint8 SEARCH_FOR_NEW_BOX = 0
+uint8 REMOVE_BOX = 1
+uint8 REQUEST_BOX_STATUS = 2
+uint8 REQUEST_LANDING = 3
+uint8 REQUEST_RETURN_HOME = 4
+uint8 REQUEST_TAKEOFF = 5
+uint8 REQUEST_ARMING = 6
+uint8 PATH_UPLOAD = 7
+uint8 REQUEST_LOG = 8
+uint8 TRACK_DRONE = 9
+uint8 REQUEST_EXECUTE_PATH = 10
+uint8 REQUEST_FULL_SYSTEM_STATUS = 11
+uint8 REQUEST_DRONE_STATUS = 12
+
+uint8 command
+bool confirm
+string box_id

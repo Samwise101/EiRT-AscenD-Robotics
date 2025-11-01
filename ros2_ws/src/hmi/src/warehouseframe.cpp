@@ -137,9 +137,10 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
 void WarehouseFrame::setScaleFactor(float value)
 {
     if(value == 0.0)
-        value = 1.0;
+        value = 0.1;
 
     this->scale_factor = value;
+    update();
 }
 
 float WarehouseFrame::getScaleFactor()

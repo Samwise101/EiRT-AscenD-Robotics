@@ -206,6 +206,15 @@
                  </item>
                  <item>
                   <widget class="QSlider" name="zoom_slider">
+                   <property name="maximum">
+                    <number>50</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>1</number>
+                   </property>
+                   <property name="sliderPosition">
+                    <number>25</number>
+                   </property>
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>

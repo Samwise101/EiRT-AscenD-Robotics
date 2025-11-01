@@ -1,0 +1,3 @@
+
+
+bool occupancy_status

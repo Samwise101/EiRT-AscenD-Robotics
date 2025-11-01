@@ -1,0 +1,86 @@
+running egg_info
+creating ../../../build/dronehive/dronehive.egg-info
+writing ../../../build/dronehive/dronehive.egg-info/PKG-INFO
+writing dependency_links to ../../../build/dronehive/dronehive.egg-info/dependency_links.txt
+writing entry points to ../../../build/dronehive/dronehive.egg-info/entry_points.txt
+writing requirements to ../../../build/dronehive/dronehive.egg-info/requires.txt
+writing top-level names to ../../../build/dronehive/dronehive.egg-info/top_level.txt
+writing manifest file '../../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+reading manifest file '../../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+writing manifest file '../../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build
+creating /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib
+creating /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive
+copying dronehive/box_node.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive
+copying dronehive/slave_box_node.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive
+copying dronehive/dummy.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive
+copying dronehive/dummy_drone.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive
+copying dronehive/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive
+creating /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/master_box
+copying dronehive/master_box/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/master_box
+copying dronehive/master_box/master.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/master_box
+creating /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/topics.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/initialiser.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/client_manager.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/utm.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/transverse_mercator.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+copying dronehive/utils/config.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils
+creating /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/slave_box
+copying dronehive/slave_box/slave.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/slave_box
+copying dronehive/slave_box/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/slave_box
+running install
+running install_lib
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/box_node.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/slave_box_node.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/dummy.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/master_box
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/master_box/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/master_box
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/master_box/master.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/master_box
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/topics.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/initialiser.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/client_manager.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/utm.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/transverse_mercator.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/utils/config.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/dummy_drone.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/slave_box/slave.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box
+copying /home/samuel/EiRT-AscenD-Robotics/build/dronehive/build/lib/dronehive/slave_box/__init__.py -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/box_node.py to box_node.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box_node.py to slave_box_node.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/dummy.py to dummy.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/master_box/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/master_box/master.py to master.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/topics.py to topics.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/initialiser.py to initialiser.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/client_manager.py to client_manager.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/utm.py to utm.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/transverse_mercator.py to transverse_mercator.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/utils/config.py to config.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/dummy_drone.py to dummy_drone.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box/slave.py to slave.cpython-310.pyc
+byte-compiling /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/share/ament_index
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/share/ament_index/resource_index
+creating /home/samuel/EiRT-AscenD-Robotics/install/dronehive/share/ament_index/resource_index/packages
+copying resource/dronehive -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/share/ament_index/resource_index/packages
+copying package.xml -> /home/samuel/EiRT-AscenD-Robotics/install/dronehive/share/dronehive
+running install_egg_info
+Copying ../../../build/dronehive/dronehive.egg-info to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/python3.10/site-packages/dronehive-0.0.0-py3.10.egg-info
+running install_scripts
+Installing box_node script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+Installing dummy_confirm script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+Installing dummy_drone script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+Installing slave_node script to /home/samuel/EiRT-AscenD-Robotics/install/dronehive/lib/dronehive
+writing list of installed files to '/home/samuel/EiRT-AscenD-Robotics/build/dronehive/install.log'

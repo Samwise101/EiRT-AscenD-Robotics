@@ -387,6 +387,9 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     auto msg{std_msgs::msg::String()};
     msg.data = "Hello from slider!";
     pub_->publish(msg);
+
+    std::cout << "Value of slider: " << float(value/10.0) << std::endl;
+    this->warehouseFrame->setScaleFactor(float(value/10.0));
 }
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)

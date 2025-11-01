@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/GetConfig.srv
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "Service to ask the drone for the config")
+    struct GetConfig_Request {
+      string box_id;
+    };
+    struct GetConfig_Response {
+      boolean status;
+    };
+  };
+};

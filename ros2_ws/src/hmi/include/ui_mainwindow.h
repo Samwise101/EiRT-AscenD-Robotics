@@ -356,6 +356,9 @@ public:
 
         zoom_slider = new QSlider(horizontalLayoutWidget);
         zoom_slider->setObjectName(QString::fromUtf8("zoom_slider"));
+        zoom_slider->setMaximum(50);
+        zoom_slider->setSingleStep(1);
+        zoom_slider->setSliderPosition(25);
         zoom_slider->setOrientation(Qt::Horizontal);
 
         slider_layout->addWidget(zoom_slider);

@@ -1,0 +1,4 @@
+#Service to ask the drone for the config
+
+string box_id
+
