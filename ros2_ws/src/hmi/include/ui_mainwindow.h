@@ -475,6 +475,7 @@ public:
 
         boxComboBox = new QComboBox(verticalLayoutWidget_3);
         boxComboBox->setObjectName(QString::fromUtf8("boxComboBox"));
+        boxComboBox->setFont(font2);
 
         horizontalLayout_11->addWidget(boxComboBox);
 
@@ -766,6 +767,7 @@ public:
 
         droneComboBox = new QComboBox(verticalLayoutWidget_2);
         droneComboBox->setObjectName(QString::fromUtf8("droneComboBox"));
+        droneComboBox->setFont(font2);
 
         horizontalLayout_12->addWidget(droneComboBox);
 

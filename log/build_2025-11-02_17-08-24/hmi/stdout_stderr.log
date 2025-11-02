@@ -1,0 +1,156 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found rclcpp: 16.0.15 (/opt/ros/humble/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+-- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+-- Found FastRTPS: /opt/ros/humble/include  
+-- Using RMW implementation 'rmw_fastrtps_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found dronehive_interfaces: 0.0.0 (/home/samuel/EiRT-AscenD-Robotics/install/dronehive_interfaces/share/dronehive_interfaces/cmake)
+-- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+-- Added test 'cppcheck' to perform static code analysis on C / C++ code
+-- Configured cppcheck include dirs: /home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include
+-- Configured cppcheck exclude dirs and/or files: 
+-- Added test 'flake8' to check Python code syntax and style conventions
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+-- Added test 'uncrustify' to check C / C++ code style
+-- Configured uncrustify additional arguments: 
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/samuel/EiRT-AscenD-Robotics/build/hmi
+[  7%] [34m[1mAutomatic MOC for target frontend_node[0m
+[  7%] Built target frontend_node_autogen
+[ 15%] [34m[1mGenerating qrc_resources.cpp[0m
+[ 38%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/new_box_dialog.cpp.o[0m
+[ 38%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/drone.cpp.o[0m
+[ 38%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/main.cpp.o[0m
+[ 46%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/frontend_node_autogen/mocs_compilation.cpp.o[0m
+[ 53%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/mainwindow.cpp.o[0m
+[ 61%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/backend_manager.cpp.o[0m
+[ 69%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/box_timeout_dialog.cpp.o[0m
+[ 76%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/box.cpp.o[0m
+[ 84%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/src/warehouseframe.cpp.o[0m
+[ 92%] [32mBuilding CXX object CMakeFiles/frontend_node.dir/qrc_resources.cpp.o[0m
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box_timeout_dialog.cpp:[m[K In constructor ‘[01m[KBoxTimeoutDialog::BoxTimeoutDialog(QWidget*)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box_timeout_dialog.cpp:4:45:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kparent[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-parameter-Wunused-parameter]8;;[m[K]
+    4 | BoxTimeoutDialog::BoxTimeoutDialog([01;35m[KQWidget* parent[m[K)
+      |                                    [01;35m[K~~~~~~~~~^~~~~~[m[K
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:[m[K In constructor ‘[01m[KBox::Box(int, Coordinates, std::string, std::string, int)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:76:21:[m[K [01;35m[Kwarning: [m[K‘[01m[KBox::coord[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   76 |         Coordinates [01;35m[Kcoord[m[K;
+      |                     [01;35m[K^~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:73:21:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kstd::string Box::id[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   73 |         std::string [01;35m[Kid[m[K;
+      |                     [01;35m[K^~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box.cpp:4:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+    4 | [01;35m[KBox[m[K::Box(int type, Coordinates coord, std::string id, std::string status, int number) :
+      | [01;35m[K^~~[m[K
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:75:13:[m[K [01;35m[Kwarning: [m[K‘[01m[KBox::number[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   75 |         int [01;35m[Knumber[m[K;
+      |             [01;35m[K^~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/box.h:74:21:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kstd::string Box::status[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   74 |         std::string [01;35m[Kstatus[m[K;
+      |                     [01;35m[K^~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/box.cpp:4:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+    4 | [01;35m[KBox[m[K::Box(int type, Coordinates coord, std::string id, std::string status, int number) :
+      | [01;35m[K^~~[m[K
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:[m[K In constructor ‘[01m[KMainWindow::MainWindow(QWidget*)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:106:10:[m[K [01;35m[Kwarning: [m[K‘[01m[KMainWindow::master_exists[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+  106 |     bool [01;35m[Kmaster_exists[m[K;
+      |          [01;35m[K^~~~~~~~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:105:9:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kint MainWindow::number_of_boxes[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+  105 |     int [01;35m[Knumber_of_boxes[m[K;
+      |         [01;35m[K^~~~~~~~~~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:17:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   17 | [01;35m[KMainWindow[m[K::MainWindow(QWidget *parent)
+      | [01;35m[K^~~~~~~~~~[m[K
+In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/logging.hpp:24[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/client.hpp:40[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/callback_group.hpp:24[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/any_executable.hpp:20[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/memory_strategy.hpp:25[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/memory_strategies.hpp:18[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executor_options.hpp:20[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executor.hpp:37[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp:25[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:21[m[K,
+                 from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+                 from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/mainwindow.h:19[m[K,
+                 from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:[m[K In member function ‘[01m[Kvoid MainWindow::onBackendBoxStatusMessage(dronehive_interfaces::msg::BoxFullStatus_<std::allocator<void> >::SharedPtr)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:108:51:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%s[m[K’ expects argument of type ‘[01m[Kchar*[m[K’, but argument 5 has type ‘[01m[Kdronehive_interfaces::msg::BoxFullStatus_<std::allocator<void> >::_box_status_type[m[K’ {aka ‘[01m[Kstd::__cxx11::basic_string<char>[m[K’} [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wformat=-Wformat=]8;;[m[K]
+  108 |     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), [01;35m[K"Got box status : %s"[m[K, msg->box_status);
+      |                                                   [01;35m[K^~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/mainwindow.cpp:108:70:[m[K [01;36m[Knote: [m[Kformat string is defined here
+  108 |     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box status : [01;36m[K%s[m[K", msg->box_status);
+      |                                                                     [01;36m[K~^[m[K
+      |                                                                      [01;36m[K|[m[K
+      |                                                                      [01;36m[Kchar*[m[K
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/new_box_dialog.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/new_box_dialog.h:[m[K In constructor ‘[01m[KNewBoxDialog::NewBoxDialog(QWidget*, float, float, float, std::string)[m[K’:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/new_box_dialog.h:42:11:[m[K [01;35m[Kwarning: [m[K‘[01m[KNewBoxDialog::box_alt[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   42 |     float [01;35m[Kbox_alt[m[K;
+      |           [01;35m[K^~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/new_box_dialog.h:40:11:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kfloat NewBoxDialog::box_lat[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   40 |     float [01;35m[Kbox_lat[m[K;
+      |           [01;35m[K^~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/new_box_dialog.cpp:4:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+    4 | [01;35m[KNewBoxDialog[m[K::NewBoxDialog(QWidget *parent, float lat, float lon, float alt, std::string box_id)
+      | [01;35m[K^~~~~~~~~~~~[m[K
+In file included from [01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/new_box_dialog.cpp:2[m[K:
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/new_box_dialog.h:41:11:[m[K [01;35m[Kwarning: [m[K‘[01m[KNewBoxDialog::box_lon[m[K’ will be initialized after [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   41 |     float [01;35m[Kbox_lon[m[K;
+      |           [01;35m[K^~~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/include/new_box_dialog.h:39:17:[m[K [01;35m[Kwarning: [m[K  ‘[01m[Kstd::string NewBoxDialog::box_id[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+   39 |     std::string [01;35m[Kbox_id[m[K;
+      |                 [01;35m[K^~~~~~[m[K
+[01m[K/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/hmi/src/new_box_dialog.cpp:4:1:[m[K [01;35m[Kwarning: [m[K  when initialized here [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreorder-Wreorder]8;;[m[K]
+    4 | [01;35m[KNewBoxDialog[m[K::NewBoxDialog(QWidget *parent, float lat, float lon, float alt, std::string box_id)
+      | [01;35m[K^~~~~~~~~~~~[m[K
+[100%] [32m[1mLinking CXX executable frontend_node[0m
+[100%] Built target frontend_node
+-- Install configuration: ""
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/lib/hmi/frontend_node
+-- Set runtime path of "/home/samuel/EiRT-AscenD-Robotics/install/hmi/lib/hmi/frontend_node" to ""
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/package_run_dependencies/hmi
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/parent_prefix_path/hmi
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/ament_prefix_path.sh
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/ament_prefix_path.dsv
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/path.sh
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/environment/path.dsv
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.bash
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.sh
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.zsh
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/local_setup.dsv
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/package.dsv
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/ament_index/resource_index/packages/hmi
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/cmake/hmiConfig.cmake
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/cmake/hmiConfig-version.cmake
+-- Installing: /home/samuel/EiRT-AscenD-Robotics/install/hmi/share/hmi/package.xml

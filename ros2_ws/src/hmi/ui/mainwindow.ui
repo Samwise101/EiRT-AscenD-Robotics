@@ -387,7 +387,15 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QComboBox" name="boxComboBox"/>
+                      <widget class="QComboBox" name="boxComboBox">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
@@ -864,7 +872,15 @@ Drone:</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QComboBox" name="droneComboBox"/>
+                    <widget class="QComboBox" name="droneComboBox">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </item>

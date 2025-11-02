@@ -1,0 +1,20 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/RequestFullSystemStatus.srv
+// generated code does not contain a copyright notice
+
+#include "dronehive_interfaces/msg/BoxFullStatus.idl"
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "service to ask for the whole system status to update gui on launch")
+    struct RequestFullSystemStatus_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct RequestFullSystemStatus_Response {
+      @verbatim (language="comment", text=
+        "Response")
+      sequence<dronehive_interfaces::msg::BoxFullStatus> statuses;
+    };
+  };
+};

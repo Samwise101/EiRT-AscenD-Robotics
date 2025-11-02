@@ -1,0 +1,22 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/BoxBroadcastService.srv
+// generated code does not contain a copyright notice
+
+#include "dronehive_interfaces/msg/PositionMessage.idl"
+
+module dronehive_interfaces {
+  module srv {
+    struct BoxBroadcastService_Request {
+      string box_id;
+
+      dronehive_interfaces::msg::PositionMessage landing_pos;
+    };
+    struct BoxBroadcastService_Response {
+      boolean confirm;
+
+      string box_id;
+
+      dronehive_interfaces::msg::PositionMessage landing_pos;
+    };
+  };
+};

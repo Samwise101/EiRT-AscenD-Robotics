@@ -1,0 +1,9 @@
+#request status of drone
+
+string box_id
+
+---
+
+float64 battery_level
+float64 drone_id
+string drone_name
