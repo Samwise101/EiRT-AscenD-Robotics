@@ -9,9 +9,10 @@
 #include <QString>
 #include <QLabel>
 #include <QFileDialog>
+#include <QColor>
+#include <QThread>
 
 #include <memory>
-#include <QThread>
 #include <vector>
 #include <thread>
 
@@ -76,8 +77,10 @@ private slots:
     void on_clearVisualsButton_pushButton_clicked();
     void on_zoomPlusButton_pushButton_clicked();
     void on_zoomOutButton_pushButton_clicked();
+    void on_removeDroneButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
+    void on_droneComboBox_currentIndexChanged(int index);
 
     void on_zoom_in_out_slider_valueChanged(int value);
 

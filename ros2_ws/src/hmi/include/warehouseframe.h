@@ -5,9 +5,11 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFile>
 #include <QDomDocument>
 #include <vector>
+#include <string>
+#include <QFile>
+#include <QXmlStreamReader>
 
 #include "drone.h"
 
@@ -21,10 +23,17 @@ public:
 
     struct Line { float x1, y1, x2, y2; };
     struct Point { float x, y; };
+
+    struct DroneVis
+    {
+        std::string drone_id;
+        QColor drone_color;
+        std::vector<Point> drone_waypoints;
+    };
+
     float scale_factor;
 
     std::vector<Line> warehouseLines;
-    std::vector<std::vector<Point>> dronePaths;
 
     void loadWarehouseJson(QString filename);
     void loadTrajectoryXml(QString filename);
@@ -33,6 +42,8 @@ public:
     float getScaleFactor();
     void incrementScaleFactor();
     void decrementScaleFactor();
+
+    std::vector<DroneVis> drones;
 
 protected:   // <-- paintEvent should be protected, not private
     void paintEvent(QPaintEvent *event) override;

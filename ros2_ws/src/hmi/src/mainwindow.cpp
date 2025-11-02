@@ -305,6 +305,24 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->batteryImageLabel_box->clear();
 }
 
+void MainWindow::on_removeDroneButton_pushButton_clicked()
+{
+    if(this->ui->droneComboBox->count() > 0)
+    {
+        QString current_data = this->ui->droneComboBox->currentText();
+        int current_index = this->ui->droneComboBox->currentIndex();
+
+        this->ui->droneComboBox->removeItem(current_index);
+
+        this->ui->drone_altitude_lineEdit->clear();
+        this->ui->drone_latitude_lineEdit->clear();
+        this->ui->drone_longitude_lineEdit->clear();
+
+        this->ui->droneIdLabel->setText("Unknown");
+        this->ui->droneColorCodeLabel->setPalette(QPalette());
+    }
+}
+
 void MainWindow::on_arm_pushButton_clicked()
 {
     std::cout << "Hello from Arm Button! Can not ARM since safety is of the essence!\n";
@@ -394,7 +412,7 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {
-    if(this->ui->boxComboBox->count() > 0 && !box_update_happened)
+    if(this->ui->boxComboBox->count() > 0 && !box_update_happened && !this->boxes.empty())
     {
         this->currentBoxIndex = index;
 
@@ -406,9 +424,9 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
         int box_type = this->boxes[this->currentBoxIndex].get_box_type();
         std::string box_status = this->boxes[this->currentBoxIndex].get_box_status();
 
-        this->ui->box_altitude_lineEdit->setText(QString::number(box_altitude));
-        this->ui->box_longitude_lineEdit->setText(QString::number(box_longitude));
-        this->ui->box_latitude_lineEdit->setText(QString::number(box_latitude));
+        this->ui->box_altitude_lineEdit->setText(QString::number(box_altitude, 'f', 4));
+        this->ui->box_longitude_lineEdit->setText(QString::number(box_longitude, 'f', 4));
+        this->ui->box_latitude_lineEdit->setText(QString::number(box_latitude, 'f', 4));
         this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
         this->ui->boxNumberValueLabel->setText(QString::number(box_number));
         this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
@@ -419,6 +437,34 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
             this->ui->boxTypeValueLabel->setText("Slave");
         else if(box_type == BoxType::MASTER)
             this->ui->boxTypeValueLabel->setText("Master");
+    }
+}
+
+void MainWindow::on_droneComboBox_currentIndexChanged(int index)
+{
+    std::cout << "Drone combo box index changed\n";
+
+    if(this->ui->droneComboBox->count() > 0 && !this->drones.empty())
+    {
+        float drone_altitude = this->drones[index].get_drone_alt();
+        float drone_latitude = this->drones[index].get_drone_lat();
+        float drone_longitude = this->drones[index].get_drone_lon();
+
+        QString drone_id = QString::fromStdString(this->drones[index].get_drone_id());
+        QColor drone_color = this->drones[index].get_drone_color();
+
+        this->ui->drone_altitude_lineEdit->setText(QString::number(drone_altitude, 'f', 4));
+        this->ui->drone_latitude_lineEdit->setText(QString::number(drone_latitude, 'f', 4));
+        this->ui->drone_longitude_lineEdit->setText(QString::number(drone_longitude, 'f', 4));
+
+        this->ui->droneIdLabel->setText(drone_id);
+
+        this->ui->droneColorCodeLabel->setAutoFillBackground(true);
+        QPalette palette = this->ui->droneColorCodeLabel->palette();
+        palette.setColor(QPalette::Window, drone_color);
+        this->ui->droneColorCodeLabel->setPalette(palette);
+
+        this->setDroneGraphics(0.0f);
     }
 }
 

@@ -38,7 +38,13 @@ void WarehouseFrame::loadWarehouseJson(QString filename)
 
 void WarehouseFrame::clearVisuals()
 {
-    this->dronePaths.clear();
+    for(auto drone : drones)
+    {
+        drone.drone_waypoints.clear();
+    }
+
+    drones.clear();
+    
     this->warehouseLines.clear();
     update();
 }
@@ -46,29 +52,49 @@ void WarehouseFrame::clearVisuals()
 void WarehouseFrame::loadTrajectoryXml(QString filename)
 {
     QFile file(filename);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
 
-    QDomDocument doc;
-    doc.setContent(&file);
-    file.close();
+    QXmlStreamReader xml(&file);
 
-    std::vector<Point> dronePath;
-    dronePath.clear();
+    DroneVis current;
+    bool insideDrone = false;
 
-    QDomNodeList pts = doc.elementsByTagName("point");
-
-    for (int i = 0; i < pts.size(); i++)
+    while (!xml.atEnd())
     {
-        QDomElement e = pts.at(i).toElement();
-        Point p;
-        p.x = e.attribute("x").toDouble();
-        p.y = e.attribute("y").toDouble();
-        dronePath.push_back(p);
+        xml.readNext();
+
+        // <drone ...>
+        if (xml.isStartElement() && xml.name() == "drone")
+        {
+            insideDrone = true;
+            current = DroneVis(); // reset
+
+            auto attrs = xml.attributes();
+            current.drone_id = attrs.value("id").toString().toStdString();
+            current.drone_color = QColor(attrs.value("color").toString());
+        }
+
+        // <point x="" y=""/>
+        if (xml.isStartElement() && xml.name() == "point" && insideDrone)
+        {
+            auto attrs = xml.attributes();
+            Point p;
+            p.x = attrs.value("x").toDouble();
+            p.y = attrs.value("y").toDouble();
+            current.drone_waypoints.push_back(p);
+        }
+
+        // </drone>
+        if (xml.isEndElement() && xml.name() == "drone")
+        {
+            drones.push_back(current);
+            insideDrone = false;
+        }
     }
 
-    dronePaths.push_back(dronePath);
-
-    update(); // trigger repaint
+    file.close();
+    update();
 }
 
 void WarehouseFrame::paintEvent(QPaintEvent *event)
@@ -115,20 +141,20 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
         }
     }
 
-    if(dronePaths.empty()) return;
+    if(drones.empty()) return;
 
-    for(auto dronePath : dronePaths)
+    for(auto drone : drones)
     {
         // Draw path
-        if (!dronePath.empty())
+        if (!drone.drone_waypoints.empty())
         {
-            p.setPen(QPen(Qt::red, 2));
-            for (size_t i = 0; i < dronePath.size() - 1; i++)
-                p.drawLine(dronePath[i].x* this->scale_factor + offsetX, dronePath[i].y* this->scale_factor + offsetY,
-                            dronePath[i+1].x* this->scale_factor + offsetX, dronePath[i+1].y* this->scale_factor + offsetY);
+            p.setPen(QPen(drone.drone_color, 2*this->scale_factor));
+            for (size_t i = 0; i < drone.drone_waypoints.size() - 1; i++)
+                p.drawLine(drone.drone_waypoints[i].x* this->scale_factor + offsetX, drone.drone_waypoints[i].y* this->scale_factor + offsetY,
+                            drone.drone_waypoints[i+1].x* this->scale_factor + offsetX, drone.drone_waypoints[i+1].y* this->scale_factor + offsetY);
 
-            p.setBrush(Qt::blue);
-            for (auto &pt : dronePath)
+            p.setBrush(drone.drone_color);
+            for (auto &pt : drone.drone_waypoints)
                 p.drawEllipse(QPointF(pt.x* this->scale_factor + offsetX, pt.y* this->scale_factor + offsetY), 3, 3);
         }
     }

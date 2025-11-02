@@ -80,6 +80,7 @@
         "__nullptr": "cpp",
         "__bit_reference": "cpp",
         "__string": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "qjsonarray": "cpp"
     }
 }

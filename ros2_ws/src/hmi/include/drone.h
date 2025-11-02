@@ -7,6 +7,8 @@
 #include "std_msgs/msg/string.hpp"
 #include <memory>
 #include <QThread>
+#include <string>
+#include <QColor>
 
 #include "helper.h"
 
@@ -20,7 +22,7 @@ enum DroneType{
 class Drone
 {
     public:
-        explicit Drone(int type, Coordinates coord);
+        explicit Drone(int type, Coordinates coord, std::string id, QColor color);
         ~Drone();
 
         int get_drone_type();
@@ -35,9 +37,17 @@ class Drone
         void set_drone_lon(float value);
         float get_drone_lon();
 
+        void set_drone_id(std::string id);
+        std::string get_drone_id();
+
+        void set_drone_color(QColor color);
+        QColor get_drone_color();
+
     private:
         int drone_type;
         Coordinates drone_coord;
+        std::string drone_id;
+        QColor drone_color;
 };
 
 #endif
