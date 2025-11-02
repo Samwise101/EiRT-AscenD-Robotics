@@ -81,6 +81,10 @@
         "__bit_reference": "cpp",
         "__string": "cpp",
         "ios": "cpp",
-        "qjsonarray": "cpp"
+        "qjsonarray": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "__tree": "cpp",
+        "qrandomgenerator": "cpp"
     }
 }

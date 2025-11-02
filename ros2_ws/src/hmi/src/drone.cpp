@@ -1,25 +1,8 @@
 #include <iostream>
 #include "drone.h"
 
-#include <QRandomGenerator>
-
-
-static QColor randomColor()
-{
-    int r = QRandomGenerator::global()->bounded(256);
-    int g = QRandomGenerator::global()->bounded(256);
-    int b = QRandomGenerator::global()->bounded(256);
-
-    return QColor(r, g, b);
-}
-
-static QColor randomDistinctColor(int index, int total)
-{
-    int hue = (360 * index / total) % 360;
-    return QColor::fromHsv(hue, 255, 255);
-}
-
-Drone::Drone(int type, Coordinates coord, std::string id, QColor color) : drone_type(type), drone_coord(coord), drone_id(id), drone_color(color){}
+Drone::Drone(int type, Coordinates coord, std::string id, QColor color, std::string parent_box_id) : 
+drone_type(type), drone_coord(coord), drone_id(id), drone_color(color), parentBoxID(parent_box_id){}
 
 Drone::~Drone(){}
 
@@ -81,4 +64,14 @@ void Drone::set_drone_id(std::string id)
 std::string Drone::get_drone_id()
 {
     return this->drone_id;   
+}
+
+void Drone::set_parent_box_id(std::string box_id)
+{
+    this->parentBoxID = box_id;
+}
+
+std::string Drone::get_parent_box_id(void)
+{
+    return this->parentBoxID;
 }

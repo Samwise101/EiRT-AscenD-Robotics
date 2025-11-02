@@ -29,7 +29,7 @@ App::App() : Node("app_node")
     this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", qos_profiles::master_qos);
     this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos);
     this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos);
-    this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
+    this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",qos_profiles::master_qos);
     this->box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
     this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos);
     this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
@@ -41,7 +41,7 @@ App::App() : Node("app_node")
     );
 
     gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>(
-        "/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
+        "/gui/newbox_response", qos_profiles::master_qos, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
     );
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
