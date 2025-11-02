@@ -40,11 +40,11 @@ MainWindow::MainWindow(QWidget *parent)
     // Create publishers
     pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/msg", 10);
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
-    gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10);
+    gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos);
     response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10);
 
     // Create subscribers
-    heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",10, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
+    heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",qos_profiles::master_qos, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
@@ -201,6 +201,7 @@ void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
 {
     std::cout << "Got new BOX request\n";
+    std::cout << "Got box id: " << msg->box_id << std::endl;
 
     NewBoxDialog dialog(this, msg->landing_pos.lat, msg->landing_pos.lon, msg->landing_pos.elv, msg->box_id);
 
@@ -374,7 +375,7 @@ void MainWindow::on_upload_path_pushButton_clicked()
 void MainWindow::on_add_box_pushButton_clicked()
 {
     std::cout << "Hello from the add box button\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
+    dronehive_interfaces::msg::GuiCommand command;
     command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
     gui_cmd_pub_->publish(command);
 }

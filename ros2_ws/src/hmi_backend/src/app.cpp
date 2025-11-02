@@ -27,7 +27,7 @@ App::App() : Node("app_node")
     this->pending_box_responses_ = 0;
     auto qos = rclcpp::QoS(10).best_effort();
 
-    this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", 10);
+    this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", qos_profiles::master_qos);
     this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
     this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10);
     this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
@@ -35,10 +35,10 @@ App::App() : Node("app_node")
     this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10);
     this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
 
-    gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
+    gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
     new_box_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
-        "/dronehive/new_box", qos, std::bind(&App::onBoxMessage, this, std::placeholders::_1)
+        "/dronehive/new_box", qos_profiles::master_qos, std::bind(&App::onBoxMessage, this, std::placeholders::_1)
     );
 
     gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>(
@@ -211,8 +211,9 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 
     this->new_search_retry = false;
 
-    auto gui_msg = dronehive_interfaces::msg::BoxSetupConfirmationMessage();
+    dronehive_interfaces::msg::BoxSetupConfirmationMessage gui_msg;
 
+    gui_msg.box_id = msg->box_id;
     gui_msg.landing_pos = msg->landing_pos;
     box_msg_pub_->publish(gui_msg);
 }
