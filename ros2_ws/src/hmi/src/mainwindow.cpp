@@ -7,8 +7,8 @@
 namespace qos_profiles
 {
     static const rclcpp::QoS master_qos = [] {
-        rclcpp::QoS qos(rclcpp::KeepLast(10));
-        qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+        rclcpp::QoS qos(rclcpp::KeepLast(1));
+        qos.reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
         qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
         return qos;
     }();
@@ -38,16 +38,15 @@ MainWindow::MainWindow(QWidget *parent)
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
 
     // Create publishers
-    pub_ = node_->create_publisher<std_msgs::msg::String>("/gui/msg", 10);
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", 10);
     gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos);
     response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", 10);
 
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",qos_profiles::master_qos, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
-    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
-    backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", 10, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
-    backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
+    new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
+    backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
+    backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
     backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos, std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1));
 
     backEndManager = new BackEndManager(this);
@@ -403,10 +402,6 @@ void MainWindow::on_zoomOutButton_pushButton_clicked()
 // Slider slots
 void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 {
-    auto msg{std_msgs::msg::String()};
-    msg.data = "Hello from slider!";
-    pub_->publish(msg);
-
     std::cout << "Value of slider: " << float(value/10.0) << std::endl;
     this->warehouseFrame->setScaleFactor(float(value/10.0));
 }

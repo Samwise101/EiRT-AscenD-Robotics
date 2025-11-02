@@ -89,7 +89,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<rclcpp::Node> node_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
+
     rclcpp::Publisher<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_cmd_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr response_pub_;
