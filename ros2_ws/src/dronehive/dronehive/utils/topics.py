@@ -36,6 +36,8 @@ DRONEHIVE_BOX_STATUS_REQUEST_SERVICE = "/dronehive/box_status_request_service"
 DRONEHIVE_GUI_BOXES_ID_SERVICE = "/dronehive/gui_boxes_id_service"
 DRONEHIVE_GUI_SLAVE_BOX_INFO_SERVICE = "/dronehive/gui_slave_box_info_service"
 
+DRONEHIVE_DRONE_LAND_NOTIFY_GUI = "/dronehive/drone_update_box_state"
+
 ###########
 # Actions #
 ###########

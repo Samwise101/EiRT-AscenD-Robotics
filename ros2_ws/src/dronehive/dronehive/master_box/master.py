@@ -17,6 +17,7 @@ from dronehive_interfaces.srv import (
 	BoxBroadcastService,
 	BoxStatusService,
 	DroneLandingService,
+	OccupancyService,
 	RequestReturnHome,
 	SlaveBoxIDsService,
 	SlaveBoxInformationService
@@ -437,8 +438,25 @@ class MasterBoxNode(Node):
 			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
+		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
 		return response
+
+
+	def notify_gui_drone_landed(self, box_id: str, drone_id: str, landing_pos: PositionMessage) -> None:
+		request = OccupancyService.Request()
+		request.box_id = box_id
+		request.drone_id = drone_id
+
+		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
+
+		self.client_manager.call_async(
+			DroneLandingService,
+			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
+			request,
+			lambda future: self.get_logger().info(f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}"),
+			10
+		)
 
 
 	def return_home_request(self, request: RequestReturnHome.Request, response: RequestReturnHome.Response) -> RequestReturnHome.Response:
