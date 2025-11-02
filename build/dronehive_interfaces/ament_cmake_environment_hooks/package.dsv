@@ -1,4 +1,0 @@
-source;share/dronehive_interfaces/local_setup.bash
-source;share/dronehive_interfaces/local_setup.dsv
-source;share/dronehive_interfaces/local_setup.sh
-source;share/dronehive_interfaces/local_setup.zsh

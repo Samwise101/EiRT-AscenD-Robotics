@@ -1,1 +1,0 @@
-string box_id

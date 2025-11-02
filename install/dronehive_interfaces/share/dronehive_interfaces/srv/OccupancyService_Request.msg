@@ -1,5 +1,0 @@
-#service to ask for the occupancy of the boxes
-
-string drone_id
-string box_id
-

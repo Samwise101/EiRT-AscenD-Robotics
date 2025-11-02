@@ -46,6 +46,31 @@
          </widget>
         </item>
         <item>
+         <widget class="Line" name="line_26">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="addDroneButton">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Add Drone</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/images/icons/add_drone.png</normaloff>:/images/icons/add_drone.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="Line" name="line_20">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -112,7 +137,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -847,7 +872,7 @@ Drone:</string>
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
                  <item>
                   <widget class="Line" name="line_10">
                    <property name="orientation">
@@ -883,6 +908,13 @@ Drone:</string>
                     </widget>
                    </item>
                   </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_25">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
                  </item>
                  <item>
                   <widget class="Line" name="line_8">
@@ -1506,8 +1538,8 @@ Drone:</string>
    <slot>on_settings_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>558</y>
+     <x>79</x>
+     <y>588</y>
     </hint>
     <hint type="destinationlabel">
      <x>76</x>
@@ -1522,8 +1554,8 @@ Drone:</string>
    <slot>on_add_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>140</x>
-     <y>106</y>
+     <x>151</x>
+     <y>78</y>
     </hint>
     <hint type="destinationlabel">
      <x>163</x>
@@ -1538,8 +1570,8 @@ Drone:</string>
    <slot>on_updateSystem_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>152</x>
-     <y>332</y>
+     <x>163</x>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel">
      <x>113</x>
@@ -1635,7 +1667,7 @@ Drone:</string>
    <hints>
     <hint type="sourcelabel">
      <x>934</x>
-     <y>113</y>
+     <y>112</y>
     </hint>
     <hint type="destinationlabel">
      <x>182</x>
@@ -1715,7 +1747,7 @@ Drone:</string>
    <hints>
     <hint type="sourcelabel">
      <x>935</x>
-     <y>156</y>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>41</x>
@@ -1835,6 +1867,22 @@ Drone:</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>addDroneButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_addDroneButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>22</x>
+     <y>240</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_add_box_pushButton_clicked()</slot>
@@ -1865,5 +1913,6 @@ Drone:</string>
   <slot>on_zoomOutButton_pushButton_clicked()</slot>
   <slot>on_droneComboBox_currentIndexChanged(int)</slot>
   <slot>on_removeDroneButton_pushButton_clicked()</slot>
+  <slot>on_addDroneButton_pushButton_clicked()</slot>
  </slots>
 </ui>

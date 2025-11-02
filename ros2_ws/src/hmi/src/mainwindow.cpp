@@ -70,6 +70,10 @@ MainWindow::MainWindow(QWidget *parent)
     warehouseFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     warehouseFrame->setMinimumSize(200, 200); // optional safety
     this->ui->verticalLayout_6->addWidget(warehouseFrame);
+
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS;
+    gui_cmd_pub_->publish(command);
 }
 
 MainWindow::~MainWindow()
@@ -161,17 +165,29 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 
         if(!drone_exists)
         {
+            std::cout << "Creating drone\n";
             Coordinates coord{box_lat, box_lon, box_elv};
             Drone drone(DroneType::HexaCopter, coord, drone_id, Drone::randomDroneColor(), box_id);
             drones.push_back(drone);
             this->ui->droneComboBox->addItem(QString::fromStdString(drone_id));
+            
+            this->boxes[this->boxes.size() - 1].set_assigned_drone_id(drone_id);
+        }
+        else
+        {
+            std::cout << "Drone exists\n";
         }
 
         this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
     }
 
     this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
-    this->ui->boxTypeValueLabel->setText("Slave");
+
+    if(box_id == "Master")
+        this->ui->boxTypeValueLabel->setText("Master");
+    else
+        this->ui->boxTypeValueLabel->setText("Slave");
+
     this->ui->boxNumberValueLabel->setText(QString::number(this->boxes.size()));
     this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
     this->ui->box_latitude_value_label->setText(QString::number(box_lat, 'f', 4));
@@ -273,12 +289,18 @@ void MainWindow::onBackEndStopped()
 {
     std::cout << "Hello from stopped\n";
     delete this->backEndManager;
+    std::system("pkill -TERM -f app_node");   // graceful
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::system("pkill -9 -f app_node");      // force if needed
 }
 
 void MainWindow::onBackEndCrashed()
 {
     std::cout << "Hello from crash\n";
     delete this->backEndManager;
+    std::system("pkill -TERM -f app_node");   // graceful
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::system("pkill -9 -f app_node");      // force if needed
 }
 
 std::vector<Box> MainWindow::get_boxes()
@@ -320,6 +342,37 @@ void MainWindow::on_remove_box_pushButton_clicked()
     QString current_data = this->ui->boxComboBox->currentText();
     int current_index = this->ui->boxComboBox->currentIndex();
 
+    if(!this->boxes[current_index].get_assigned_drone_id().empty() && !drones.empty())
+    {
+        std::cout << "Removing drone\n";
+        QString child_drone_id = QString::fromStdString(this->boxes[current_index].get_assigned_drone_id());
+        
+        int drone_index = this->ui->droneComboBox->findText(child_drone_id);
+
+        this->ui->droneComboBox->removeItem(drone_index);
+
+        this->ui->drone_altitude_value_label->setText("Unknown");;
+        this->ui->drone_latitude_value_label->setText("Unknown");;
+        this->ui->drone_longitude_value_label->setText("Unknown");;
+
+        this->ui->droneIdLabel->setText("Unknown");
+        
+        QPalette palette = this->ui->droneColorCodeLabel->palette();
+        palette.setColor(QPalette::Window, Qt::white);
+        this->ui->droneColorCodeLabel->setPalette(palette);
+
+        this->ui->parentBoxLabel->setText("None");
+
+        this->drones.erase(this->drones.begin() + current_index);
+
+        this->imageLabel_drone->clear();
+        this->batteryTextLabel_drone->clear();
+        this->batteryImageLabel_drone->clear();
+
+    }
+
+    this->boxes.erase(this->boxes.begin() + current_index);
+
     command.box_id = current_data.toStdString();
     gui_cmd_pub_->publish(command);
 
@@ -334,6 +387,7 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxIdValueLabel->setText("Unknown");
     this->ui->boxNumberValueLabel->setText("Unknown");
     this->ui->boxTypeValueLabel->setText("Unknown");
+    this->ui->boxStatusLabel->setText("Unknown");
 
     this->imageLabel_box->clear();
     this->batteryTextLabel_box->clear();
@@ -356,9 +410,14 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
         this->ui->drone_longitude_value_label->setText("Unknown");;
 
         this->ui->droneIdLabel->setText("Unknown");
-        this->ui->droneColorCodeLabel->setPalette(QPalette());
+        QPalette palette = this->ui->droneColorCodeLabel->palette();
+        palette.setColor(QPalette::Window, Qt::white);
+        this->ui->droneColorCodeLabel->setPalette(palette);
+
 
         this->ui->parentBoxLabel->setText("None");
+
+        this->drones.erase(this->drones.begin() + current_index);
     }
 }
 
@@ -415,6 +474,14 @@ void MainWindow::on_add_box_pushButton_clicked()
     std::cout << "Hello from the add box button\n";
     dronehive_interfaces::msg::GuiCommand command;
     command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_addDroneButton_pushButton_clicked()
+{
+    std::cout << "Hello from the add box button\n";
+    dronehive_interfaces::msg::GuiCommand command;
+    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE;
     gui_cmd_pub_->publish(command);
 }
 
@@ -498,6 +565,8 @@ void MainWindow::on_droneComboBox_currentIndexChanged(int index)
         QPalette palette = this->ui->droneColorCodeLabel->palette();
         palette.setColor(QPalette::Window, drone_color);
         this->ui->droneColorCodeLabel->setPalette(palette);
+
+        this->ui->parentBoxLabel->setText(QString::fromStdString(this->drones[index].get_parent_box_id()));
 
         this->setDroneGraphics(0.0f);
     }

@@ -84,6 +84,9 @@ App::App() : Node("app_node")
 App::~App()
 {
     rclcpp::shutdown();
+    std::system("pkill -TERM -f app_node");   // graceful
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::system("pkill -9 -f app_node");      // force if needed
 }
 
 void App::onServiceTimer()
@@ -267,6 +270,11 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
         case dronehive_interfaces::msg::GuiCommand::REQUEST_EXECUTE_PATH:
         {
             // add flag to enable a timer to recieve the path
+            break;
+        }
+
+        case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE:
+        {
             break;
         }
     };

@@ -66,8 +66,7 @@ private slots:
     void on_land_pushButton_clicked();
     void on_request_drone_status_pushButton_clicked();
     void on_upload_path_pushButton_clicked();
-    // void on_zoomIn_pushButton_clicked();
-    // void on_zoom_out_pushButton_clicked();
+
     void on_remove_box_pushButton_clicked();
     void on_path_upload_pushButton_clicked();
     void on_updateSystem_pushButton_clicked();
@@ -78,6 +77,7 @@ private slots:
     void on_zoomPlusButton_pushButton_clicked();
     void on_zoomOutButton_pushButton_clicked();
     void on_removeDroneButton_pushButton_clicked();
+    void on_addDroneButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
     void on_droneComboBox_currentIndexChanged(int index);
