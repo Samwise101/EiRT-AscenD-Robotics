@@ -33,6 +33,7 @@ App::App() : Node("app_node")
     this->box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
     this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos);
     this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
+    this->notify_gui_on_ccupancy_change_pub_ = this->create_publisher<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos);
 
     gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
@@ -50,7 +51,6 @@ App::App() : Node("app_node")
     drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("/dronehive/request_return_home");
     system_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxIDsService>("/dronehive/gui_boxes_id_service");
 
-    
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
     [this]() {
@@ -77,7 +77,7 @@ App::App() : Node("app_node")
             this->box_timeout_timer++;
         }
     });
-
+    this->notify_gui_srv_ = this->create_service<dronehive_interfaces::srv::OccupancyService>("/dronehive/drone_update_box_state",std::bind(&App::onNotifyGui, this, std::placeholders::_1, std::placeholders::_2));
      // One timer for all service requests
     service_timer_ = this->create_wall_timer(std::chrono::seconds(5), std::bind(&App::onServiceTimer, this));
 }
@@ -88,6 +88,26 @@ App::~App()
     std::system("pkill -TERM -f app_node");   // graceful
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     std::system("pkill -9 -f app_node");      // force if needed
+}
+
+void App::onNotifyGui(const std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Request> request, std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Response> response)
+{
+
+    std_msgs::msg::String msg2;
+    msg2.data = "Got Notify client request";
+    to_gui_msg_pub_->publish(msg2);
+
+    std::string box_id = request->box_id;
+    std::string drone_id = request->drone_id;
+
+    response->occupancy_status = true;
+
+    dronehive_interfaces::msg::OccupancyMessage msg;
+    msg.drone_id = drone_id;
+    msg.box_id = box_id;
+    msg.occupancy = true;
+
+    this->notify_gui_on_ccupancy_change_pub_->publish(msg);
 }
 
 

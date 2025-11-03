@@ -14,6 +14,7 @@
 #include <dronehive_interfaces/msg/backend_command.hpp>
 #include <dronehive_interfaces/msg/execute_path_message.hpp>
 #include <dronehive_interfaces/msg/box_full_status.hpp>
+#include <dronehive_interfaces/msg/occupancy_message.hpp>
 
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/srv/occupancy_service.hpp>
@@ -55,7 +56,7 @@ class App : public rclcpp::Node
 
         void onRemoveBoxGuiCommand(const std::string& box_id);
 
-        int test2;
+        void onNotifyGui(const std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Request> request, std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Response> response);
 
     private:
         int count;
@@ -82,12 +83,15 @@ class App : public rclcpp::Node
         rclcpp::Publisher<dronehive_interfaces::msg::BoxFullStatus>::SharedPtr box_status_pub_;
         rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr box_msg_pub_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr box_deinit_pub_;
+        rclcpp::Publisher<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr notify_gui_on_ccupancy_change_pub_;
 
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedPtr drone_landing_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedPtr drone_home_return_client_;
         rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedPtr system_status_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedPtr drone_status_client_;
         rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedPtr box_status_client_;
+
+        rclcpp::Service<dronehive_interfaces::srv::OccupancyService>::SharedPtr notify_gui_srv_;
 
         rclcpp::TimerBase::SharedPtr heartbeat_timer_;
         rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;   

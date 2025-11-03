@@ -23,6 +23,7 @@
 #include <dronehive_interfaces/msg/gui_command.hpp>
 #include <dronehive_interfaces/msg/backend_command.hpp>
 #include <dronehive_interfaces/msg/box_full_status.hpp>
+#include <dronehive_interfaces/msg/occupancy_message.hpp>
 
 #include "drone.h"
 #include "box.h"
