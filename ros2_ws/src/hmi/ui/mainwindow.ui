@@ -137,7 +137,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -1232,7 +1232,7 @@ Drone:</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Lon:</string>
+                      <string>Drone Home Pos. Lon:</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -1249,7 +1249,7 @@ Drone:</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Lat:</string>
+                      <string>Drone Home Pos. Lat:</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -1266,7 +1266,7 @@ Drone:</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Alt:</string>
+                      <string>Drone Hone Pos. Alt:</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -1541,8 +1541,8 @@ Drone:</string>
    <slot>on_settings_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>588</y>
+     <x>90</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>76</x>
@@ -1557,8 +1557,8 @@ Drone:</string>
    <slot>on_add_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>78</y>
+     <x>162</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>163</x>
@@ -1573,8 +1573,8 @@ Drone:</string>
    <slot>on_updateSystem_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>163</x>
-     <y>418</y>
+     <x>174</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>113</x>
@@ -1589,8 +1589,8 @@ Drone:</string>
    <slot>on_zoomOutButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>786</x>
-     <y>472</y>
+     <x>818</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
      <x>934</x>

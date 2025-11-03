@@ -51,6 +51,8 @@ public:
     void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
+    void onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg);
+
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
 
@@ -100,6 +102,7 @@ private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr backend_msg_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxFullStatus>::SharedPtr backend_box_status_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr drone_box_status_change_sub_;
 
     std::vector<Box> boxes;
     std::vector<Drone> drones;

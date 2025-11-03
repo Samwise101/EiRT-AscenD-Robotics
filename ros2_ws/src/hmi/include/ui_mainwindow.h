@@ -1120,7 +1120,7 @@ public:
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
         QObject::connect(addDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_addDroneButton_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1190,9 +1190,9 @@ public:
         pushButton_4->setText(QCoreApplication::translate("MainWindow", "Return Home", nullptr));
         pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
-        drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lon:", nullptr));
-        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lat:", nullptr));
-        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Alt:", nullptr));
+        drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lon:", nullptr));
+        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lat:", nullptr));
+        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Hone Pos. Alt:", nullptr));
         drone_latitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         drone_longitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         drone_altitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));

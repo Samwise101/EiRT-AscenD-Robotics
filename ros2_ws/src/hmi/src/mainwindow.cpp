@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
     backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos, std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1));
+    drone_box_status_change_sub_ = node_->create_subscription<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos, std::bind(&MainWindow::onDroneChangedBoxStatus, this, std::placeholders::_1));
 
     backEndManager = new BackEndManager(this);
 
@@ -105,6 +106,33 @@ void MainWindow::cleanup()
 
     delete this->spinTimer_;
     delete this->ui;
+}
+
+void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg)
+{
+    std::cout << "Got occupancy message due to drone changing its box\n";
+
+    std::string box_id = msg->box_id;
+    std::string drone_id = msg->drone_id;
+    bool occupancy = msg->occupancy;
+
+    int box_index = this->ui->boxComboBox->findText(QString::fromStdString(box_id));
+    int drone_index = this->ui->droneComboBox->findText(QString::fromStdString(drone_id));
+
+    if(box_index >= 0 && drone_index >= 0)
+    {
+        this->boxes[box_index].set_assigned_drone_id(drone_id);
+        this->drones[drone_index].set_parent_box_id(box_id);
+
+        this->ui->drone_altitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_alt(), 'f', 4));
+        this->ui->drone_latitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_lat(), 'f', 4));
+        this->ui->drone_longitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_lon(), 'f', 4));
+    
+        if(occupancy)
+            this->ui->boxStatusLabel->setText("OCCUPIED");
+        else
+            this->ui->boxStatusLabel->setText("EMPTY");
+    }
 }
 
 void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg)
