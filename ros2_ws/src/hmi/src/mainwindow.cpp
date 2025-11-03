@@ -129,9 +129,9 @@ void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::Occupa
         this->ui->drone_longitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_lon(), 'f', 4));
     
         if(occupancy)
-            this->ui->boxStatusLabel->setText("OCCUPIED");
+            this->ui->boxStatusValueLabel->setText("OCCUPIED");
         else
-            this->ui->boxStatusLabel->setText("EMPTY");
+            this->ui->boxStatusValueLabel->setText("EMPTY");
     }
 }
 
@@ -298,10 +298,13 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
             std::cout << "Adding a SLAVE box\n";
             Box box(BoxType::SLAVE, coord, return_msg.box_id, boxStatusToString(BoxState::EMPTY) ,this->boxes.size() + 1);
             this->boxes.push_back(box);
-            std::cout << "Hello1\n";
         }
 
         this->ui->boxComboBox->addItem(QString::fromStdString(return_msg.box_id));
+
+        auto command = dronehive_interfaces::msg::GuiCommand();
+        command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS;
+        gui_cmd_pub_->publish(command);
     } 
     else 
     {
@@ -415,7 +418,7 @@ void MainWindow::on_remove_box_pushButton_clicked()
     this->ui->boxIdValueLabel->setText("Unknown");
     this->ui->boxNumberValueLabel->setText("Unknown");
     this->ui->boxTypeValueLabel->setText("Unknown");
-    this->ui->boxStatusLabel->setText("Unknown");
+    this->ui->boxStatusValueLabel->setText("Unknown");
 
     this->imageLabel_box->clear();
     this->batteryTextLabel_box->clear();
