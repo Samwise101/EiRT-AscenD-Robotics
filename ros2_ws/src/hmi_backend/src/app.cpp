@@ -50,6 +50,7 @@ App::App() : Node("app_node")
     drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("/dronehive/request_return_home");
     system_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxIDsService>("/dronehive/gui_boxes_id_service");
 
+    
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
     [this]() {
@@ -88,6 +89,7 @@ App::~App()
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     std::system("pkill -9 -f app_node");      // force if needed
 }
+
 
 void App::onServiceTimer()
 {

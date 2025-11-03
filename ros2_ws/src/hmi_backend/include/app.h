@@ -55,6 +55,8 @@ class App : public rclcpp::Node
 
         void onRemoveBoxGuiCommand(const std::string& box_id);
 
+        int test2;
+
     private:
         int count;
         int box_timeout_timer;
@@ -69,6 +71,7 @@ class App : public rclcpp::Node
         int pending_box_responses_;
 
         rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub_;
+        rclcpp::Subscription<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_command_sub2_;
         rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr gui_box_confirm_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_sub_;
 
@@ -88,7 +91,9 @@ class App : public rclcpp::Node
 
         rclcpp::TimerBase::SharedPtr heartbeat_timer_;
         rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;   
-        rclcpp::TimerBase::SharedPtr service_timer_;     
+        rclcpp::TimerBase::SharedPtr service_timer_;
+        
+        int test;
 };
 
 #endif

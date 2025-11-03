@@ -116,6 +116,8 @@ private:
     QLabel* batteryTextLabel_drone;
     QLabel* batteryImageLabel_box;
     QLabel* batteryTextLabel_box;
+
+    int test;
 };
 
 #endif

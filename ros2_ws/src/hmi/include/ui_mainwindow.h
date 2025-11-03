@@ -253,7 +253,7 @@ public:
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         verticalLayout = new QVBoxLayout();
-        verticalLayout->setSpacing(50);
+        verticalLayout->setSpacing(10);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         addBox = new QPushButton(centralwidget);
         addBox->setObjectName(QString::fromUtf8("addBox"));
@@ -336,6 +336,7 @@ public:
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(0, 9, 771, 531));
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget);
+        horizontalLayout_8->setSpacing(1);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
         map_layout = new QVBoxLayout();
@@ -435,6 +436,7 @@ public:
 
         horizontalLayout_8->addLayout(verticalLayout_3);
 
+        horizontalLayout_8->setStretch(0, 50);
         tabWidget->addTab(map_tab, icon3, QString());
         box_tab = new QWidget();
         box_tab->setObjectName(QString::fromUtf8("box_tab"));
@@ -1118,7 +1120,7 @@ public:
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
         QObject::connect(addDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_addDroneButton_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

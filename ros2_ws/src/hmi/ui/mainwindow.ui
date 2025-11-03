@@ -32,7 +32,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
-         <number>50</number>
+         <number>10</number>
         </property>
         <item>
          <widget class="QPushButton" name="addBox">
@@ -137,7 +137,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -156,7 +156,10 @@
               <height>531</height>
              </rect>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="50,0,0">
+             <property name="spacing">
+              <number>1</number>
+             </property>
              <item>
               <layout class="QVBoxLayout" name="map_layout" stretch="0,0,0">
                <item>
