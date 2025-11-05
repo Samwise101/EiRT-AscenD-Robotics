@@ -71,6 +71,10 @@ install(TARGETS frontend_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY resources/
+  DESTINATION share/${PROJECT_NAME}/resources
+)
 
 # ROS 2 deps
 ament_target_dependencies(frontend_node

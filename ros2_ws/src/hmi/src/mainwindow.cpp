@@ -3,7 +3,8 @@
 #include <QDebug>
 #include <chrono>
 #include <thread>
-   
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 namespace qos_profiles
 {
     static const rclcpp::QoS master_qos = [] {
@@ -605,14 +606,19 @@ void MainWindow::on_droneComboBox_currentIndexChanged(int index)
 
 void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_level)
 {
+    std::string pkg_path = ament_index_cpp::get_package_share_directory("hmi");
+
     if(boxStateFromString(box_status) == BoxState::EMPTY)
     {
-        QPixmap pixmap("src/hmi/resources/box_empty.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/box_empty.png");
+        QPixmap pixmap(img_path);
         this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(boxStateFromString(box_status) == BoxState::OCCUPIED)
     {
-        QPixmap pixmap("src/hmi/resources/box_full.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/box_full.png");
+        std::cout << img_path.toStdString() << std::endl;
+        QPixmap pixmap(img_path);
         this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
@@ -623,32 +629,38 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
 
     if(box_battery_level <= 0.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_empty.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_20.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_40.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
-    {
-        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+    { 
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_60.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_80.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_full.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
@@ -667,7 +679,10 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
 
 void MainWindow::setDroneGraphics(float box_battery_level)
 {
-    QPixmap pixmap("src/hmi/resources/hexa_copter.png");
+    std::string pkg_path = ament_index_cpp::get_package_share_directory("hmi");
+    QString img_path = QString::fromStdString(pkg_path + "/resources/hexa_copter.png");
+    QPixmap pixmap(img_path);
+
     this->imageLabel_drone->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     this->imageLabel_drone->setAlignment(Qt::AlignCenter);
     this->imageLabel_drone->setFixedSize(400, 400);
@@ -676,32 +691,38 @@ void MainWindow::setDroneGraphics(float box_battery_level)
 
     if(box_battery_level <= 0.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_empty.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_20.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_40.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_60.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_80.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_full.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
