@@ -69,6 +69,7 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
         {
             insideDrone = true;
             current = DroneVis(); // reset
+            current.display = true;
 
             auto attrs = xml.attributes();
             current.drone_id = attrs.value("id").toString().toStdString();
@@ -96,6 +97,24 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
     file.close();
     update();
 }
+
+void WarehouseFrame::setDisplayByIndex(int index, bool value)
+{
+    if(index < 0 or drones.empty()) return;
+
+    std::cout << "The entry was set to:" << value << std::endl;  
+    drones[index].display = value;
+
+    update();
+}
+
+bool WarehouseFrame::isDisplaySet(int index)
+{
+    if(index < 0 || drones.empty()) return false;
+
+    return drones[index].display;
+}
+
 
 void WarehouseFrame::paintEvent(QPaintEvent *event)
 {
@@ -145,6 +164,12 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
 
     for(auto drone : drones)
     {
+        std::cout << "Drone " << drone.drone_id << " with display = " << drone.display << std::endl;
+        if(drone.display == false) 
+        {
+            std::cout << "Skipping drone" <<std::endl;
+            continue;
+        }
         // Draw path
         if (!drone.drone_waypoints.empty())
         {
@@ -190,4 +215,9 @@ void WarehouseFrame::decrementScaleFactor()
     
     std::cout << "Decreasing scale factor to " << this->scale_factor << std::endl;
     update();
+}
+
+std::vector<DroneVis> WarehouseFrame::getDroneVisData()
+{
+    return this->drones;
 }

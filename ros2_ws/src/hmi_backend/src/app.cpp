@@ -156,8 +156,12 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
     this->pending_box_responses_ = box_ids_size;
 
-    for (int i = 0; i < box_ids_size; ++i)
+    for (int i = 0; i < box_ids_size; i++)
     {
+        auto msg2 = std_msgs::msg::String();
+        msg2.data = "Starting status request for box id " + response->box_ids[i];
+        to_gui_msg_pub_->publish(msg2);
+
         if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
         {
             auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();

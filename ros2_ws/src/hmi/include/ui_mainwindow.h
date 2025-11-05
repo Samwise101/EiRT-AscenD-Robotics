@@ -82,7 +82,6 @@ public:
     QFrame *line_22;
     QPushButton *loadTrajectoryButton;
     QPushButton *clearVisualsButton;
-    QSpacerItem *verticalSpacer;
     QWidget *box_tab;
     QWidget *verticalLayoutWidget_3;
     QVBoxLayout *box_main_layout;
@@ -445,10 +444,6 @@ public:
         clearVisualsButton->setFont(font);
 
         verticalLayout_3->addWidget(clearVisualsButton);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_3->addItem(verticalSpacer);
 
 
         horizontalLayout_8->addLayout(verticalLayout_3);
@@ -1138,7 +1133,7 @@ public:
         QObject::connect(addDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_addDroneButton_pushButton_clicked()));
         QObject::connect(restartButton, SIGNAL(clicked()), MainWindow, SLOT(on_restartButton_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

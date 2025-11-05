@@ -35,6 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
     
     this->batteryImageLabel_drone = new QLabel(ui->frame_drone);
     this->batteryTextLabel_drone = new QLabel(ui->frame_drone);
+
+    this->list_widget = new QListWidget(this);
+    this->ui->verticalLayout_3->addWidget(this->list_widget);
+
+    connect(this->list_widget, &QListWidget::itemDoubleClicked,
+        this, &MainWindow::onListItemDoubleClicked);
     
     // Create ROS2 node
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
@@ -87,6 +93,8 @@ MainWindow::~MainWindow()
 void MainWindow::cleanup()
 {
     delete this->warehouseFrame;
+    this->warehouseFrame = nullptr;
+
     delete this->imageLabel_box;
     delete this->imageLabel_drone;
     delete this->batteryImageLabel_box;
@@ -114,6 +122,8 @@ void MainWindow::cleanup()
 
     rclcpp::shutdown();
 }
+
+
 
 void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg)
 {
@@ -150,6 +160,9 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     std::string box_id = msg->box_id;
     std::string drone_id = msg->drone_id;
     std::string box_status =  msg->box_status;
+
+    std::cout << "Box ID = " << box_id << ", drone_id = " << drone_id << ", box_status = " << box_status << std::endl;
+
     float box_lat = msg->landing_pos.lat;
     float box_lon = msg->landing_pos.lon;
     float box_elv = msg->landing_pos.elv;
@@ -168,6 +181,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 
     if(!box_exists)
     {
+        std::cout << "Creating a new box\n";
         QString id = QString::fromStdString(msg->box_id);
         if (ui->boxComboBox) {
             box_update_happened = true;
@@ -267,7 +281,7 @@ void MainWindow::onBackendMessage(const std_msgs::msg::String::SharedPtr msg)
 
 void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 {
-    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got heartbeat: '%s'", msg->data.c_str());
+    // RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got heartbeat: '%s'", msg->data.c_str());
     backEndManager->setMissedHeartBeat(0);
 }
 
@@ -549,17 +563,17 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {
-    if(this->ui->boxComboBox->count() > 0 && !box_update_happened && !this->boxes.empty())
+    if(this->ui->boxComboBox->count() > 0 && !this->boxes.empty())
     {
         this->currentBoxIndex = index;
 
-        float box_altitude = this->boxes[this->currentBoxIndex].get_box_landing_alt();
-        float box_longitude = this->boxes[this->currentBoxIndex].get_box_landing_lon();
-        float box_latitude = this->boxes[this->currentBoxIndex].get_box_landing_lat();
-        std::string box_id = this->boxes[this->currentBoxIndex].get_box_id();
-        int box_number = this->boxes[this->currentBoxIndex].get_box_number();
-        int box_type = this->boxes[this->currentBoxIndex].get_box_type();
-        std::string box_status = this->boxes[this->currentBoxIndex].get_box_status();
+        float box_altitude = this->boxes[index].get_box_landing_alt();
+        float box_longitude = this->boxes[index].get_box_landing_lon();
+        float box_latitude = this->boxes[index].get_box_landing_lat();
+        std::string box_id = this->boxes[index].get_box_id();
+        int box_number = this->boxes[index].get_box_number();
+        int box_type = this->boxes[index].get_box_type();
+        std::string box_status = this->boxes[index].get_box_status();
 
         this->ui->box_altitude_value_label->setText(QString::number(box_altitude, 'f', 4));
         this->ui->box_longitude_value_label->setText(QString::number(box_longitude, 'f', 4));
@@ -568,12 +582,15 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
         this->ui->boxNumberValueLabel->setText(QString::number(box_number));
         this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
 
+        std::cout << "Index = " << index << ", box_status = " << box_status << std::endl;
+
         this->setBoxStateGraphics(box_status, 0.0f);
 
         if(box_type == BoxType::SLAVE)
             this->ui->boxTypeValueLabel->setText("Slave");
         else if(box_type == BoxType::MASTER)
             this->ui->boxTypeValueLabel->setText("Master");
+            
     }
 }
 
@@ -742,6 +759,27 @@ void MainWindow::setDroneGraphics(float box_battery_level)
     this->batteryImageLabel_drone->show();
 }
 
+void MainWindow::onListItemDoubleClicked(QListWidgetItem *item)
+{
+    int curr_list_widget_index = this->list_widget->row(item);
+    std::cout << "Item at index = " << curr_list_widget_index << "was selected" << std::endl;
+
+    if(warehouseFrame == nullptr) return;
+
+    bool oldValue = warehouseFrame->isDisplaySet(curr_list_widget_index);
+
+    this->warehouseFrame->setDisplayByIndex(curr_list_widget_index, !oldValue);
+
+    ColorListWidget *cw = qobject_cast<ColorListWidget*>(this->list_widget->itemWidget(item));
+    if (cw)
+    {
+        cw->setEnabled(!oldValue);
+        cw->setChecked(!oldValue);
+    }
+
+    // item->setForeground(QBrush(Qt::gray));
+    // item->setFlags(item->flags() | Qt::ItemIsSelectable);
+}
 
 void MainWindow::on_loadMapButton_pushButton_clicked()
 {
@@ -765,12 +803,44 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
     );
 
     this->warehouseFrame->loadTrajectoryXml(filename);
+
+    for (int i = 0; i < this->list_widget->count(); ++i)
+    {
+        QWidget *w = this->list_widget->itemWidget(this->list_widget->item(i));
+        delete w;
+    }
+
+    this->list_widget->clear();
+    
+    auto drone_data = this->warehouseFrame->getDroneVisData();
+
+    for(auto drone : drone_data)
+    {
+        QColor drone_color = drone.drone_color;
+        QString drone_id = QString::fromStdString(drone.drone_id);
+        
+        QListWidgetItem* item = new QListWidgetItem(this->list_widget);
+
+        ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
+
+        item->setSizeHint(widget->sizeHint());
+        this->list_widget->addItem(item);
+        this->list_widget->setItemWidget(item, widget);
+    }
 }
 
 
 void MainWindow::on_clearVisualsButton_pushButton_clicked()
 {
     this->warehouseFrame->clearVisuals();
+
+    for (int i = 0; i < this->list_widget->count(); ++i)
+    {
+        QWidget *w = this->list_widget->itemWidget(this->list_widget->item(i));
+        delete w;
+    }
+
+    this->list_widget->clear();
 }
 
 void MainWindow::on_restartButton_pushButton_clicked()

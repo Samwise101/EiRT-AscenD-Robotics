@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QColor>
 #include <QThread>
+#include <QListWidget>
 
 #include <memory>
 #include <vector>
@@ -31,6 +32,7 @@
 #include "box_timeout_dialog.h"
 #include "backend_manager.h"
 #include "warehouseframe.h"
+#include "ColorListWidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -90,6 +92,8 @@ private slots:
 
     void on_add_box_pushButton_clicked();
 
+    void onListItemDoubleClicked(QListWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<rclcpp::Node> node_;
@@ -121,8 +125,7 @@ private:
     QLabel* batteryTextLabel_drone;
     QLabel* batteryImageLabel_box;
     QLabel* batteryTextLabel_box;
-
-    int test;
+    QListWidget* list_widget;
 };
 
 #endif
