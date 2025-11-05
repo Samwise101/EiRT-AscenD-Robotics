@@ -5,6 +5,8 @@ from rclpy.callback_groups import (
 	MutuallyExclusiveCallbackGroup,
 )
 
+from rclpy.executors import SingleThreadedExecutor
+
 from rclpy.node import Node
 from rclpy.qos import (
 	QoSProfile,
@@ -69,6 +71,8 @@ class MasterBoxNode(Node):
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 		self.motor: dh.XL430Controller | None = None
+		self.temp_node = Node('temp_waypoint_client_node')
+
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
 		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
@@ -574,29 +578,46 @@ class MasterBoxNode(Node):
 	def handle_trajectory_waypoints_request(self,
 										 request: DroneTrajectoryWaypointsService.Request,
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
+		self.get_logger().info(f"Received trajectory waypoints request for drone ID: '{request.drone_id}'")
 		box_id = self.find_box_id_from_drone_id(request.drone_id)
 		if box_id is None:
 			self.get_logger().warn(f"Trajectory waypoints request received for unknown drone ID: '{request.drone_id}'. Cannot provide waypoints.")
 			response.ack = False
 			return response
 
-		future = self.client_manager.call_async(
+		if box_id == self.config.box_id:
+			response.ack = True
+			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
+			return response
+
+		# Create a transient node to make the client call
+		client = self.temp_node.create_client(
 			DroneTrajectoryWaypointsService,
-			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}",
-			request,
-			10
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
 		)
 
-		# Block the thread until the future is complete.
-		rclpy.spin_until_future_complete(self, future)
+		# wait for service
+		if not client.wait_for_service(timeout_sec=5.0):
+			self.temp_node.get_logger().error("Target service not available")
+			self.temp_node.destroy_node()
+			response.ack = False
+			return response
 
-		if future.result() is None:
+		future = client.call_async(request)
+
+		# Spin a temporary executor that only has the temp node
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(future)
+		exec.shutdown()
+
+		if not future or future.result() is None:
 			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
 			response.ack = False
 			return response
 
 		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'"),
-		response.ack = response.ack
+		response.ack = future.result().ack
 		return response
 
 
