@@ -85,9 +85,6 @@ App::App() : Node("app_node")
 App::~App()
 {
     rclcpp::shutdown();
-    std::system("pkill -TERM -f app_node");   // graceful
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::system("pkill -9 -f app_node");      // force if needed
 }
 
 void App::onNotifyGui(const std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Request> request, std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Response> response)

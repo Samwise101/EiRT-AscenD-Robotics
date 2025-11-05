@@ -81,6 +81,7 @@ private slots:
     void on_zoomOutButton_pushButton_clicked();
     void on_removeDroneButton_pushButton_clicked();
     void on_addDroneButton_pushButton_clicked();
+    void on_restartButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
     void on_droneComboBox_currentIndexChanged(int index);

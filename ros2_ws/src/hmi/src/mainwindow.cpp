@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <chrono>
 #include <thread>
+#include <QStringList>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 namespace qos_profiles
@@ -93,7 +94,10 @@ void MainWindow::cleanup()
     delete this->batteryImageLabel_drone;
     delete this->batteryTextLabel_drone;
 
+    this->backEndManager->stopBackend();
+
     delete this->backEndManager;
+    this->backEndManager = nullptr;
         // Stop timers first
     if (spinTimer_) {
         spinTimer_->stop();
@@ -107,6 +111,8 @@ void MainWindow::cleanup()
 
     delete this->spinTimer_;
     delete this->ui;
+
+    rclcpp::shutdown();
 }
 
 void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg)
@@ -320,19 +326,16 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
 void MainWindow::onBackEndStopped()
 {
     std::cout << "Hello from stopped\n";
-    delete this->backEndManager;
-    std::system("pkill -TERM -f app_node");   // graceful
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::system("pkill -9 -f app_node");      // force if needed
+
 }
 
 void MainWindow::onBackEndCrashed()
 {
     std::cout << "Hello from crash\n";
+    this->backEndManager->stopBackend();
+
     delete this->backEndManager;
-    std::system("pkill -TERM -f app_node");   // graceful
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::system("pkill -9 -f app_node");      // force if needed
+    this->backEndManager = nullptr;
 }
 
 std::vector<Box> MainWindow::get_boxes()
@@ -768,4 +771,23 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
 void MainWindow::on_clearVisualsButton_pushButton_clicked()
 {
     this->warehouseFrame->clearVisuals();
+}
+
+void MainWindow::on_restartButton_pushButton_clicked()
+{
+    if(this->backEndManager == nullptr)
+    {
+        this->backEndManager = new BackEndManager(this);
+        this->backEndManager->startBackend();
+    }
+    else
+    {
+        this->backEndManager->stopBackend();
+
+        delete backEndManager;
+        backEndManager = nullptr;
+        this->backEndManager = new BackEndManager(this);
+
+        this->backEndManager->startBackend();
+    }
 }
