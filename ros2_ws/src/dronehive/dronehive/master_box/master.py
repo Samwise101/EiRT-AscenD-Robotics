@@ -438,11 +438,18 @@ class MasterBoxNode(Node):
 		closest_distance: float = float('inf')
 		landing_pos: PositionMessage = PositionMessage()
 
+		positions = [box_status.position for box_status in self.linked_slave_boxes.values()]
+		info = zip(self.linked_slave_boxes.keys(), positions)
+		print(f"Linked boxes: {list(info)}")
+		print(f"Drone position: {request.drone_pos}")
+
 		for box_id, box_status in self.linked_slave_boxes.items():
 			if box_status.status != BoxStatusEnum.EMPTY:
+				print(f"Box ID: {box_id} is not empty (status: {box_status.status}). Skipping...")
 				continue
 
 			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
+			print(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
 				closest_distance = distance
 				closest_box_id = box_id
