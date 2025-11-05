@@ -57,7 +57,12 @@ class ServiceClientManager:
 			return client
 
 
-	def call_async(self, srv_type, srv_name, request, response_callback, timeout_sec: float|None =-1.0) -> Future:
+	def call_async(self,
+				srv_type,
+				srv_name,
+				request,
+				response_callback = lambda fut: None,
+				timeout_sec: float|None =-1.0) -> Future:
 		"""
 		Returns the Future returned by client.call_async(request).
 		Caller must arrange for spinning (node executor) so callback fires.

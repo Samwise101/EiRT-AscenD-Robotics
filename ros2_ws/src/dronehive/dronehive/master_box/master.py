@@ -1,6 +1,16 @@
 # ROS2 imports
+import rclpy
+from rclpy.callback_groups import (
+	ReentrantCallbackGroup,
+	MutuallyExclusiveCallbackGroup,
+)
+
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
+from rclpy.qos import (
+	QoSProfile,
+	QoSReliabilityPolicy,
+	QoSHistoryPolicy,
+)
 
 from rclpy.task import Future
 from std_msgs.msg import String
@@ -20,7 +30,8 @@ from dronehive_interfaces.srv import (
 	OccupancyService,
 	RequestReturnHome,
 	SlaveBoxIDsService,
-	SlaveBoxInformationService
+	SlaveBoxInformationService,
+	DroneTrajectoryWaypointsService,
 )
 import dronehive.utils as dh
 
@@ -127,7 +138,7 @@ class MasterBoxNode(Node):
 		def callback(future: Future, box_id: str) -> None:
 			response: BoxStatusService.Response | None = future.result()
 			if response and not response.accept:
-				self.get_logger().error(f"Service call to get box status for box ID: {box_id} was not accepted.")
+				self.get_logger().error(f"Service call to get box status for box ID: '{box_id}' was not accepted.")
 				return
 
 			if response is not None:
@@ -397,6 +408,13 @@ class MasterBoxNode(Node):
 			self._handle_slave_box_info_request
 		)
 
+		self.create_service(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE,
+			self.handle_trajectory_waypoints_request,
+			callback_group=ReentrantCallbackGroup()
+		)
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
@@ -538,6 +556,40 @@ class MasterBoxNode(Node):
 			response.landing_pos = box_info.position
 			response.status = box_info.status.value
 
+		return response
+
+	def find_box_id_from_drone_id(self, drone_id: str) -> str | None:
+		for box_id, box_status in self.linked_slave_boxes.items():
+			if box_status.drone_id == drone_id:
+				return box_id
+		return None
+
+	def handle_trajectory_waypoints_request(self,
+										 request: DroneTrajectoryWaypointsService.Request,
+										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
+		box_id = self.find_box_id_from_drone_id(request.drone_id)
+		if box_id is None:
+			self.get_logger().warn(f"Trajectory waypoints request received for unknown drone ID: '{request.drone_id}'. Cannot provide waypoints.")
+			response.ack = False
+			return response
+
+		future = self.client_manager.call_async(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}",
+			request,
+			10
+		)
+
+		# Block the thread until the future is complete.
+		rclpy.spin_until_future_complete(self, future)
+
+		if future.result() is None:
+			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
+			response.ack = False
+			return response
+
+		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'"),
+		response.ack = response.ack
 		return response
 
 

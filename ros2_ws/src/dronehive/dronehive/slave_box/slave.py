@@ -7,7 +7,7 @@ from std_msgs.msg import String, Bool
 import dronehive.utils as dh
 
 from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage
-from dronehive_interfaces.srv import BoxStatusService
+from dronehive_interfaces.srv import BoxStatusService, DroneTrajectoryWaypointsService
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -120,6 +120,12 @@ class SlaveBoxNode(Node):
 			self.provide_box_status
 		)
 
+		self.create_service(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{self.config.box_id}",
+			self.handle_trajectory_waypoints_request
+		)
+
 
 	def create_actions(self) -> None:
 		pass
@@ -130,6 +136,7 @@ class SlaveBoxNode(Node):
 
 	def provide_box_status(self, request: BoxStatusService.Request, response: BoxStatusService.Response) -> BoxStatusService.Response:
 		if request.box_id != self.config.box_id:
+			self.get_logger().info(f"Box status request for different box ID: {request.box_id}, expected: {self.config.box_id}")
 			response.accept = False
 			return response
 
@@ -138,6 +145,13 @@ class SlaveBoxNode(Node):
 		response.drone_id = self.config.drone_id
 
 		self.get_logger().info(f"Responding with landing position: {response.landing_pos} and drone ID: {response.drone_id}")
+		return response
+
+	def handle_trajectory_waypoints_request(self,
+										 request: DroneTrajectoryWaypointsService.Request,
+										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
+		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
+		response.ack = True
 		return response
 
 
