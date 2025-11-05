@@ -5,7 +5,7 @@ from .client_manager import ServiceClientManager
 from .utm import *
 from .dynamixel_controller import XL430Controller
 
-from typing import Union
+from typing import Optional
 from rclpy.logging import get_logger as rclpy_logger
 
 def dronehive_initialise() -> Config:
@@ -17,13 +17,15 @@ def dronehive_initialise() -> Config:
 	conf: Config = Config.load()
 	return conf
 
-def dronehive_deinitialise(config: Union[Config, None] = None) -> None:
+def dronehive_deinitialise(config: Optional[Config] = None) -> None:
 	if config is None:
 		config = Config.load()
 
 	if config.initialised:
 		config.initialised = False
+		config.drone_id = ""
 		config.linked_box_ids = set()
+
 		config.save()
 
 def dronehive_update_config(config: Config) -> None:

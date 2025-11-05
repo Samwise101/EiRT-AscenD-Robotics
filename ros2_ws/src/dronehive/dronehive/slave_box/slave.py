@@ -144,13 +144,12 @@ class SlaveBoxNode(Node):
 	def _deinitialise_box_callback(self, msg: String) -> None:
 		if msg.data == self.config.box_id:
 			self.get_logger().warn(f"Deinitialising box with ID: {self.config.box_id}")
-			self.config.initialised = False
-			self.config.save()
+			dh.dronehive_deinitialise(self.config)
 
-			# Destroy all connections
+			# Destroy all connections.
 			self.destroy_interfaces()
 
-			# Recreate the initialisation publisher and timer
+			# Recreate the initialisation publisher and timer.
 			self.box_init_interfaces()
 
 
