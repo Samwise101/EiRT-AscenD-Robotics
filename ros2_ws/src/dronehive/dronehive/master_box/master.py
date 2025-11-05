@@ -172,7 +172,7 @@ class MasterBoxNode(Node):
 				dh.DRONEHIVE_BOX_STATUS_REQUEST_SERVICE,
 				request,
 				lambda future: callback(future, box_id),
-				10
+				2
 			)
 
 		self.get_logger().info(f"Gathered states of linked slave boxes: {self.linked_slave_boxes}")
@@ -326,6 +326,14 @@ class MasterBoxNode(Node):
 
 			# Update config.
 			self.config.linked_box_ids.add(msg.box_id)
+
+			self.linked_slave_boxes[msg.box_id] = BoxStatus(
+				box_id=msg.box_id,
+				drone_id="",
+				position=msg.landing_pos,
+				status=BoxStatusEnum.EMPTY
+			)
+
 			dh.dronehive_update_config(self.config)
 			return
 
