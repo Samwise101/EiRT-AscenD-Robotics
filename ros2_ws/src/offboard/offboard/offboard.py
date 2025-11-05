@@ -27,7 +27,7 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
-from dronehive_interfaces.srv import DroneLandingService
+from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
 from dronehive_interfaces.msg import PositionMessage
 
 
@@ -147,10 +147,10 @@ class LandingControl(Node):
         self.segment_times = []
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
-        
+
         # Waypoint readiness
         self.waypoints_ready = False
-        
+
 
         # Pre-allocate SP
         self.sp = PoseStamped()
@@ -184,9 +184,11 @@ class LandingControl(Node):
             self.home_alt0 = float(self.curr_xyz[2])
 
     def waypoint_service_cb(self, request, response):
-        if request.waypoints[] is not None:
+        self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
+        if request.waypoints is not None:
             self.waypoints_ready = True
             response.ack = True
+        return response
 
     # -------------------- Main Timer --------------------
 
@@ -239,7 +241,7 @@ class LandingControl(Node):
                     self.home_alt0 = float(self.curr_xyz[2])
                 self.get_logger().info("Operator set ARMED. Waiting for OFFBOARD...")
                 self.state = FlightState.WAIT_OFFBOARD
-        
+
         elif self.state == FlightState.WAIT_OFFBOARD:
             # Keep feeding setpoints so offboard won't drop if operator switches
             self._publish_hold_here()
@@ -257,7 +259,7 @@ class LandingControl(Node):
                 self._begin_loiter_and_request(now)
                 self.get_logger().info("Takeoff reached. Loitering & requesting landing target.")
                 self.state = FlightState.LOITER_WAIT_SERVICE
-        
+
         elif self.state == FlightState.WAIT_AND_PLAN_TEST_TRAJ:
             # Wait for waypoints before for the trajectory, keep publishing hold here while waiting
             if self._are_waypoints_ready():
@@ -267,8 +269,10 @@ class LandingControl(Node):
                 self.state = FlightState.EXECUTE_TEST_TRAJ
             else:
                 self._publish_hold_here()
-                self.get_logger().info("Waiting for waypoints to be ready...")
-        
+                if not hasattr(self, 'waypoints_ready_logged'):
+                    self.waypoints_ready_logged = True
+                    self.get_logger().info("Waiting for waypoints to be ready...")
+
         elif self.state == FlightState.EXECUTE_TEST_TRAJ:
             # Follow the planned test trajectory (two segments)
             t = now - self.traj_t0_wall
@@ -448,7 +452,7 @@ class LandingControl(Node):
         self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
 
     # -------------------- Waypoint readiness check --------------------
-    def are_waypoints_ready(self) -> bool:
+    def _are_waypoints_ready(self) -> bool:
         return self.waypoints_ready
 
 
@@ -537,7 +541,7 @@ class LandingControl(Node):
 
     def _is_offboard_and_armed(self) -> bool:
         return (self.mav_state.mode == "OFFBOARD") and bool(self.mav_state.armed)
-    
+
     def _is_armed(self) -> bool:
         return bool(self.mav_state.armed)
 
