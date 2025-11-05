@@ -57,6 +57,7 @@ class MasterBoxNode(Node):
 		self.config: dh.Config = dh.dronehive_initialise()
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
+		self.motor: dh.XL430Controller | None = None
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
 		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
@@ -91,8 +92,16 @@ class MasterBoxNode(Node):
 
 		self.gather_slave_boxes_states()
 
+		# Initialise the motor controller
+		try:
+			self.motor = dh.XL430Controller(dxl_id=1)
+		except Exception as e:
+			self.get_logger().error(f"Failed to initialise motor controller: {e}")
+			self.motor = None
+
 		# Drop the initialiser to free memory
 		self.initialiser = None
+
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 
@@ -246,6 +255,7 @@ class MasterBoxNode(Node):
 		self.get_logger().warn("Deinitialising box as requested...")
 		dh.dronehive_deinitialise(self.config)
 		self.linked_slave_boxes = {}
+		self.motor = None
 
 		def deferred_reinit():
 			self.get_logger().warn("Box deinitialised. Restarting initialiser...")

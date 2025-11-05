@@ -1,3 +1,4 @@
+from typing import Optional
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from rclpy.task import Future
@@ -73,6 +74,11 @@ class SlaveBoxNode(Node):
 
 		# Drop the initialiser to free memory
 		self.initialiser = None
+		try:
+			self.motor = dh.XL430Controller(dxl_id=1)
+		except Exception as e:
+			self.get_logger().error(f"Failed to initialise motor controller: {e}")
+			self.motor = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 
@@ -151,6 +157,10 @@ class SlaveBoxNode(Node):
 
 			# Recreate the initialisation publisher and timer.
 			self.box_init_interfaces()
+
+			# Destroy motor controller if exists.
+			if self.motor is not None:
+				self.motor.destroy()
 
 
 	def destroy_interfaces(self) -> None:
