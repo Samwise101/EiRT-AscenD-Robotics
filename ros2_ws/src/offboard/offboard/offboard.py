@@ -160,7 +160,7 @@ class LandingControl(Node):
         self.sp.pose.orientation.w = qw
 
         self.current_segment_idx = 0
-        self.position_tolerance = 0.15  # meters
+        self.position_tolerance = 0.3  # meters
 
         # Timers
         self.timer = self.create_timer(self.publish_dt, self._timer_cb)
@@ -345,11 +345,17 @@ class LandingControl(Node):
             self.get_logger().info(f"Seg {self.current_segment_idx}: dist={dist}")
 
             # self.get_logger().info(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}, T: {T}, now: {self.now}, t_in_seg: {t_in_seg}")
-            print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}, T: {T}, now: {self.now}, t_in_seg: {t_in_seg}")
+            print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz} T: {T} now: {self.now} t_in_seg: {t_in_seg}")
 
             if dist < self.position_tolerance:
-                # Advance to next trajectory segment
-                self.now += 0.01
+                # Advance to next trajectory segment.
+                # The descend to the last position is slower.
+                if self.current_segment_idx + 1 >= len(self.traj_segments):
+                    self.now += 0.05
+                    self.position_tolerance = 0.1
+                else:
+                    self.now += 0.1
+
                 if t_in_seg >= T:
                     self.current_segment_idx += 1
                     self.seg_t0_wall = time.time()
