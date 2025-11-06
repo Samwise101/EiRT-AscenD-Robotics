@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>975</width>
+    <width>1038</width>
     <height>644</height>
    </rect>
   </property>
@@ -32,39 +32,8 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
-         <number>50</number>
+         <number>10</number>
         </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_11">
-          <item>
-           <widget class="QLabel" name="current_box_label">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-              <weight>50</weight>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Selected Box:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="boxComboBox"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="Line" name="line_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QPushButton" name="addBox">
           <property name="text">
@@ -73,6 +42,31 @@
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
             <normaloff>:/images/icons/add_box.png</normaloff>:/images/icons/add_box.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_26">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="addDroneButton">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Add Drone</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/images/icons/add_drone.png</normaloff>:/images/icons/add_drone.png</iconset>
           </property>
          </widget>
         </item>
@@ -91,6 +85,24 @@
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
             <normaloff>:/images/icons/update_system.png</normaloff>:/images/icons/update_system.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_27">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="restartButton">
+          <property name="text">
+           <string>Restart</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/images/icons/refresh.png</normaloff>:/images/icons/refresh.png</iconset>
           </property>
          </widget>
         </item>
@@ -143,7 +155,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -153,96 +165,168 @@
            <attribute name="title">
             <string>Map</string>
            </attribute>
-           <widget class="QWidget" name="verticalLayoutWidget">
+           <widget class="QWidget" name="horizontalLayoutWidget">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>731</width>
-              <height>511</height>
+              <x>0</x>
+              <y>9</y>
+              <width>771</width>
+              <height>531</height>
              </rect>
             </property>
-            <layout class="QVBoxLayout" name="map_layout" stretch="10,0,0">
+            <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="50,0,0">
+             <property name="spacing">
+              <number>1</number>
+             </property>
              <item>
-              <layout class="QGridLayout" name="map_frame_layout">
-               <item row="1" column="1">
-                <widget class="QLabel" name="label_6">
-                 <property name="text">
-                  <string/>
+              <layout class="QVBoxLayout" name="map_layout" stretch="0,0,0">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_6"/>
+               </item>
+               <item>
+                <widget class="Line" name="line_13">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="slider_layout">
+                 <item>
+                  <spacer name="horizontalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="zoomPlusButton">
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="../resources/resources.qrc">
+                     <normaloff>:/images/icons/zoom_in.png</normaloff>:/images/icons/zoom_in.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSlider" name="zoom_slider">
+                   <property name="maximum">
+                    <number>50</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>1</number>
+                   </property>
+                   <property name="value">
+                    <number>10</number>
+                   </property>
+                   <property name="sliderPosition">
+                    <number>10</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="zoomOutButton">
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="../resources/resources.qrc">
+                     <normaloff>:/images/icons/zoom_out.png</normaloff>:/images/icons/zoom_out.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
                </item>
               </layout>
              </item>
              <item>
-              <widget class="Line" name="line_13">
+              <widget class="Line" name="line_21">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Vertical</enum>
                </property>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="slider_layout">
+              <layout class="QVBoxLayout" name="verticalLayout_3">
                <item>
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                <widget class="QPushButton" name="loadMapButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
                  </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Fixed</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QPushButton" name="zoom_in_pushButton">
                  <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../resources/resources.qrc">
-                   <normaloff>:/images/icons/zoom_in.png</normaloff>:/images/icons/zoom_in.png</iconset>
+                  <string>Load Map</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QSlider" name="zoom_slider">
+                <widget class="Line" name="line_22">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="zoom_out_pushButton">
+                <widget class="QPushButton" name="loadTrajectoryButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../resources/resources.qrc">
-                   <normaloff>:/images/icons/zoom_out.png</normaloff>:/images/icons/zoom_out.png</iconset>
+                  <string>Load
+ Trajectory</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                <widget class="QPushButton" name="clearVisualsButton">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
                  </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Fixed</enum>
+                 <property name="text">
+                  <string>Clear Visuals</string>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
+                </widget>
                </item>
               </layout>
              </item>
@@ -272,7 +356,7 @@
               <height>511</height>
              </rect>
             </property>
-            <layout class="QVBoxLayout" name="box_main_layout" stretch="0,0,0,10">
+            <layout class="QVBoxLayout" name="box_main_layout" stretch="0,10">
              <property name="spacing">
               <number>0</number>
              </property>
@@ -285,20 +369,6 @@
                 <enum>QLayout::SetNoConstraint</enum>
                </property>
               </layout>
-             </item>
-             <item>
-              <widget class="Line" name="line_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="Line" name="line_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
              </item>
              <item>
               <layout class="QGridLayout" name="box_grid_layout" rowminimumheight="10">
@@ -329,7 +399,46 @@
                   </widget>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+                  <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="10,0">
+                     <item>
+                      <widget class="QLabel" name="current_box_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Selected Box:</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QComboBox" name="boxComboBox">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_4">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_6">
                      <item>
@@ -566,9 +675,69 @@ Box Status</string>
                     </widget>
                    </item>
                    <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_14">
+                     <item>
+                      <widget class="QLabel" name="label_2">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Assigned
+Drone:</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="assignedDroneLabel">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>None</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_24">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <layout class="QGridLayout" name="box_position_layout">
-                     <item row="1" column="1">
-                      <widget class="QLineEdit" name="box_longitude_lineEdit"/>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="box_latitude_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Box Lat: </string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
                      </item>
                      <item row="1" column="0">
                       <widget class="QLabel" name="box_longitude_label">
@@ -583,29 +752,9 @@ Box Status</string>
                         <string>Box Lon: </string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        <set>Qt::AlignCenter</set>
                        </property>
                       </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="box_latitude_label">
-                       <property name="font">
-                        <font>
-                         <pointsize>11</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Box Lat: </string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QLineEdit" name="box_latitude_lineEdit"/>
                      </item>
                      <item row="2" column="0">
                       <widget class="QLabel" name="box_altitude_label">
@@ -620,12 +769,60 @@ Box Status</string>
                         <string>Box alt: </string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QLabel" name="box_latitude_value_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Unknown</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QLabel" name="box_longitude_value_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Unknown</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="1">
-                      <widget class="QLineEdit" name="box_altitude_lineEdit"/>
+                      <widget class="QLabel" name="box_altitude_value_label">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Unknown</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
@@ -664,7 +861,7 @@ Box Status</string>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="2,0,0">
+              <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="10,0,0">
                <item>
                 <widget class="QFrame" name="frame_drone">
                  <property name="frameShape">
@@ -683,7 +880,7 @@ Box Status</string>
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,100,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
                  <item>
                   <widget class="Line" name="line_10">
                    <property name="orientation">
@@ -692,19 +889,9 @@ Box Status</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_8">
-                   <property name="text">
-                    <string>Requests</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="pushButton_5">
+                  <layout class="QHBoxLayout" name="horizontalLayout_12">
+                   <item>
+                    <widget class="QLabel" name="label">
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>
@@ -713,11 +900,218 @@ Box Status</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Path Upload</string>
+                      <string>Selected Drone:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="droneComboBox">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_25">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_8">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="removeDroneButton">
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Remove Drone</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="../resources/resources.qrc">
+                     <normaloff>:/images/icons/remove_drone.png</normaloff>:/images/icons/remove_drone.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_3">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_10">
+                     <item>
+                      <widget class="QLabel" name="label_3">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Drone ID:</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="droneIdLabel">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Unknown</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_6">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_13">
+                     <item>
+                      <widget class="QLabel" name="label_5">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Drone Color Code:</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="droneColorCodeLabel">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_9">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_15">
+                     <item>
+                      <widget class="QLabel" name="label_6">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Parent Box:</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="parentBoxLabel">
+                       <property name="font">
+                        <font>
+                         <pointsize>11</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>None</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_23">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QGridLayout" name="gridLayout_3">
+                   <item row="3" column="0">
+                    <widget class="QPushButton" name="pushButton">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Arm</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
+                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -779,8 +1173,8 @@ Box Status</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0">
-                    <widget class="QPushButton" name="pushButton">
+                   <item row="0" column="0">
+                    <widget class="QPushButton" name="pushButton_5">
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>
@@ -789,11 +1183,11 @@ Box Status</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Arm</string>
+                      <string>Path Upload</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
+                       <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -833,15 +1227,6 @@ Box Status</string>
                  </item>
                  <item>
                   <layout class="QGridLayout" name="gridLayout_6">
-                   <item row="1" column="1">
-                    <widget class="QLineEdit" name="drone_longitude_lineEdit"/>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QLineEdit" name="drone_altitude_lineEdit"/>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QLineEdit" name="drone_latitude_lineEdit"/>
-                   </item>
                    <item row="1" column="0">
                     <widget class="QLabel" name="drone_longitude_label">
                      <property name="font">
@@ -852,10 +1237,10 @@ Box Status</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Lon:</string>
+                      <string>Drone Home Pos. Lon:</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -869,10 +1254,10 @@ Box Status</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Lat:</string>
+                      <string>Drone Home Pos. Lat:</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -886,28 +1271,65 @@ Box Status</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Alt:</string>
+                      <string>Drone Hone Pos. Alt:</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="drone_latitude_value_label">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Unknown</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="drone_longitude_value_label">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Unknown</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="drone_altitude_value_label">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Unknown</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
                   </layout>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_8">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_9">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
                  </item>
                 </layout>
                </item>
@@ -968,7 +1390,7 @@ Box Status</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>975</width>
+     <width>1038</width>
      <height>22</height>
     </rect>
    </property>
@@ -1124,188 +1546,12 @@ Box Status</string>
    <slot>on_settings_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>621</y>
+     <x>90</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>76</x>
      <y>39</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoom_slider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_zoom_in_out_slider_valueChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>398</x>
-     <y>607</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>430</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoom_out_pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_zoom_out_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>899</x>
-     <y>612</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>822</x>
-     <y>648</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoom_in_pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_zoom_in_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>292</x>
-     <y>612</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>238</x>
-     <y>644</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_land_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>943</x>
-     <y>419</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>869</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_4</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_return_home_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>806</x>
-     <y>419</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>871</x>
-     <y>427</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_arm_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>806</x>
-     <y>337</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>865</x>
-     <y>374</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_3</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_takeoff_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>943</x>
-     <y>337</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_6</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_request_status_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>943</x>
-     <y>255</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>184</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_5</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_path_upload_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>689</x>
-     <y>243</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>155</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_7</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_remove_box_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>900</x>
-     <y>157</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>673</x>
-     <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>boxComboBox</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>195</x>
-     <y>286</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>182</x>
-     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -1316,8 +1562,8 @@ Box Status</string>
    <slot>on_add_box_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>555</y>
+     <x>173</x>
+     <y>93</y>
     </hint>
     <hint type="destinationlabel">
      <x>163</x>
@@ -1332,12 +1578,44 @@ Box Status</string>
    <slot>on_updateSystem_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>584</y>
+     <x>185</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
      <x>113</x>
      <y>473</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomOutButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_zoomOutButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>818</x>
+     <y>486</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>934</x>
+     <y>612</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_return_home_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>464</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>871</x>
+     <y>427</y>
     </hint>
    </hints>
   </connection>
@@ -1348,12 +1626,236 @@ Box Status</string>
    <slot>on_request_box_status_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>813</x>
-     <y>180</y>
+     <x>935</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>906</x>
      <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearVisualsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_clearVisualsButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>967</x>
+     <y>188</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_6</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_request_status_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>904</x>
+     <y>390</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>868</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>934</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>182</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomPlusButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_zoomPlusButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>275</x>
+     <y>486</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>611</x>
+     <y>616</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_land_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>904</x>
+     <y>464</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeDroneButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_removeDroneButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>778</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>108</x>
+     <y>607</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_takeoff_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>904</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>868</x>
+     <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>droneComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_droneComboBox_currentIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>41</x>
+     <y>597</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_7</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_remove_box_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>934</x>
+     <y>166</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>673</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoom_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_zoom_in_out_slider_valueChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>430</x>
+     <y>643</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadTrajectoryButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_loadTrajectoryButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>967</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>820</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadMapButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_loadMapButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>967</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>979</x>
+     <y>25</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_arm_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>865</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_5</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_path_upload_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>868</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>
@@ -1364,12 +1866,44 @@ Box Status</string>
    <slot>on_request_drone_status_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>877</x>
-     <y>252</y>
+     <x>904</x>
+     <y>390</y>
     </hint>
     <hint type="destinationlabel">
      <x>966</x>
      <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addDroneButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_addDroneButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>restartButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_restartButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>612</y>
     </hint>
    </hints>
   </connection>
@@ -1395,5 +1929,16 @@ Box Status</string>
   <slot>on_updateSystem_pushButton_clicked()</slot>
   <slot>on_requestStatus_PushButton_clicked()</slot>
   <slot>on_request_drone_status_pushButton_clicked()</slot>
+  <slot>on_loadMapButton_pushButton_clicked()</slot>
+  <slot>on_loadTrajectoryButton_pushButton_clicked()</slot>
+  <slot>on_clearVisualsButton_pushButton_clicked()</slot>
+  <slot>on_zoomIn_pushButton_clicked()</slot>
+  <slot>on_zoomPlusButton_pushButton_clicked()</slot>
+  <slot>on_zoomOutButton_pushButton_clicked()</slot>
+  <slot>on_droneComboBox_currentIndexChanged(int)</slot>
+  <slot>on_removeDroneButton_pushButton_clicked()</slot>
+  <slot>on_addDroneButton_pushButton_clicked()</slot>
+  <slot>slot1()</slot>
+  <slot>on_restartButton_pushButton_clicked()</slot>
  </slots>
 </ui>

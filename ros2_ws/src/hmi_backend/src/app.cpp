@@ -4,8 +4,8 @@
 namespace qos_profiles
 {
     static const rclcpp::QoS master_qos = [] {
-        rclcpp::QoS qos(rclcpp::KeepLast(10));
-        qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+        rclcpp::QoS qos(rclcpp::KeepLast(1));
+        qos.reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
         qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
         return qos;
     }();
@@ -25,22 +25,25 @@ App::App() : Node("app_node")
     this->drone_landing_request_appeared = false;
 
     this->pending_box_responses_ = 0;
-    auto qos = rclcpp::QoS(10).best_effort();
 
-    this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", 10);
-    this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", 10);
-    this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", 10);
+    this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", qos_profiles::master_qos);
+    this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos);
+    this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos);
+    this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",qos_profiles::master_qos);
+    this->box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
+    this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos);
+    this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
+    this->notify_gui_on_ccupancy_change_pub_ = this->create_publisher<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos);
 
-    gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", 10, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
+    gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
     new_box_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
-        "/dronehive/new_box", qos, std::bind(&App::onBoxMessage, this, std::placeholders::_1)
+        "/dronehive/new_box", qos_profiles::master_qos, std::bind(&App::onBoxMessage, this, std::placeholders::_1)
     );
 
     gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>(
-        "/gui/newbox_response", 10, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
+        "/gui/newbox_response", qos_profiles::master_qos, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
     );
-
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
     drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("/dronehive/gui_drone_id_service");
@@ -74,7 +77,7 @@ App::App() : Node("app_node")
             this->box_timeout_timer++;
         }
     });
-
+    this->notify_gui_srv_ = this->create_service<dronehive_interfaces::srv::OccupancyService>("/dronehive/drone_update_box_state",std::bind(&App::onNotifyGui, this, std::placeholders::_1, std::placeholders::_2));
      // One timer for all service requests
     service_timer_ = this->create_wall_timer(std::chrono::seconds(5), std::bind(&App::onServiceTimer, this));
 }
@@ -83,6 +86,27 @@ App::~App()
 {
     rclcpp::shutdown();
 }
+
+void App::onNotifyGui(const std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Request> request, std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Response> response)
+{
+
+    std_msgs::msg::String msg2;
+    msg2.data = "Got Notify client request";
+    to_gui_msg_pub_->publish(msg2);
+
+    std::string box_id = request->box_id;
+    std::string drone_id = request->drone_id;
+
+    response->occupancy_status = true;
+
+    dronehive_interfaces::msg::OccupancyMessage msg;
+    msg.drone_id = drone_id;
+    msg.box_id = box_id;
+    msg.occupancy = true;
+
+    this->notify_gui_on_ccupancy_change_pub_->publish(msg);
+}
+
 
 void App::onServiceTimer()
 {
@@ -132,8 +156,12 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
     this->pending_box_responses_ = box_ids_size;
 
-    for (int i = 0; i < box_ids_size; ++i)
+    for (int i = 0; i < box_ids_size; i++)
     {
+        auto msg2 = std_msgs::msg::String();
+        msg2.data = "Starting status request for box id " + response->box_ids[i];
+        to_gui_msg_pub_->publish(msg2);
+
         if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
         {
             auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
@@ -161,16 +189,15 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     to_gui_msg_pub_->publish(msg2);
     
 
-    if(this->pending_box_responses_ != 0) this->pending_box_responses_--;
-
+    if(this->pending_box_responses_ != 0)
+        this->pending_box_responses_--; 
 
     auto msg = dronehive_interfaces::msg::BoxFullStatus();
-    msg.box_id = response->box_id;
-    msg.drone_id = response->drone_id;
-    msg.landing_pos = response->landing_pos;
-    msg.box_status = response->status;
+    msg.box_id = response->status.box_id;
+    msg.drone_id = response->status.drone_id;
+    msg.landing_pos = response->status.landing_pos;
+    msg.box_status = response->status.status;
 
-    auto box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
     box_status_pub_->publish(msg);
 }
 
@@ -198,9 +225,7 @@ void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfi
     msg2.data = "Confirming:";
     to_gui_msg_pub_->publish(msg2);
 
-    auto qos = rclcpp::QoS(10).best_effort();
-    auto to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",10);
-    to_box_new_box_confirmation_pub->publish(*msg);
+    this->to_box_new_box_confirmation_pub->publish(*msg);
 }
 
 void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::SharedPtr msg)
@@ -211,10 +236,9 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 
     this->new_search_retry = false;
 
-    auto box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",10);
+    dronehive_interfaces::msg::BoxSetupConfirmationMessage gui_msg;
 
-    auto gui_msg = dronehive_interfaces::msg::BoxSetupConfirmationMessage();
-
+    gui_msg.box_id = msg->box_id;
     gui_msg.landing_pos = msg->landing_pos;
     box_msg_pub_->publish(gui_msg);
 }
@@ -271,6 +295,11 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
             // add flag to enable a timer to recieve the path
             break;
         }
+
+        case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE:
+        {
+            break;
+        }
     };
 }
 
@@ -279,6 +308,5 @@ void App::onRemoveBoxGuiCommand(const std::string& box_id)
     auto deinit_msg = std_msgs::msg::String();
     deinit_msg.data = box_id;
     
-    auto pub = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
-    pub->publish(deinit_msg);
+    this->box_deinit_pub_->publish(deinit_msg);
 }

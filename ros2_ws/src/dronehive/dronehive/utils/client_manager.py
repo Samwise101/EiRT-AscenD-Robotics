@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import threading
 
+from rclpy.node import ReentrantCallbackGroup
 from rclpy.task import Future
 import rclpy
 
@@ -36,7 +37,7 @@ class ServiceClientManager:
 				self._clients.move_to_end(key)
 				return self._clients[key]['client']
 
-			client = self.node.create_client(srv_type, srv_name)
+			client = self.node.create_client(srv_type, srv_name, callback_group=ReentrantCallbackGroup())
 			if not client.wait_for_service(timeout_sec=timeout_sec):
 				# service didn't appear quickly — you can still use client.call_async later
 				self.node.get_logger().error(
@@ -57,7 +58,12 @@ class ServiceClientManager:
 			return client
 
 
-	def call_async(self, srv_type, srv_name, request, response_callback, timeout_sec: float|None =-1.0) -> Future:
+	def call_async(self,
+				srv_type,
+				srv_name,
+				request,
+				response_callback = lambda fut: None,
+				timeout_sec: float|None =-1.0) -> Future:
 		"""
 		Returns the Future returned by client.call_async(request).
 		Caller must arrange for spinning (node executor) so callback fires.

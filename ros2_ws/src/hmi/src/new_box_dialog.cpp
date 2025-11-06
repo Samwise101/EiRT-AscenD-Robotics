@@ -32,7 +32,7 @@ void NewBoxDialog::on_comboBox_currentIndexChanged(int index)
 
 void NewBoxDialog::on_boxIdLineEdit_editingFinished(void)
 {
-    this->box_id = this->ui.boxIdLineEdit->text().toInt();
+    this->box_id = this->ui.boxIdLineEdit->text().toStdString();
 }
 
 void NewBoxDialog::on_boxLatLineEdit_editingFinished(void)
