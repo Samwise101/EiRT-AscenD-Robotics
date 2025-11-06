@@ -115,7 +115,7 @@ class LandingControl(Node):
 
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
-        self.srv = self.create_service(DroneTrajectoryWaypointsService,'waypoints', self.waypoint_service_cb)
+        self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
 
         # Wait for MAVROS
         self.get_logger().info("Waiting for MAVROS services...")
@@ -185,12 +185,14 @@ class LandingControl(Node):
             self.home_alt0 = float(self.curr_xyz[2])
 
     def waypoint_service_cb(self, request, response):
-        
+
+        self.get_logger().info(f"Waypoint service called with waypoints: {request.waypoints}")
+
         if request.waypoints is not None:
             self.r_waypoints = request.waypoints
             self.waypoints_ready = True
             response.ack = True
-            self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service.")
+            self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service: {self.r_waypoints}")
             self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
         return response
 
@@ -270,6 +272,7 @@ class LandingControl(Node):
                 self.get_logger().info("Waypoints ready. Planning and executing test trajectory.")
                 self._plan_test_trajectory()
                 self.traj_t0_wall = now
+                self.position_tolerance = 0.3
                 self.state = FlightState.EXECUTE_TRAJ
             else:
                 self._publish_hold_here()
@@ -305,6 +308,7 @@ class LandingControl(Node):
             if self.landing_received and self.landing_target is not None:
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
+                self.position_tolerance = 0.3
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
                 return
@@ -327,12 +331,14 @@ class LandingControl(Node):
                     self.get_logger().info("Landing trajectory complete.")
                 return
                 """
+                self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.curr_xyz[2])
                 if self.curr_xyz[2] < 0.1:
                     self.waypoints_ready = False
                     self.get_logger().info("Reached the end of the trajectory loitering while waiting for new waypoints.")
                     self.state = FlightState.WAIT_AND_PLAN_TEST_TRAJ
                     self._publish_circle_loiter()
                 return
+
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
             T = self.segment_times[self.current_segment_idx]
 
@@ -515,15 +521,17 @@ class LandingControl(Node):
         waypoints are received from the waypoint service
         """
         if not self.have_pose:
+            self.get_logger().warn("No valid pose, cannot plan test trajectory.")
             return
-        
+
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints for test trajectory.")
         p0 = self.curr_xyz.copy()
         waypoints = [p0]
         for wp in self.r_waypoints:
             wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
-            #self.get_logger().info(f"Planning to waypoint: x={wp_array[0]:.2f}, y={wp_array[1]:.2f}, z={wp_array[2]:.2f}")  
+            #self.get_logger().info(f"Planning to waypoint: x={wp_array[0]:.2f}, y={wp_array[1]:.2f}, z={wp_array[2]:.2f}")
             waypoints.append(wp_array)
+
         self.traj_segments.clear()
         self.segment_times.clear()
         total_T = 0.0
@@ -642,3 +650,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
