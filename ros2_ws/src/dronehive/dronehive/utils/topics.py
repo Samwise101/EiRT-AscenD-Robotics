@@ -39,8 +39,11 @@ DRONEHIVE_GUI_SLAVE_BOX_INFO_SERVICE = "/dronehive/gui_slave_box_info_service"
 
 DRONEHIVE_DRONE_LAND_NOTIFY_GUI = "/dronehive/drone_update_box_state"
 DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE = "/dronehive/gui_request_waypoint_trajectory"
+DRONEHIVE_DRONE_SEND_TRAJECTORY_SERVICE = "/dronehive/drone_waypoints"
+
 DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE = "/dronehive/gui_request_drone_land_service"
 DRONEHIVE_GUI_REQUEST_DRONE_RETURN_HOME_SERVICE = "/dronehive/gui_request_drone_return_home_service"
+
 
 ###########
 # Actions #
