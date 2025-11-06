@@ -1,20 +1,44 @@
 # ROS2 imports
+import rclpy
+from rclpy.callback_groups import (
+	ReentrantCallbackGroup,
+	MutuallyExclusiveCallbackGroup,
+)
+
+from rclpy.executors import SingleThreadedExecutor
+
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
+from rclpy.qos import (
+	QoSProfile,
+	QoSReliabilityPolicy,
+	QoSHistoryPolicy,
+)
 
 from rclpy.task import Future
 from std_msgs.msg import String
 
 # Project specific imports
-from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage, PositionMessage
+from dronehive_interfaces.msg import (
+	BoxBroadcastMessage,
+	BoxSetupConfirmationMessage,
+	DroneForceLandingMessage,
+	PositionMessage
+)
+
 from dronehive_interfaces.srv import (
+	BoxStatusSlaveUpdateService,
 	BoxBroadcastService,
 	BoxStatusService,
 	DroneLandingService,
+	DroneTrajectoryWaypointsService,
+	OccupancyService,
+	RequestDroneLanding,
+	RequestReturnHome,
 	SlaveBoxIDsService,
-	SlaveBoxInformationService
+	SlaveBoxInformationService,
 )
 import dronehive.utils as dh
+from dronehive.utils import BoxStatus, BoxStatusEnum
 
 from dataclasses import dataclass
 from enum import Enum
@@ -22,26 +46,10 @@ from typing import Dict
 import time
 
 qos_profile = QoSProfile(
-	reliability=QoSReliabilityPolicy.RELIABLE,
-	durability=QoSDurabilityPolicy.VOLATILE,
+	reliability=QoSReliabilityPolicy.BEST_EFFORT,
 	history=QoSHistoryPolicy.KEEP_LAST,
 	depth=1
 )
-
-class BoxStatusEnum(Enum):
-	UNKNOWN = "UNKNOWN"
-	INITIALISING = "INITIALISING"
-	OCCUPIED = "OCCUPIED"
-	EMPTY = "EMPTY"
-
-
-@dataclass
-class BoxStatus:
-	box_id: str
-	drone_id: str
-	position: PositionMessage
-	status: BoxStatusEnum = BoxStatusEnum.UNKNOWN
-
 
 class MasterBoxNode(Node):
 	def __init__(self) -> None:
@@ -50,6 +58,9 @@ class MasterBoxNode(Node):
 		self.config: dh.Config = dh.dronehive_initialise()
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
+		self.motor: dh.XL430Controller | None = None
+		self.temp_node = Node('temp_waypoint_client_node')
+
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
 		# initialised. Once the initialisation is confirmed, it will call the initialise_connections method.
@@ -84,8 +95,16 @@ class MasterBoxNode(Node):
 
 		self.gather_slave_boxes_states()
 
+		# Initialise the motor controller
+		try:
+			self.motor = dh.XL430Controller(dxl_id=1)
+		except Exception as e:
+			self.get_logger().error(f"Failed to initialise motor controller: {e}")
+			self.motor = None
+
 		# Drop the initialiser to free memory
 		self.initialiser = None
+
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 
@@ -111,7 +130,7 @@ class MasterBoxNode(Node):
 		def callback(future: Future, box_id: str) -> None:
 			response: BoxStatusService.Response | None = future.result()
 			if response and not response.accept:
-				self.get_logger().error(f"Service call to get box status for box ID: {box_id} was not accepted.")
+				self.get_logger().error(f"Service call to get box status for box ID: '{box_id}' was not accepted.")
 				return
 
 			if response is not None:
@@ -141,7 +160,7 @@ class MasterBoxNode(Node):
 				dh.DRONEHIVE_BOX_STATUS_REQUEST_SERVICE,
 				request,
 				lambda future: callback(future, box_id),
-				10
+				2
 			)
 
 		self.get_logger().info(f"Gathered states of linked slave boxes: {self.linked_slave_boxes}")
@@ -204,6 +223,12 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.drone_rth_pub = self.create_publisher(
+			DroneForceLandingMessage,
+			dh.DRONEHIVE_DRONE_RETURN_TO_HOME,
+			qos_profile
+		)
+
 	#####################
 	# Message callbacks #
 	#####################
@@ -233,13 +258,14 @@ class MasterBoxNode(Node):
 		self.get_logger().warn("Deinitialising box as requested...")
 		dh.dronehive_deinitialise(self.config)
 		self.linked_slave_boxes = {}
+		self.motor = None
 
 		def deferred_reinit():
 			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
 			self.initialiser = dh.Initialiser(self, self.config, self.initialise_connections)
 
 		# Defer to next spin cycle
-		self.timer = self.create_timer(0.1, deferred_reinit)
+		self.create_timer(0.1, deferred_reinit)
 
 
 	def __init_new_slave_box(self, msg: BoxBroadcastMessage) -> None:
@@ -271,9 +297,13 @@ class MasterBoxNode(Node):
 		Args:
 			msg: BoxSetupConfirmationMessage - The message containing the box ID and landing position.
 		"""
+		self.get_logger().info(f"Received box initialisation confirmation message: {msg}")
+		self.get_logger().info(f"Master box id: {self.config.box_id} | Message box id: {msg.box_id}")
+		self.get_logger().info(f"Current uninitialised slave boxes: {self.uninitialised_slave_boxes.keys()}")
+
 		# The message is for a slave box
 		if self.config.box_id != msg.box_id and msg.box_id in self.uninitialised_slave_boxes:
-			self.get_logger().info(f"Box initialization confirmed for slave box ID: '{msg.box_id}'. Forwarding to service...")
+			self.get_logger().info(f"\n\n\n\nBox initialization confirmed for slave box ID: '{msg.box_id}'. Forwarding to service...")
 			# Let the slave box know it has been initialised.
 			self.slave_box_confirm_init_pub.publish(msg)
 			self.slave_publish_timer.cancel()
@@ -285,6 +315,7 @@ class MasterBoxNode(Node):
 			# Update config.
 			self.config.linked_box_ids.add(msg.box_id)
 			dh.dronehive_update_config(self.config)
+
 			return
 
 		# The message is for this master box
@@ -308,7 +339,7 @@ class MasterBoxNode(Node):
 
 	def create_timers(self) -> None:
 		""" Creates the timers used by the master box node. """
-		self.slave_publish_timer = self.create_timer(2.0, self.__publish_slave_boxes)
+		self.slave_publish_timer = self.create_timer(1.0, self.__publish_slave_boxes)
 		self.slave_publish_timer.cancel()
 
 	###################
@@ -321,6 +352,7 @@ class MasterBoxNode(Node):
 		If all the uninitialised slave boxes have been initialised, the timer is cancelled.
 		"""
 		if len(self.uninitialised_slave_boxes) == 0:
+			self.get_logger().info("All slave boxes initialised. Cancelling slave publish timer.")
 			self.slave_publish_timer.cancel()
 			return
 
@@ -346,9 +378,22 @@ class MasterBoxNode(Node):
 	def create_services(self) -> None:
 		""" Initialilse the services provided by the master box node. """
 		self.create_service(
+			BoxStatusSlaveUpdateService,
+			dh.DRONEHIVE_BOX_STATUS_SLAVE_UPDATE_SERVICE,
+			self.handle_slave_box_status_update_request,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+		self.create_service(
 			DroneLandingService,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
 			self.find_best_lending_place
+		)
+
+		self.create_service(
+			RequestReturnHome,
+			dh.DRONEHIVE_GUI_REQUEST_RETURN_HOME_TOPIC,
+			self.return_home_request
 		)
 
 		self.create_service(
@@ -363,9 +408,39 @@ class MasterBoxNode(Node):
 			self._handle_slave_box_info_request
 		)
 
+		self.create_service(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE,
+			self.handle_trajectory_waypoints_request,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+		self.create_service(
+			RequestDroneLanding,
+			dh.DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE,
+			self.forward_landing_request_to_drone,
+			callback_group=ReentrantCallbackGroup()
+		)
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
+
+	def handle_slave_box_status_update_request(self,
+											request: BoxStatusSlaveUpdateService.Request,
+											response: BoxStatusSlaveUpdateService.Response) -> BoxStatusSlaveUpdateService.Response:
+
+		self.get_logger().info(f"Received slave box status update from box ID: '{request.status.box_id}': {request.status}")
+		self.linked_slave_boxes[request.status.box_id] = BoxStatus(
+			box_id=request.status.box_id,
+			drone_id=request.status.drone_id,
+			position=request.status.landing_pos,
+			status=BoxStatusEnum(request.status.status)
+		)
+		self.get_logger().info(f"Updated linked slave boxes: {self.linked_slave_boxes}")
+
+		response.ack = True
+		return response
 
 	def find_best_lending_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
 		"""
@@ -386,13 +461,18 @@ class MasterBoxNode(Node):
 		closest_distance: float = float('inf')
 		landing_pos: PositionMessage = PositionMessage()
 
-		*_, drone_easing, drone_northing = dh.utmconv().geodetic_to_utm(request.drone_pos.lat, request.drone_pos.lon)
+		positions = [box_status.position for box_status in self.linked_slave_boxes.values()]
+		info = zip(self.linked_slave_boxes.keys(), positions)
+		print(f"Linked boxes: {list(info)}")
+		print(f"Drone position: {request.drone_pos}")
+
 		for box_id, box_status in self.linked_slave_boxes.items():
 			if box_status.status != BoxStatusEnum.EMPTY:
+				print(f"Box ID: {box_id} is not empty (status: {box_status.status}). Skipping...")
 				continue
 
-			*_, box_easting, box_northing = dh.utmconv().geodetic_to_utm(box_status.position.lat, box_status.position.lon)
-			distance = ((box_easting - drone_easing) ** 2 + (box_northing - drone_northing) ** 2) ** 0.5
+			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
+			print(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
 				closest_distance = distance
 				closest_box_id = box_id
@@ -416,7 +496,44 @@ class MasterBoxNode(Node):
 			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
+		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
+		return response
+
+
+	def notify_gui_drone_landed(self, box_id: str, drone_id: str, landing_pos: PositionMessage) -> None:
+		request = OccupancyService.Request()
+		request.box_id = box_id
+		request.drone_id = drone_id
+
+		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
+
+		self.client_manager.call_async(
+			DroneLandingService,
+			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
+			request,
+			lambda future: self.get_logger().info(f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}"),
+			10
+		)
+
+
+	def return_home_request(self, request: RequestReturnHome.Request, response: RequestReturnHome.Response) -> RequestReturnHome.Response:
+		status: BoxStatus = self.linked_slave_boxes[request.box_id]
+		if status.drone_id == "":
+			self.get_logger().warn(f"Return home request for box ID: {request.box_id} but no drone is present.")
+			response.confirm = False
+			return response
+
+		self.get_logger().info(f"Return home request for box ID: {request.box_id} with drone ID: {status.drone_id}.")
+		if request.box_id == self.config.box_id:
+			self.get_logger().info(f"Box ID: {request.box_id} is the master box. Setting drone ID: {status.drone_id} to return home.")
+
+		msg = DroneForceLandingMessage()
+		msg.drone_id = status.drone_id
+		msg.landing_pos = status.position
+		self.drone_rth_pub.publish(msg)
+
+		response.confirm = True
 		return response
 
 
@@ -455,21 +572,91 @@ class MasterBoxNode(Node):
 			status).
 		"""
 		box_info = self.linked_slave_boxes.get(request.box_id, None)
+		response.status.box_id = request.box_id
 
 		if box_info is None:
 			self.get_logger().warn(f"Slave box info request received for unknown box ID: '{request.box_id}'. Responding with empty info.")
-			response.drone_id = ""
-			response.landing_pos = PositionMessage()
-			response.status = BoxStatusEnum.UNKNOWN.value
+			response.status.drone_id = ""
+			response.status.landing_pos = PositionMessage()
+			response.status.status = BoxStatusEnum.UNKNOWN.value
 
 		else:
 			self.get_logger().info(f"Slave box info request received for box ID: '{request.box_id}'. Responding with info: {box_info}")
-			response.drone_id = box_info.drone_id
-			response.landing_pos = box_info.position
-			response.status = box_info.status.value
+			response.status.drone_id = box_info.drone_id
+			response.status.landing_pos = box_info.position
+			response.status.status = box_info.status.value
 
 		return response
 
+
+	def find_box_id_from_drone_id(self, drone_id: str) -> str | None:
+		for box_id, box_status in self.linked_slave_boxes.items():
+			if box_status.drone_id == drone_id:
+				return box_id
+		return None
+
+	def handle_trajectory_waypoints_request(self,
+										 request: DroneTrajectoryWaypointsService.Request,
+										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
+		self.get_logger().info(f"Received trajectory waypoints request for drone ID: '{request.drone_id}'")
+		box_id = self.find_box_id_from_drone_id(request.drone_id)
+		if box_id is None:
+			self.get_logger().warn(f"Trajectory waypoints request received for unknown drone ID: '{request.drone_id}'. Cannot provide waypoints.")
+			response.ack = False
+			return response
+
+		if box_id == self.config.box_id:
+			response.ack = True
+			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
+			return response
+
+		# Create a transient node to make the client call
+		client = self.temp_node.create_client(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
+		)
+
+		# wait for service
+		if not client.wait_for_service(timeout_sec=5.0):
+			self.temp_node.get_logger().error("Target service not available")
+			self.temp_node.destroy_node()
+			response.ack = False
+			return response
+
+		future = client.call_async(request)
+
+		# Spin a temporary executor that only has the temp node
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(future)
+		exec.shutdown()
+
+		if not future or future.result() is None:
+			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
+			response.ack = False
+			return response
+
+		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'"),
+		response.ack = future.result().ack
+		return response
+
+
+	def forward_landing_request_to_drone(self,
+						   request: RequestDroneLanding.Request,
+						   response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
+
+		self.get_logger().info(f"Received drone landing request for drone ID: '{request.drone_id}' at position: {request.drone_pos}")
+		self.client_manager.call_async(
+			DroneLandingService,
+			dh.DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE + f"_{request.drone_id}",
+			request,
+			lambda future: self.get_logger().info(
+					f"Forwarded drone landing request for drone ID: '{future.result().landing_position}'"
+				),
+			10
+		 )
+
+		return response
 
 	##################
 	# Create ACTIONS #

@@ -19,7 +19,6 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
@@ -54,41 +53,49 @@ public:
     QGridLayout *gridLayout_2;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
-    QHBoxLayout *horizontalLayout_11;
-    QLabel *current_box_label;
-    QComboBox *boxComboBox;
-    QFrame *line_4;
     QPushButton *addBox;
+    QFrame *line_26;
+    QPushButton *addDroneButton;
     QFrame *line_20;
     QPushButton *updateSystem;
+    QFrame *line_27;
+    QPushButton *restartButton;
     QFrame *line;
     QPushButton *pushButton1;
     QVBoxLayout *verticalLayout_2;
     QTabWidget *tabWidget;
     QWidget *map_tab;
-    QWidget *verticalLayoutWidget;
+    QWidget *horizontalLayoutWidget;
+    QHBoxLayout *horizontalLayout_8;
     QVBoxLayout *map_layout;
-    QGridLayout *map_frame_layout;
-    QLabel *label_6;
+    QVBoxLayout *verticalLayout_6;
     QFrame *line_13;
     QHBoxLayout *slider_layout;
     QSpacerItem *horizontalSpacer_3;
-    QPushButton *zoom_in_pushButton;
+    QPushButton *zoomPlusButton;
     QSlider *zoom_slider;
-    QPushButton *zoom_out_pushButton;
+    QPushButton *zoomOutButton;
     QSpacerItem *horizontalSpacer_4;
+    QFrame *line_21;
+    QVBoxLayout *verticalLayout_3;
+    QPushButton *loadMapButton;
+    QFrame *line_22;
+    QPushButton *loadTrajectoryButton;
+    QPushButton *clearVisualsButton;
     QWidget *box_tab;
     QWidget *verticalLayoutWidget_3;
     QVBoxLayout *box_main_layout;
     QHBoxLayout *box_cicle_layout;
-    QFrame *line_3;
-    QFrame *line_6;
     QGridLayout *box_grid_layout;
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *Box_show_layout;
     QFrame *frame_box;
     QFrame *line_14;
     QVBoxLayout *box_information_layout;
+    QHBoxLayout *horizontalLayout_11;
+    QLabel *current_box_label;
+    QComboBox *boxComboBox;
+    QFrame *line_4;
     QHBoxLayout *horizontalLayout_6;
     QPushButton *pushButton_7;
     QFrame *line_19;
@@ -110,13 +117,17 @@ public:
     QLabel *boxNumberLabel;
     QLabel *boxNumberValueLabel;
     QFrame *line_18;
+    QHBoxLayout *horizontalLayout_14;
+    QLabel *label_2;
+    QLabel *assignedDroneLabel;
+    QFrame *line_24;
     QGridLayout *box_position_layout;
-    QLineEdit *box_longitude_lineEdit;
-    QLabel *box_longitude_label;
     QLabel *box_latitude_label;
-    QLineEdit *box_latitude_lineEdit;
+    QLabel *box_longitude_label;
     QLabel *box_altitude_label;
-    QLineEdit *box_altitude_lineEdit;
+    QLabel *box_latitude_value_label;
+    QLabel *box_longitude_value_label;
+    QLabel *box_altitude_value_label;
     QWidget *drone_tab;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_4;
@@ -126,25 +137,42 @@ public:
     QFrame *line_15;
     QVBoxLayout *verticalLayout_5;
     QFrame *line_10;
-    QLabel *label_8;
+    QHBoxLayout *horizontalLayout_12;
+    QLabel *label;
+    QComboBox *droneComboBox;
+    QFrame *line_25;
+    QFrame *line_8;
+    QPushButton *removeDroneButton;
+    QFrame *line_3;
+    QVBoxLayout *verticalLayout_7;
+    QHBoxLayout *horizontalLayout_10;
+    QLabel *label_3;
+    QLabel *droneIdLabel;
+    QFrame *line_6;
+    QHBoxLayout *horizontalLayout_13;
+    QLabel *label_5;
+    QLabel *droneColorCodeLabel;
+    QFrame *line_9;
+    QHBoxLayout *horizontalLayout_15;
+    QLabel *label_6;
+    QLabel *parentBoxLabel;
+    QFrame *line_23;
     QGridLayout *gridLayout_3;
-    QPushButton *pushButton_5;
+    QPushButton *pushButton;
     QPushButton *pushButton_6;
     QPushButton *pushButton_3;
     QPushButton *pushButton_4;
-    QPushButton *pushButton;
+    QPushButton *pushButton_5;
     QPushButton *pushButton_2;
     QFrame *line_16;
     QFrame *line_17;
     QGridLayout *gridLayout_6;
-    QLineEdit *drone_longitude_lineEdit;
-    QLineEdit *drone_altitude_lineEdit;
-    QLineEdit *drone_latitude_lineEdit;
     QLabel *drone_longitude_label;
     QLabel *latitude_label;
     QLabel *altitude_label;
-    QFrame *line_8;
-    QFrame *line_9;
+    QLabel *drone_latitude_value_label;
+    QLabel *drone_longitude_value_label;
+    QLabel *drone_altitude_value_label;
     QWidget *stat_tab;
     QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout_4;
@@ -161,7 +189,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(975, 644);
+        MainWindow->resize(1038, 644);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         QIcon icon;
@@ -226,36 +254,8 @@ public:
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         verticalLayout = new QVBoxLayout();
-        verticalLayout->setSpacing(50);
+        verticalLayout->setSpacing(10);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        horizontalLayout_11 = new QHBoxLayout();
-        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
-        current_box_label = new QLabel(centralwidget);
-        current_box_label->setObjectName(QString::fromUtf8("current_box_label"));
-        QFont font;
-        font.setPointSize(11);
-        font.setBold(false);
-        font.setWeight(50);
-        current_box_label->setFont(font);
-        current_box_label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        horizontalLayout_11->addWidget(current_box_label);
-
-        boxComboBox = new QComboBox(centralwidget);
-        boxComboBox->setObjectName(QString::fromUtf8("boxComboBox"));
-
-        horizontalLayout_11->addWidget(boxComboBox);
-
-
-        verticalLayout->addLayout(horizontalLayout_11);
-
-        line_4 = new QFrame(centralwidget);
-        line_4->setObjectName(QString::fromUtf8("line_4"));
-        line_4->setFrameShape(QFrame::HLine);
-        line_4->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout->addWidget(line_4);
-
         addBox = new QPushButton(centralwidget);
         addBox->setObjectName(QString::fromUtf8("addBox"));
         QIcon icon8;
@@ -263,6 +263,26 @@ public:
         addBox->setIcon(icon8);
 
         verticalLayout->addWidget(addBox);
+
+        line_26 = new QFrame(centralwidget);
+        line_26->setObjectName(QString::fromUtf8("line_26"));
+        line_26->setFrameShape(QFrame::HLine);
+        line_26->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_26);
+
+        addDroneButton = new QPushButton(centralwidget);
+        addDroneButton->setObjectName(QString::fromUtf8("addDroneButton"));
+        QFont font;
+        font.setPointSize(11);
+        font.setBold(false);
+        font.setWeight(50);
+        addDroneButton->setFont(font);
+        QIcon icon9;
+        icon9.addFile(QString::fromUtf8(":/images/icons/add_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
+        addDroneButton->setIcon(icon9);
+
+        verticalLayout->addWidget(addDroneButton);
 
         line_20 = new QFrame(centralwidget);
         line_20->setObjectName(QString::fromUtf8("line_20"));
@@ -273,11 +293,26 @@ public:
 
         updateSystem = new QPushButton(centralwidget);
         updateSystem->setObjectName(QString::fromUtf8("updateSystem"));
-        QIcon icon9;
-        icon9.addFile(QString::fromUtf8(":/images/icons/update_system.png"), QSize(), QIcon::Normal, QIcon::Off);
-        updateSystem->setIcon(icon9);
+        QIcon icon10;
+        icon10.addFile(QString::fromUtf8(":/images/icons/update_system.png"), QSize(), QIcon::Normal, QIcon::Off);
+        updateSystem->setIcon(icon10);
 
         verticalLayout->addWidget(updateSystem);
+
+        line_27 = new QFrame(centralwidget);
+        line_27->setObjectName(QString::fromUtf8("line_27"));
+        line_27->setFrameShape(QFrame::HLine);
+        line_27->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_27);
+
+        restartButton = new QPushButton(centralwidget);
+        restartButton->setObjectName(QString::fromUtf8("restartButton"));
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/images/icons/refresh.png"), QSize(), QIcon::Normal, QIcon::Off);
+        restartButton->setIcon(icon11);
+
+        verticalLayout->addWidget(restartButton);
 
         line = new QFrame(centralwidget);
         line->setObjectName(QString::fromUtf8("line"));
@@ -291,9 +326,9 @@ public:
         QFont font1;
         font1.setPointSize(11);
         pushButton1->setFont(font1);
-        QIcon icon10;
-        icon10.addFile(QString::fromUtf8(":/images/icons/settings2.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton1->setIcon(icon10);
+        QIcon icon12;
+        icon12.addFile(QString::fromUtf8(":/images/icons/settings2.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton1->setIcon(icon12);
 
         verticalLayout->addWidget(pushButton1);
 
@@ -313,23 +348,21 @@ public:
         tabWidget->setFont(font2);
         map_tab = new QWidget();
         map_tab->setObjectName(QString::fromUtf8("map_tab"));
-        verticalLayoutWidget = new QWidget(map_tab);
-        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 10, 731, 511));
-        map_layout = new QVBoxLayout(verticalLayoutWidget);
+        horizontalLayoutWidget = new QWidget(map_tab);
+        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
+        horizontalLayoutWidget->setGeometry(QRect(0, 9, 771, 531));
+        horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget);
+        horizontalLayout_8->setSpacing(1);
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
+        map_layout = new QVBoxLayout();
         map_layout->setObjectName(QString::fromUtf8("map_layout"));
-        map_layout->setContentsMargins(0, 0, 0, 0);
-        map_frame_layout = new QGridLayout();
-        map_frame_layout->setObjectName(QString::fromUtf8("map_frame_layout"));
-        label_6 = new QLabel(verticalLayoutWidget);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
+        verticalLayout_6 = new QVBoxLayout();
+        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
 
-        map_frame_layout->addWidget(label_6, 1, 1, 1, 1);
+        map_layout->addLayout(verticalLayout_6);
 
-
-        map_layout->addLayout(map_frame_layout);
-
-        line_13 = new QFrame(verticalLayoutWidget);
+        line_13 = new QFrame(horizontalLayoutWidget);
         line_13->setObjectName(QString::fromUtf8("line_13"));
         line_13->setFrameShape(QFrame::HLine);
         line_13->setFrameShadow(QFrame::Sunken);
@@ -342,27 +375,31 @@ public:
 
         slider_layout->addItem(horizontalSpacer_3);
 
-        zoom_in_pushButton = new QPushButton(verticalLayoutWidget);
-        zoom_in_pushButton->setObjectName(QString::fromUtf8("zoom_in_pushButton"));
-        QIcon icon11;
-        icon11.addFile(QString::fromUtf8(":/images/icons/zoom_in.png"), QSize(), QIcon::Normal, QIcon::Off);
-        zoom_in_pushButton->setIcon(icon11);
+        zoomPlusButton = new QPushButton(horizontalLayoutWidget);
+        zoomPlusButton->setObjectName(QString::fromUtf8("zoomPlusButton"));
+        QIcon icon13;
+        icon13.addFile(QString::fromUtf8(":/images/icons/zoom_in.png"), QSize(), QIcon::Normal, QIcon::Off);
+        zoomPlusButton->setIcon(icon13);
 
-        slider_layout->addWidget(zoom_in_pushButton);
+        slider_layout->addWidget(zoomPlusButton);
 
-        zoom_slider = new QSlider(verticalLayoutWidget);
+        zoom_slider = new QSlider(horizontalLayoutWidget);
         zoom_slider->setObjectName(QString::fromUtf8("zoom_slider"));
+        zoom_slider->setMaximum(50);
+        zoom_slider->setSingleStep(1);
+        zoom_slider->setValue(10);
+        zoom_slider->setSliderPosition(10);
         zoom_slider->setOrientation(Qt::Horizontal);
 
         slider_layout->addWidget(zoom_slider);
 
-        zoom_out_pushButton = new QPushButton(verticalLayoutWidget);
-        zoom_out_pushButton->setObjectName(QString::fromUtf8("zoom_out_pushButton"));
-        QIcon icon12;
-        icon12.addFile(QString::fromUtf8(":/images/icons/zoom_out.png"), QSize(), QIcon::Normal, QIcon::Off);
-        zoom_out_pushButton->setIcon(icon12);
+        zoomOutButton = new QPushButton(horizontalLayoutWidget);
+        zoomOutButton->setObjectName(QString::fromUtf8("zoomOutButton"));
+        QIcon icon14;
+        icon14.addFile(QString::fromUtf8(":/images/icons/zoom_out.png"), QSize(), QIcon::Normal, QIcon::Off);
+        zoomOutButton->setIcon(icon14);
 
-        slider_layout->addWidget(zoom_out_pushButton);
+        slider_layout->addWidget(zoomOutButton);
 
         horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
 
@@ -371,7 +408,47 @@ public:
 
         map_layout->addLayout(slider_layout);
 
-        map_layout->setStretch(0, 10);
+
+        horizontalLayout_8->addLayout(map_layout);
+
+        line_21 = new QFrame(horizontalLayoutWidget);
+        line_21->setObjectName(QString::fromUtf8("line_21"));
+        line_21->setFrameShape(QFrame::VLine);
+        line_21->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_8->addWidget(line_21);
+
+        verticalLayout_3 = new QVBoxLayout();
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        loadMapButton = new QPushButton(horizontalLayoutWidget);
+        loadMapButton->setObjectName(QString::fromUtf8("loadMapButton"));
+        loadMapButton->setFont(font);
+
+        verticalLayout_3->addWidget(loadMapButton);
+
+        line_22 = new QFrame(horizontalLayoutWidget);
+        line_22->setObjectName(QString::fromUtf8("line_22"));
+        line_22->setFrameShape(QFrame::HLine);
+        line_22->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_3->addWidget(line_22);
+
+        loadTrajectoryButton = new QPushButton(horizontalLayoutWidget);
+        loadTrajectoryButton->setObjectName(QString::fromUtf8("loadTrajectoryButton"));
+        loadTrajectoryButton->setFont(font);
+
+        verticalLayout_3->addWidget(loadTrajectoryButton);
+
+        clearVisualsButton = new QPushButton(horizontalLayoutWidget);
+        clearVisualsButton->setObjectName(QString::fromUtf8("clearVisualsButton"));
+        clearVisualsButton->setFont(font);
+
+        verticalLayout_3->addWidget(clearVisualsButton);
+
+
+        horizontalLayout_8->addLayout(verticalLayout_3);
+
+        horizontalLayout_8->setStretch(0, 50);
         tabWidget->addTab(map_tab, icon3, QString());
         box_tab = new QWidget();
         box_tab->setObjectName(QString::fromUtf8("box_tab"));
@@ -393,20 +470,6 @@ public:
         box_cicle_layout->setSizeConstraint(QLayout::SetNoConstraint);
 
         box_main_layout->addLayout(box_cicle_layout);
-
-        line_3 = new QFrame(verticalLayoutWidget_3);
-        line_3->setObjectName(QString::fromUtf8("line_3"));
-        line_3->setFrameShape(QFrame::HLine);
-        line_3->setFrameShadow(QFrame::Sunken);
-
-        box_main_layout->addWidget(line_3);
-
-        line_6 = new QFrame(verticalLayoutWidget_3);
-        line_6->setObjectName(QString::fromUtf8("line_6"));
-        line_6->setFrameShape(QFrame::HLine);
-        line_6->setFrameShadow(QFrame::Sunken);
-
-        box_main_layout->addWidget(line_6);
 
         box_grid_layout = new QGridLayout();
         box_grid_layout->setObjectName(QString::fromUtf8("box_grid_layout"));
@@ -434,14 +497,40 @@ public:
 
         box_information_layout = new QVBoxLayout();
         box_information_layout->setObjectName(QString::fromUtf8("box_information_layout"));
+        horizontalLayout_11 = new QHBoxLayout();
+        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
+        current_box_label = new QLabel(verticalLayoutWidget_3);
+        current_box_label->setObjectName(QString::fromUtf8("current_box_label"));
+        current_box_label->setFont(font);
+        current_box_label->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_11->addWidget(current_box_label);
+
+        boxComboBox = new QComboBox(verticalLayoutWidget_3);
+        boxComboBox->setObjectName(QString::fromUtf8("boxComboBox"));
+        boxComboBox->setFont(font);
+
+        horizontalLayout_11->addWidget(boxComboBox);
+
+        horizontalLayout_11->setStretch(0, 10);
+
+        box_information_layout->addLayout(horizontalLayout_11);
+
+        line_4 = new QFrame(verticalLayoutWidget_3);
+        line_4->setObjectName(QString::fromUtf8("line_4"));
+        line_4->setFrameShape(QFrame::HLine);
+        line_4->setFrameShadow(QFrame::Sunken);
+
+        box_information_layout->addWidget(line_4);
+
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         pushButton_7 = new QPushButton(verticalLayoutWidget_3);
         pushButton_7->setObjectName(QString::fromUtf8("pushButton_7"));
         pushButton_7->setFont(font);
-        QIcon icon13;
-        icon13.addFile(QString::fromUtf8(":/images/icons/remove_box.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_7->setIcon(icon13);
+        QIcon icon15;
+        icon15.addFile(QString::fromUtf8(":/images/icons/remove_box.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_7->setIcon(icon15);
 
         horizontalLayout_6->addWidget(pushButton_7);
 
@@ -458,9 +547,9 @@ public:
         requestStatusPushButtin = new QPushButton(verticalLayoutWidget_3);
         requestStatusPushButtin->setObjectName(QString::fromUtf8("requestStatusPushButtin"));
         requestStatusPushButtin->setFont(font);
-        QIcon icon14;
-        icon14.addFile(QString::fromUtf8(":/images/icons/request_status.png"), QSize(), QIcon::Normal, QIcon::Off);
-        requestStatusPushButtin->setIcon(icon14);
+        QIcon icon16;
+        icon16.addFile(QString::fromUtf8(":/images/icons/request_status.png"), QSize(), QIcon::Normal, QIcon::Off);
+        requestStatusPushButtin->setIcon(icon16);
 
         box_information_layout->addWidget(requestStatusPushButtin);
 
@@ -575,43 +664,75 @@ public:
 
         box_information_layout->addWidget(line_18);
 
+        horizontalLayout_14 = new QHBoxLayout();
+        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
+        label_2 = new QLabel(verticalLayoutWidget_3);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setFont(font);
+        label_2->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_14->addWidget(label_2);
+
+        assignedDroneLabel = new QLabel(verticalLayoutWidget_3);
+        assignedDroneLabel->setObjectName(QString::fromUtf8("assignedDroneLabel"));
+        assignedDroneLabel->setFont(font);
+        assignedDroneLabel->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_14->addWidget(assignedDroneLabel);
+
+
+        box_information_layout->addLayout(horizontalLayout_14);
+
+        line_24 = new QFrame(verticalLayoutWidget_3);
+        line_24->setObjectName(QString::fromUtf8("line_24"));
+        line_24->setFrameShape(QFrame::HLine);
+        line_24->setFrameShadow(QFrame::Sunken);
+
+        box_information_layout->addWidget(line_24);
+
         box_position_layout = new QGridLayout();
         box_position_layout->setObjectName(QString::fromUtf8("box_position_layout"));
-        box_longitude_lineEdit = new QLineEdit(verticalLayoutWidget_3);
-        box_longitude_lineEdit->setObjectName(QString::fromUtf8("box_longitude_lineEdit"));
+        box_latitude_label = new QLabel(verticalLayoutWidget_3);
+        box_latitude_label->setObjectName(QString::fromUtf8("box_latitude_label"));
+        box_latitude_label->setFont(font);
+        box_latitude_label->setAlignment(Qt::AlignCenter);
 
-        box_position_layout->addWidget(box_longitude_lineEdit, 1, 1, 1, 1);
+        box_position_layout->addWidget(box_latitude_label, 0, 0, 1, 1);
 
         box_longitude_label = new QLabel(verticalLayoutWidget_3);
         box_longitude_label->setObjectName(QString::fromUtf8("box_longitude_label"));
         box_longitude_label->setFont(font);
-        box_longitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        box_longitude_label->setAlignment(Qt::AlignCenter);
 
         box_position_layout->addWidget(box_longitude_label, 1, 0, 1, 1);
-
-        box_latitude_label = new QLabel(verticalLayoutWidget_3);
-        box_latitude_label->setObjectName(QString::fromUtf8("box_latitude_label"));
-        box_latitude_label->setFont(font);
-        box_latitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        box_position_layout->addWidget(box_latitude_label, 0, 0, 1, 1);
-
-        box_latitude_lineEdit = new QLineEdit(verticalLayoutWidget_3);
-        box_latitude_lineEdit->setObjectName(QString::fromUtf8("box_latitude_lineEdit"));
-
-        box_position_layout->addWidget(box_latitude_lineEdit, 0, 1, 1, 1);
 
         box_altitude_label = new QLabel(verticalLayoutWidget_3);
         box_altitude_label->setObjectName(QString::fromUtf8("box_altitude_label"));
         box_altitude_label->setFont(font);
-        box_altitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        box_altitude_label->setAlignment(Qt::AlignCenter);
 
         box_position_layout->addWidget(box_altitude_label, 2, 0, 1, 1);
 
-        box_altitude_lineEdit = new QLineEdit(verticalLayoutWidget_3);
-        box_altitude_lineEdit->setObjectName(QString::fromUtf8("box_altitude_lineEdit"));
+        box_latitude_value_label = new QLabel(verticalLayoutWidget_3);
+        box_latitude_value_label->setObjectName(QString::fromUtf8("box_latitude_value_label"));
+        box_latitude_value_label->setFont(font);
+        box_latitude_value_label->setAlignment(Qt::AlignCenter);
 
-        box_position_layout->addWidget(box_altitude_lineEdit, 2, 1, 1, 1);
+        box_position_layout->addWidget(box_latitude_value_label, 0, 1, 1, 1);
+
+        box_longitude_value_label = new QLabel(verticalLayoutWidget_3);
+        box_longitude_value_label->setObjectName(QString::fromUtf8("box_longitude_value_label"));
+        box_longitude_value_label->setFont(font);
+        box_longitude_value_label->setAlignment(Qt::AlignCenter);
+
+        box_position_layout->addWidget(box_longitude_value_label, 1, 1, 1, 1);
+
+        box_altitude_value_label = new QLabel(verticalLayoutWidget_3);
+        box_altitude_value_label->setObjectName(QString::fromUtf8("box_altitude_value_label"));
+        box_altitude_value_label->setFont(font);
+        box_altitude_value_label->setAlignment(Qt::AlignCenter);
+
+        box_position_layout->addWidget(box_altitude_value_label, 2, 1, 1, 1);
 
 
         box_information_layout->addLayout(box_position_layout);
@@ -627,7 +748,7 @@ public:
 
         box_main_layout->addLayout(box_grid_layout);
 
-        box_main_layout->setStretch(3, 10);
+        box_main_layout->setStretch(1, 10);
         tabWidget->addTab(box_tab, icon4, QString());
         drone_tab = new QWidget();
         drone_tab->setObjectName(QString::fromUtf8("drone_tab"));
@@ -669,49 +790,138 @@ public:
 
         verticalLayout_5->addWidget(line_10);
 
-        label_8 = new QLabel(verticalLayoutWidget_2);
-        label_8->setObjectName(QString::fromUtf8("label_8"));
-        label_8->setAlignment(Qt::AlignCenter);
+        horizontalLayout_12 = new QHBoxLayout();
+        horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
+        label = new QLabel(verticalLayoutWidget_2);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setFont(font);
 
-        verticalLayout_5->addWidget(label_8);
+        horizontalLayout_12->addWidget(label);
+
+        droneComboBox = new QComboBox(verticalLayoutWidget_2);
+        droneComboBox->setObjectName(QString::fromUtf8("droneComboBox"));
+        droneComboBox->setFont(font);
+
+        horizontalLayout_12->addWidget(droneComboBox);
+
+
+        verticalLayout_5->addLayout(horizontalLayout_12);
+
+        line_25 = new QFrame(verticalLayoutWidget_2);
+        line_25->setObjectName(QString::fromUtf8("line_25"));
+        line_25->setFrameShape(QFrame::HLine);
+        line_25->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_5->addWidget(line_25);
+
+        line_8 = new QFrame(verticalLayoutWidget_2);
+        line_8->setObjectName(QString::fromUtf8("line_8"));
+        line_8->setFrameShape(QFrame::HLine);
+        line_8->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_5->addWidget(line_8);
+
+        removeDroneButton = new QPushButton(verticalLayoutWidget_2);
+        removeDroneButton->setObjectName(QString::fromUtf8("removeDroneButton"));
+        removeDroneButton->setFont(font);
+        QIcon icon17;
+        icon17.addFile(QString::fromUtf8(":/images/icons/remove_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
+        removeDroneButton->setIcon(icon17);
+
+        verticalLayout_5->addWidget(removeDroneButton);
+
+        line_3 = new QFrame(verticalLayoutWidget_2);
+        line_3->setObjectName(QString::fromUtf8("line_3"));
+        line_3->setFrameShape(QFrame::HLine);
+        line_3->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_5->addWidget(line_3);
+
+        verticalLayout_7 = new QVBoxLayout();
+        verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
+        label_3 = new QLabel(verticalLayoutWidget_2);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setFont(font);
+        label_3->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_10->addWidget(label_3);
+
+        droneIdLabel = new QLabel(verticalLayoutWidget_2);
+        droneIdLabel->setObjectName(QString::fromUtf8("droneIdLabel"));
+        droneIdLabel->setFont(font);
+        droneIdLabel->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_10->addWidget(droneIdLabel);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_10);
+
+        line_6 = new QFrame(verticalLayoutWidget_2);
+        line_6->setObjectName(QString::fromUtf8("line_6"));
+        line_6->setFrameShape(QFrame::HLine);
+        line_6->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_7->addWidget(line_6);
+
+        horizontalLayout_13 = new QHBoxLayout();
+        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
+        label_5 = new QLabel(verticalLayoutWidget_2);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_5->setFont(font);
+        label_5->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_13->addWidget(label_5);
+
+        droneColorCodeLabel = new QLabel(verticalLayoutWidget_2);
+        droneColorCodeLabel->setObjectName(QString::fromUtf8("droneColorCodeLabel"));
+        droneColorCodeLabel->setFont(font);
+        droneColorCodeLabel->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_13->addWidget(droneColorCodeLabel);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_13);
+
+        line_9 = new QFrame(verticalLayoutWidget_2);
+        line_9->setObjectName(QString::fromUtf8("line_9"));
+        line_9->setFrameShape(QFrame::HLine);
+        line_9->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_7->addWidget(line_9);
+
+        horizontalLayout_15 = new QHBoxLayout();
+        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
+        label_6 = new QLabel(verticalLayoutWidget_2);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+        label_6->setFont(font);
+        label_6->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_15->addWidget(label_6);
+
+        parentBoxLabel = new QLabel(verticalLayoutWidget_2);
+        parentBoxLabel->setObjectName(QString::fromUtf8("parentBoxLabel"));
+        parentBoxLabel->setFont(font);
+        parentBoxLabel->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_15->addWidget(parentBoxLabel);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_15);
+
+
+        verticalLayout_5->addLayout(verticalLayout_7);
+
+        line_23 = new QFrame(verticalLayoutWidget_2);
+        line_23->setObjectName(QString::fromUtf8("line_23"));
+        line_23->setFrameShape(QFrame::HLine);
+        line_23->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_5->addWidget(line_23);
 
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        pushButton_5 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
-        pushButton_5->setFont(font);
-        QIcon icon15;
-        icon15.addFile(QString::fromUtf8(":/images/icons/path.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_5->setIcon(icon15);
-
-        gridLayout_3->addWidget(pushButton_5, 0, 0, 1, 1);
-
-        pushButton_6 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
-        pushButton_6->setFont(font);
-        pushButton_6->setLayoutDirection(Qt::LeftToRight);
-        pushButton_6->setIcon(icon14);
-
-        gridLayout_3->addWidget(pushButton_6, 0, 1, 1, 1);
-
-        pushButton_3 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        pushButton_3->setFont(font);
-        QIcon icon16;
-        icon16.addFile(QString::fromUtf8(":/images/icons/drone_takeoff.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_3->setIcon(icon16);
-
-        gridLayout_3->addWidget(pushButton_3, 3, 1, 1, 1);
-
-        pushButton_4 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
-        pushButton_4->setFont(font);
-        QIcon icon17;
-        icon17.addFile(QString::fromUtf8(":/images/icons/return_home.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_4->setIcon(icon17);
-
-        gridLayout_3->addWidget(pushButton_4, 4, 0, 1, 1);
-
         pushButton = new QPushButton(verticalLayoutWidget_2);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setFont(font);
@@ -721,12 +931,47 @@ public:
 
         gridLayout_3->addWidget(pushButton, 3, 0, 1, 1);
 
+        pushButton_6 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
+        pushButton_6->setFont(font);
+        pushButton_6->setLayoutDirection(Qt::LeftToRight);
+        pushButton_6->setIcon(icon16);
+
+        gridLayout_3->addWidget(pushButton_6, 0, 1, 1, 1);
+
+        pushButton_3 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pushButton_3->setFont(font);
+        QIcon icon19;
+        icon19.addFile(QString::fromUtf8(":/images/icons/drone_takeoff.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_3->setIcon(icon19);
+
+        gridLayout_3->addWidget(pushButton_3, 3, 1, 1, 1);
+
+        pushButton_4 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
+        pushButton_4->setFont(font);
+        QIcon icon20;
+        icon20.addFile(QString::fromUtf8(":/images/icons/return_home.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_4->setIcon(icon20);
+
+        gridLayout_3->addWidget(pushButton_4, 4, 0, 1, 1);
+
+        pushButton_5 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
+        pushButton_5->setFont(font);
+        QIcon icon21;
+        icon21.addFile(QString::fromUtf8(":/images/icons/path.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_5->setIcon(icon21);
+
+        gridLayout_3->addWidget(pushButton_5, 0, 0, 1, 1);
+
         pushButton_2 = new QPushButton(verticalLayoutWidget_2);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
         pushButton_2->setFont(font);
-        QIcon icon19;
-        icon19.addFile(QString::fromUtf8(":/images/icons/drone_land.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_2->setIcon(icon19);
+        QIcon icon22;
+        icon22.addFile(QString::fromUtf8(":/images/icons/drone_land.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_2->setIcon(icon22);
 
         gridLayout_3->addWidget(pushButton_2, 4, 1, 1, 1);
 
@@ -749,64 +994,55 @@ public:
 
         gridLayout_6 = new QGridLayout();
         gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
-        drone_longitude_lineEdit = new QLineEdit(verticalLayoutWidget_2);
-        drone_longitude_lineEdit->setObjectName(QString::fromUtf8("drone_longitude_lineEdit"));
-
-        gridLayout_6->addWidget(drone_longitude_lineEdit, 1, 1, 1, 1);
-
-        drone_altitude_lineEdit = new QLineEdit(verticalLayoutWidget_2);
-        drone_altitude_lineEdit->setObjectName(QString::fromUtf8("drone_altitude_lineEdit"));
-
-        gridLayout_6->addWidget(drone_altitude_lineEdit, 2, 1, 1, 1);
-
-        drone_latitude_lineEdit = new QLineEdit(verticalLayoutWidget_2);
-        drone_latitude_lineEdit->setObjectName(QString::fromUtf8("drone_latitude_lineEdit"));
-
-        gridLayout_6->addWidget(drone_latitude_lineEdit, 0, 1, 1, 1);
-
         drone_longitude_label = new QLabel(verticalLayoutWidget_2);
         drone_longitude_label->setObjectName(QString::fromUtf8("drone_longitude_label"));
         drone_longitude_label->setFont(font);
-        drone_longitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        drone_longitude_label->setAlignment(Qt::AlignCenter);
 
         gridLayout_6->addWidget(drone_longitude_label, 1, 0, 1, 1);
 
         latitude_label = new QLabel(verticalLayoutWidget_2);
         latitude_label->setObjectName(QString::fromUtf8("latitude_label"));
         latitude_label->setFont(font);
-        latitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        latitude_label->setAlignment(Qt::AlignCenter);
 
         gridLayout_6->addWidget(latitude_label, 0, 0, 1, 1);
 
         altitude_label = new QLabel(verticalLayoutWidget_2);
         altitude_label->setObjectName(QString::fromUtf8("altitude_label"));
         altitude_label->setFont(font);
-        altitude_label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        altitude_label->setAlignment(Qt::AlignCenter);
 
         gridLayout_6->addWidget(altitude_label, 2, 0, 1, 1);
+
+        drone_latitude_value_label = new QLabel(verticalLayoutWidget_2);
+        drone_latitude_value_label->setObjectName(QString::fromUtf8("drone_latitude_value_label"));
+        drone_latitude_value_label->setFont(font);
+        drone_latitude_value_label->setAlignment(Qt::AlignCenter);
+
+        gridLayout_6->addWidget(drone_latitude_value_label, 0, 1, 1, 1);
+
+        drone_longitude_value_label = new QLabel(verticalLayoutWidget_2);
+        drone_longitude_value_label->setObjectName(QString::fromUtf8("drone_longitude_value_label"));
+        drone_longitude_value_label->setFont(font);
+        drone_longitude_value_label->setAlignment(Qt::AlignCenter);
+
+        gridLayout_6->addWidget(drone_longitude_value_label, 1, 1, 1, 1);
+
+        drone_altitude_value_label = new QLabel(verticalLayoutWidget_2);
+        drone_altitude_value_label->setObjectName(QString::fromUtf8("drone_altitude_value_label"));
+        drone_altitude_value_label->setFont(font);
+        drone_altitude_value_label->setAlignment(Qt::AlignCenter);
+
+        gridLayout_6->addWidget(drone_altitude_value_label, 2, 1, 1, 1);
 
 
         verticalLayout_5->addLayout(gridLayout_6);
 
-        line_8 = new QFrame(verticalLayoutWidget_2);
-        line_8->setObjectName(QString::fromUtf8("line_8"));
-        line_8->setFrameShape(QFrame::HLine);
-        line_8->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout_5->addWidget(line_8);
-
-        line_9 = new QFrame(verticalLayoutWidget_2);
-        line_9->setObjectName(QString::fromUtf8("line_9"));
-        line_9->setFrameShape(QFrame::HLine);
-        line_9->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout_5->addWidget(line_9);
-
-        verticalLayout_5->setStretch(2, 100);
 
         horizontalLayout_9->addLayout(verticalLayout_5);
 
-        horizontalLayout_9->setStretch(0, 2);
+        horizontalLayout_9->setStretch(0, 10);
 
         verticalLayout_4->addLayout(horizontalLayout_9);
 
@@ -840,7 +1076,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 975, 22));
+        menubar->setGeometry(QRect(0, 0, 1038, 22));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menubar);
@@ -874,23 +1110,30 @@ public:
 
         retranslateUi(MainWindow);
         QObject::connect(pushButton1, SIGNAL(clicked()), MainWindow, SLOT(on_settings_pushButton_clicked()));
-        QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_zoom_in_out_slider_valueChanged(int)));
-        QObject::connect(zoom_out_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoom_out_pushButton_clicked()));
-        QObject::connect(zoom_in_pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoom_in_pushButton_clicked()));
-        QObject::connect(pushButton_2, SIGNAL(clicked()), MainWindow, SLOT(on_land_pushButton_clicked()));
-        QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
-        QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
-        QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(on_takeoff_pushButton_clicked()));
-        QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_status_pushButton_clicked()));
-        QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_path_upload_pushButton_clicked()));
-        QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
-        QObject::connect(boxComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_boxComboBox_currentIndexChanged(int)));
         QObject::connect(addBox, SIGNAL(clicked()), MainWindow, SLOT(on_add_box_pushButton_clicked()));
         QObject::connect(updateSystem, SIGNAL(clicked()), MainWindow, SLOT(on_updateSystem_pushButton_clicked()));
+        QObject::connect(zoomOutButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomOutButton_pushButton_clicked()));
+        QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
         QObject::connect(requestStatusPushButtin, SIGNAL(clicked()), MainWindow, SLOT(on_request_box_status_pushButton_clicked()));
+        QObject::connect(clearVisualsButton, SIGNAL(clicked()), MainWindow, SLOT(on_clearVisualsButton_pushButton_clicked()));
+        QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_status_pushButton_clicked()));
+        QObject::connect(boxComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_boxComboBox_currentIndexChanged(int)));
+        QObject::connect(zoomPlusButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomPlusButton_pushButton_clicked()));
+        QObject::connect(pushButton_2, SIGNAL(clicked()), MainWindow, SLOT(on_land_pushButton_clicked()));
+        QObject::connect(removeDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_removeDroneButton_pushButton_clicked()));
+        QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(on_takeoff_pushButton_clicked()));
+        QObject::connect(droneComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_droneComboBox_currentIndexChanged(int)));
+        QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
+        QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_zoom_in_out_slider_valueChanged(int)));
+        QObject::connect(loadTrajectoryButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadTrajectoryButton_pushButton_clicked()));
+        QObject::connect(loadMapButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadMapButton_pushButton_clicked()));
+        QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
+        QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_path_upload_pushButton_clicked()));
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
+        QObject::connect(addDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_addDroneButton_pushButton_clicked()));
+        QObject::connect(restartButton, SIGNAL(clicked()), MainWindow, SLOT(on_restartButton_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -912,14 +1155,19 @@ public:
         actionOpen_Statistics->setText(QCoreApplication::translate("MainWindow", "Open Statistics", nullptr));
         actionUser->setText(QCoreApplication::translate("MainWindow", "User", nullptr));
         actionOpen_Presets->setText(QCoreApplication::translate("MainWindow", "Open Presets", nullptr));
-        current_box_label->setText(QCoreApplication::translate("MainWindow", "Selected Box:", nullptr));
         addBox->setText(QCoreApplication::translate("MainWindow", "Add Box", nullptr));
+        addDroneButton->setText(QCoreApplication::translate("MainWindow", "Add Drone", nullptr));
         updateSystem->setText(QCoreApplication::translate("MainWindow", "Update System Status", nullptr));
+        restartButton->setText(QCoreApplication::translate("MainWindow", "Restart", nullptr));
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
-        label_6->setText(QString());
-        zoom_in_pushButton->setText(QString());
-        zoom_out_pushButton->setText(QString());
+        zoomPlusButton->setText(QString());
+        zoomOutButton->setText(QString());
+        loadMapButton->setText(QCoreApplication::translate("MainWindow", "Load Map", nullptr));
+        loadTrajectoryButton->setText(QCoreApplication::translate("MainWindow", "Load\n"
+" Trajectory", nullptr));
+        clearVisualsButton->setText(QCoreApplication::translate("MainWindow", "Clear Visuals", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(map_tab), QCoreApplication::translate("MainWindow", "Map", nullptr));
+        current_box_label->setText(QCoreApplication::translate("MainWindow", "Selected Box:", nullptr));
         pushButton_7->setText(QCoreApplication::translate("MainWindow", "Remove Box", nullptr));
         requestStatusPushButtin->setText(QCoreApplication::translate("MainWindow", "Request \n"
 "Box Status", nullptr));
@@ -931,21 +1179,37 @@ public:
         boxStatusValueLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         boxNumberLabel->setText(QCoreApplication::translate("MainWindow", "Box Number:", nullptr));
         boxNumberValueLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        box_longitude_label->setText(QCoreApplication::translate("MainWindow", "Box Lon: ", nullptr));
+        label_2->setText(QCoreApplication::translate("MainWindow", "Assigned\n"
+"Drone:", nullptr));
+        assignedDroneLabel->setText(QCoreApplication::translate("MainWindow", "None", nullptr));
         box_latitude_label->setText(QCoreApplication::translate("MainWindow", "Box Lat: ", nullptr));
+        box_longitude_label->setText(QCoreApplication::translate("MainWindow", "Box Lon: ", nullptr));
         box_altitude_label->setText(QCoreApplication::translate("MainWindow", "Box alt: ", nullptr));
+        box_latitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        box_longitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        box_altitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(box_tab), QCoreApplication::translate("MainWindow", "Box", nullptr));
-        label_8->setText(QCoreApplication::translate("MainWindow", "Requests", nullptr));
-        pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
+        label->setText(QCoreApplication::translate("MainWindow", "Selected Drone:", nullptr));
+        removeDroneButton->setText(QCoreApplication::translate("MainWindow", "Remove Drone", nullptr));
+        label_3->setText(QCoreApplication::translate("MainWindow", "Drone ID:", nullptr));
+        droneIdLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        label_5->setText(QCoreApplication::translate("MainWindow", "Drone Color Code:", nullptr));
+        droneColorCodeLabel->setText(QString());
+        label_6->setText(QCoreApplication::translate("MainWindow", "Parent Box:", nullptr));
+        parentBoxLabel->setText(QCoreApplication::translate("MainWindow", "None", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
         pushButton_6->setText(QCoreApplication::translate("MainWindow", "Request Drone\n"
 " Status", nullptr));
         pushButton_3->setText(QCoreApplication::translate("MainWindow", "Take-Off", nullptr));
         pushButton_4->setText(QCoreApplication::translate("MainWindow", "Return Home", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
+        pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
-        drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lon:", nullptr));
-        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Lat:", nullptr));
-        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Alt:", nullptr));
+        drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lon:", nullptr));
+        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lat:", nullptr));
+        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Hone Pos. Alt:", nullptr));
+        drone_latitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        drone_longitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        drone_altitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(drone_tab), QCoreApplication::translate("MainWindow", "Drone", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(stat_tab), QCoreApplication::translate("MainWindow", "Statistics", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(preset_tab), QCoreApplication::translate("MainWindow", "Presets", nullptr));

@@ -19,7 +19,7 @@ find_package(std_msgs REQUIRED)
 find_package(dronehive_interfaces REQUIRED)
 
 # Qt dependencies
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts)
+find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts Xml)
 
 # UI + resources
 set(UI_FILES
@@ -39,6 +39,8 @@ set(SOURCES
   src/new_box_dialog.cpp
   src/backend_manager.cpp
   src/box_timeout_dialog.cpp
+  src/warehouseframe.cpp
+  src/ColorListWidget.cpp
 )
 
 set(HEADERS
@@ -50,6 +52,8 @@ set(HEADERS
   include/update_system_dialog.h
   include/backend_manager.h
   include/helper.h
+  include/warehouseframe.h
+  include/ColorListWidget.h
 )
 
 # Create the executable (only once!)
@@ -69,6 +73,10 @@ install(TARGETS frontend_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY resources/
+  DESTINATION share/${PROJECT_NAME}/resources
+)
 
 # ROS 2 deps
 ament_target_dependencies(frontend_node
@@ -83,6 +91,7 @@ target_link_libraries(frontend_node
   Qt5::Gui
   Qt5::Widgets
   Qt5::Charts
+  Qt5::Xml
 )
 
 # Tests (optional)
