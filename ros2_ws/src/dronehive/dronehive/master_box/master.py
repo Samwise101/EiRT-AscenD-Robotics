@@ -38,6 +38,7 @@ from dronehive_interfaces.srv import (
 	SlaveBoxInformationService,
 )
 import dronehive.utils as dh
+from dronehive.utils import BoxStatus, BoxStatusEnum
 
 from dataclasses import dataclass
 from enum import Enum
@@ -49,21 +50,6 @@ qos_profile = QoSProfile(
 	history=QoSHistoryPolicy.KEEP_LAST,
 	depth=1
 )
-
-class BoxStatusEnum(Enum):
-	UNKNOWN = "UNKNOWN"
-	INITIALISING = "INITIALISING"
-	OCCUPIED = "OCCUPIED"
-	EMPTY = "EMPTY"
-
-
-@dataclass
-class BoxStatus:
-	box_id: str
-	drone_id: str
-	position: PositionMessage
-	status: BoxStatusEnum = BoxStatusEnum.UNKNOWN
-
 
 class MasterBoxNode(Node):
 	def __init__(self) -> None:
@@ -328,15 +314,8 @@ class MasterBoxNode(Node):
 
 			# Update config.
 			self.config.linked_box_ids.add(msg.box_id)
-
-			self.linked_slave_boxes[msg.box_id] = BoxStatus(
-				box_id=msg.box_id,
-				drone_id="",
-				position=msg.landing_pos,
-				status=BoxStatusEnum.EMPTY
-			)
-
 			dh.dronehive_update_config(self.config)
+
 			return
 
 		# The message is for this master box
@@ -399,6 +378,13 @@ class MasterBoxNode(Node):
 	def create_services(self) -> None:
 		""" Initialilse the services provided by the master box node. """
 		self.create_service(
+			BoxStatusSlaveUpdateService,
+			dh.DRONEHIVE_BOX_STATUS_SLAVE_UPDATE_SERVICE,
+			self.handle_slave_box_status_update_request,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+		self.create_service(
 			DroneLandingService,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
 			self.find_best_lending_place
@@ -429,9 +415,31 @@ class MasterBoxNode(Node):
 			callback_group=ReentrantCallbackGroup()
 		)
 
+		# self.create_service(
+		# 	RequestDroneLanding,
+		# 	dh.DRONEHIVE_DRONE_LAND_REQUEST,
+		# 	self.drone_request_landing
+		# )
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
+
+	def handle_slave_box_status_update_request(self,
+											request: BoxStatusSlaveUpdateService.Request,
+											response: BoxStatusSlaveUpdateService.Response) -> BoxStatusSlaveUpdateService.Response:
+
+		self.get_logger().info(f"Received slave box status update from box ID: '{request.status.box_id}': {request.status}")
+		self.linked_slave_boxes[request.status.box_id] = BoxStatus(
+			box_id=request.status.box_id,
+			drone_id=request.status.drone_id,
+			position=request.status.landing_pos,
+			status=BoxStatusEnum(request.status.status)
+		)
+		self.get_logger().info(f"Updated linked slave boxes: {self.linked_slave_boxes}")
+
+		response.ack = True
+		return response
 
 	def find_best_lending_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
 		"""
@@ -631,6 +639,14 @@ class MasterBoxNode(Node):
 		response.ack = future.result().ack
 		return response
 
+
+	def drone_request_landing(self,
+						   request: RequestDroneLanding.Request,
+						   response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
+
+		self.get_logger().info(f"Received drone landing request for drone ID: '{request.drone_id}'")
+
+		return response
 
 	##################
 	# Create ACTIONS #

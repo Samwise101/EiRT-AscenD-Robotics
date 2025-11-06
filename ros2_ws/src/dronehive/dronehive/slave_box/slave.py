@@ -6,8 +6,17 @@ from std_msgs.msg import String, Bool
 
 import dronehive.utils as dh
 
-from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage
-from dronehive_interfaces.srv import BoxStatusService, DroneTrajectoryWaypointsService
+from dronehive_interfaces.msg import (
+	BoxBroadcastMessage,
+	BoxSetupConfirmationMessage,
+	BoxStatusMessage,
+)
+
+from dronehive_interfaces.srv import (
+	BoxStatusService,
+	BoxStatusSlaveUpdateService,
+	DroneTrajectoryWaypointsService,
+)
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -30,7 +39,6 @@ class SlaveBoxNode(Node):
 		# When the box is initialised at startup we can directly initialise the connections.
 		# If everything is fine, the initialiser will be None.
 		self.initialise_connections()
-		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
 
 	def box_init_interfaces(self) -> None:
@@ -72,14 +80,31 @@ class SlaveBoxNode(Node):
 		self.create_services()
 		self.create_actions()
 
-		# Drop the initialiser to free memory
-		self.initialiser = None
+		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
+
 		try:
 			self.motor = dh.XL430Controller(dxl_id=1)
 		except Exception as e:
 			self.get_logger().error(f"Failed to initialise motor controller: {e}")
 			self.motor = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
+
+		request=BoxStatusSlaveUpdateService.Request(
+			status=BoxStatusMessage(
+				landing_pos=self.config.landing_position,
+				box_battery_level=100.0,
+				box_id=self.config.box_id,
+				drone_id=self.config.drone_id,
+				status=dh.BoxStatusEnum.EMPTY.value
+			)
+		)
+
+		self.client_manager.call_async(
+			BoxStatusSlaveUpdateService,
+			dh.DRONEHIVE_BOX_STATUS_SLAVE_UPDATE_SERVICE,
+			request,
+			lambda fut: self.get_logger().info(f"Box status update response: {fut.result() or 'Update failed'}")
+		)
 
 
 	##########################

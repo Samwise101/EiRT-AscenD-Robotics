@@ -8,6 +8,11 @@ from .dynamixel_controller import XL430Controller
 from typing import Optional
 from rclpy.logging import get_logger as rclpy_logger
 
+from dataclasses import dataclass
+from enum import Enum
+
+from dronehive_interfaces.msg import PositionMessage
+
 def dronehive_initialise() -> Config:
 	print("Initializing the package with constants:")
 	for dir in DRONEHIVE_DIRS:
@@ -30,4 +35,17 @@ def dronehive_deinitialise(config: Optional[Config] = None) -> None:
 
 def dronehive_update_config(config: Config) -> None:
 	config.save()
+
+class BoxStatusEnum(Enum):
+	UNKNOWN = "UNKNOWN"
+	INITIALISING = "INITIALISING"
+	OCCUPIED = "OCCUPIED"
+	EMPTY = "EMPTY"
+
+@dataclass
+class BoxStatus:
+	box_id: str
+	drone_id: str
+	position: PositionMessage
+	status: BoxStatusEnum = BoxStatusEnum.UNKNOWN
 
