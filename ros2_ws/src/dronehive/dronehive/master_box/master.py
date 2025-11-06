@@ -97,7 +97,7 @@ class MasterBoxNode(Node):
 
 		# Initialise the motor controller
 		try:
-			self.motor = dh.XL430Controller(dxl_id=1)
+			self.motor = dh.XL430Controller(dxl_id=0)
 		except Exception as e:
 			self.get_logger().error(f"Failed to initialise motor controller: {e}")
 			self.motor = None
@@ -509,10 +509,12 @@ class MasterBoxNode(Node):
 		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
 
 		self.client_manager.call_async(
-			DroneLandingService,
+			OccupancyService,
 			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
 			request,
-			lambda future: self.get_logger().info(f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}"),
+			lambda future: self.get_logger().info(
+				f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}, Occupancy result: {future.result().occupancy_status}"
+			),
 			10
 		)
 
@@ -595,6 +597,7 @@ class MasterBoxNode(Node):
 				return box_id
 		return None
 
+
 	def handle_trajectory_waypoints_request(self,
 										 request: DroneTrajectoryWaypointsService.Request,
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
@@ -605,50 +608,88 @@ class MasterBoxNode(Node):
 			response.ack = False
 			return response
 
+		drone_client = self.temp_node.create_client(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_DRONE_SEND_TRAJECTORY_SERVICE + f"{request.drone_id}"
+		)
+
 		if box_id == self.config.box_id:
-			if self.motor:
-				response.ack = self.motor.open_box()
-			else:
+			self.get_logger().info(f"Executing trajectory on master box ID: '{box_id}' for drone ID: '{request.drone_id}'")
+			if not self.motor:
 				self.get_logger().error("Motor controller not initialised. Cannot open box.")
 				response.ack = False
+				return response
 
 			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
+			response.ack = self.motor.open_box()
+
+			if not drone_client.wait_for_service(timeout_sec=2.0):
+				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
+				self.temp_node.destroy_node()
+				response.ack = False
+				return response
+
+			drone_future = drone_client.call_async(request)
+
+			exec = SingleThreadedExecutor()
+			exec.spin_until_future_complete(drone_future)
+			exec.shutdown()
+
+			if not drone_future or not drone_future.result():
+				self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
+				response.ack = False
+				return response
+
+			self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
+			response.ack = response.ack and drone_future.result().ack
 			return response
 
 		# Create a transient node to make the client call
-		client = self.temp_node.create_client(
+		box_client = self.temp_node.create_client(
 			DroneTrajectoryWaypointsService,
 			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
 		)
 
 		# wait for service
-		if not client.wait_for_service(timeout_sec=5.0):
+		if not box_client.wait_for_service(timeout_sec=5.0):
 			self.temp_node.get_logger().error("Target service not available")
 			self.temp_node.destroy_node()
 			response.ack = False
 			return response
 
-		future = client.call_async(request)
+		box_future = box_client.call_async(request)
+
+		if not drone_client.wait_for_service(timeout_sec=2.0):
+			self.temp_node.get_logger().error(f"Target service for box ID: '{box_id}' not available")
+			self.temp_node.destroy_node()
+			response.ack = False
+			return response
+
+		drone_future = drone_client.call_async(request)
+
 
 		# Spin a temporary executor that only has the temp node
 		exec = SingleThreadedExecutor()
 		exec.add_node(self.temp_node)
-		exec.spin_until_future_complete(future)
+		exec.spin_until_future_complete(box_future)
+		exec.spin_until_future_complete(drone_future)
 		exec.shutdown()
 
-		if not future or future.result() is None:
+		if not box_future or not drone_future:
 			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
 			response.ack = False
 			return response
 
-		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'"),
-		response.ack = future.result().ack
+		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
+		self.get_logger().info(f"Box response ack: {box_future.result().ack}, Drone response ack: {drone_future.result().ack}")
+
+		response.ack = box_future.result().ack and drone_future.result().ack
 		return response
 
 
 	def forward_landing_request_to_drone(self,
-						   request: RequestDroneLanding.Request,
-						   response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
+										request: RequestDroneLanding.Request,
+										response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
 
 		self.get_logger().info(f"Received drone landing request for drone ID: '{request.drone_id}' at position: {request.drone_pos}")
 		self.client_manager.call_async(
