@@ -177,6 +177,10 @@ class SlaveBoxNode(Node):
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
 		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
 		response.ack = True
+
+		if self.motor:
+			self.motor.open_box()
+
 		return response
 
 
