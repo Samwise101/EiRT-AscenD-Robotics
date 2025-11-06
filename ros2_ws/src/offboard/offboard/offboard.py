@@ -27,11 +27,29 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
-from dronehive_interfaces.srv import DroneLandingService
+from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
 from dronehive_interfaces.msg import PositionMessage
 
 
 # ---------------------- helpers ---------------------------------
+
+def quat_to_euler(q):
+    # roll (x-axis rotation)
+    sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+    cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+    roll = np.atan2(sinr_cosp, cosr_cosp);
+
+    # pitch (y-axis rotation)
+    sinp = np.sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+    cosp = np.sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+    pitch = 2 * np.atan2(sinp, cosp) - np.pi / 2;
+
+    # yaw (z-axis rotation)
+    siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+    cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+    yaw = np.atan2(siny_cosp, cosy_cosp);
+
+    return roll, pitch, yaw;
 
 def yaw_to_quaternion(yaw_rad: float):
     qz = math.sin(yaw_rad / 2.0)
@@ -77,7 +95,7 @@ class LandingControl(Node):
                  takeoff_alt: float = 2.0,
                  loiter_radius: float = 2.0,
                  landing_timeout: float = 15.0,
-                 publish_hz: float = 30.0):
+                 publish_hz: float = 60.0):
         super().__init__('landing_control')
 
         self.simulation_mode = simulation_mode
@@ -89,8 +107,8 @@ class LandingControl(Node):
 
         # ---------------- ROS I/O ----------------
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
-        self.sub_state = self.create_subscription(State, '/mavros/state', self._state_cb, 10)
-        self.sub_pose = self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
+        self.create_subscription(State, '/mavros/state', self._state_cb, 10)
+        self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
@@ -110,7 +128,7 @@ class LandingControl(Node):
         self.mav_state = State()
         self.have_pose = False
         self.curr_xyz = np.zeros(3)
-        self.curr_yaw = 0.0
+        self.curr_heading = np.zeros(3)  # roll, pitch, yaw
         self.home_xy = None
         self.home_alt0 = None
         self.takeoff_reached = False
@@ -129,10 +147,11 @@ class LandingControl(Node):
         self.segment_times = []
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
-        
+        self.r_waypoints = []
+
         # Waypoint readiness
         self.waypoints_ready = False
-        
+
 
         # Pre-allocate SP
         self.sp = PoseStamped()
@@ -140,6 +159,9 @@ class LandingControl(Node):
         _, _, qz, qw = yaw_to_quaternion(0.0)
         self.sp.pose.orientation.z = qz
         self.sp.pose.orientation.w = qw
+
+        self.current_segment_idx = 0
+        self.position_tolerance = 0.3  # meters
 
         # Timers
         self.timer = self.create_timer(self.publish_dt, self._timer_cb)
@@ -155,14 +177,22 @@ class LandingControl(Node):
 
     def _pose_cb(self, msg: PoseStamped):
         self.have_pose = True
+        # self.get_logger().info(f"Pose received: x={msg.pose.position.x}, y={msg.pose.position.y}, z={msg.pose.position.z}")
         self.curr_xyz = np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z], dtype=float)
+        self.curr_heading = quat_to_euler(msg.pose.orientation)
+
         if self.home_alt0 is None:
             self.home_alt0 = float(self.curr_xyz[2])
 
     def waypoint_service_cb(self, request, response):
-        if request.waypoints[] is not None:
+        
+        if request.waypoints is not None:
+            self.r_waypoints = request.waypoints
             self.waypoints_ready = True
             response.ack = True
+            self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service.")
+            self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
+        return response
 
     # -------------------- Main Timer --------------------
 
@@ -215,7 +245,7 @@ class LandingControl(Node):
                     self.home_alt0 = float(self.curr_xyz[2])
                 self.get_logger().info("Operator set ARMED. Waiting for OFFBOARD...")
                 self.state = FlightState.WAIT_OFFBOARD
-        
+
         elif self.state == FlightState.WAIT_OFFBOARD:
             # Keep feeding setpoints so offboard won't drop if operator switches
             self._publish_hold_here()
@@ -233,18 +263,20 @@ class LandingControl(Node):
                 self._begin_loiter_and_request(now)
                 self.get_logger().info("Takeoff reached. Loitering & requesting landing target.")
                 self.state = FlightState.LOITER_WAIT_SERVICE
-        
+
         elif self.state == FlightState.WAIT_AND_PLAN_TEST_TRAJ:
             # Wait for waypoints before for the trajectory, keep publishing hold here while waiting
             if self._are_waypoints_ready():
                 self.get_logger().info("Waypoints ready. Planning and executing test trajectory.")
                 self._plan_test_trajectory()
                 self.traj_t0_wall = now
-                self.state = FlightState.EXECUTE_TEST_TRAJ
+                self.state = FlightState.EXECUTE_TRAJ
             else:
                 self._publish_hold_here()
-                self.get_logger().info("Waiting for waypoints to be ready...")
-        
+                if not hasattr(self, 'waypoints_ready_logged'):
+                    self.waypoints_ready_logged = True
+                    self.get_logger().info("Waiting for waypoints to be ready...")
+
         elif self.state == FlightState.EXECUTE_TEST_TRAJ:
             # Follow the planned test trajectory (two segments)
             t = now - self.traj_t0_wall
@@ -285,20 +317,72 @@ class LandingControl(Node):
 
 
         elif self.state == FlightState.EXECUTE_TRAJ:
-            # Follow the planned trajectory (two segments)
-            t = now - self.traj_t0_wall
-            if t >= self.traj_total_T:
-                # Final point of second segment is the landing target (z at ground)
+            # Feedback-based trajectory following
+            if self.current_segment_idx >= len(self.traj_segments):
+                # Already finished all segments
+                """
                 self._publish_xyz(self.landing_target[0], self.landing_target[1], 0.0)
-                if self.curr_xyz[2] < 0.15:
+                if self.curr_xyz[2] < 0.1:
                     self.state = FlightState.DONE
                     self.get_logger().info("Landing trajectory complete.")
-            else:
-                self._publish_traj_at_time(t)
+                return
+                """
+                if self.curr_xyz[2] < 0.1:
+                    self.waypoints_ready = False
+                    self.get_logger().info("Reached the end of the trajectory loitering while waiting for new waypoints.")
+                    self.state = FlightState.WAIT_AND_PLAN_TEST_TRAJ
+                    self._publish_circle_loiter()
+                return
+            coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
+            T = self.segment_times[self.current_segment_idx]
+
+            # Compute desired point for current segment (using elapsed time in this segment)
+            if not hasattr(self, 'seg_t0_wall'):
+                self.seg_t0_wall = time.time()
+                self.get_logger().info("Setting time start")
+                self.now = time.time()
+
+            t_in_seg = self.now - self.seg_t0_wall
+            if t_in_seg > T:
+                t_in_seg = T
+
+            px, _, _ = eval_cubic(coeffs_x, t_in_seg)
+            py, _, _ = eval_cubic(coeffs_y, t_in_seg)
+            pz, _, _ = eval_cubic(coeffs_z, t_in_seg)
+
+            # Publish current target
+            self._publish_xyz(px, py, pz, self.curr_heading[2])
+
+            self.get_logger().info(f"Generating setpoint for segment {self.current_segment_idx} at t={t_in_seg}/{T}, pos=({px}, {py}, {pz})")
+            # Check distance to target
+            target_point = np.array([px, py, pz])
+            dist = np.linalg.norm(target_point - self.curr_xyz)
+            self.get_logger().info(f"Seg {self.current_segment_idx}: dist={dist}")
+
+            # self.get_logger().info(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}, T: {T}, now: {self.now}, t_in_seg: {t_in_seg}")
+            print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz} T: {T} now: {self.now} t_in_seg: {t_in_seg}")
+
+            if dist < self.position_tolerance:
+                # Advance to next trajectory segment.
+                # The descend to the last position is slower.
+                if self.current_segment_idx + 1 >= len(self.traj_segments):
+                    self.now += 0.05
+                    self.position_tolerance = 0.1
+                else:
+                    self.now += 0.1
+
+                if t_in_seg >= T:
+                    self.current_segment_idx += 1
+                    self.seg_t0_wall = time.time()
+                    self.now = time.time()
+                    self.get_logger().info(f"Segment {self.current_segment_idx} reached, moving to next.")
+
 
         elif self.state == FlightState.LANDING_HOME:
             # Go to home XY and descend to z=0 (or initial ground ref)
             self._publish_xyz(self.home_xy[0], self.home_xy[1], 0.0)
+            self.get_logger().info("Landing back at home position.")
+            print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}")
             # Once close to ground, consider done (you can add disarm / mode change if you want)
             if self.curr_xyz[2] < 0.15:
                 self.state = FlightState.DONE
@@ -379,7 +463,7 @@ class LandingControl(Node):
         self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
 
     # -------------------- Waypoint readiness check --------------------
-    def are_waypoints_ready(self) -> bool:
+    def _are_waypoints_ready(self) -> bool:
         return self.waypoints_ready
 
 
@@ -412,6 +496,7 @@ class LandingControl(Node):
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
             T = max(1.0, d / 0.5)  # ~0.5 m/s nominal
+            self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
             coeffs_xyz = []
             for axis in range(3):
                 coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
@@ -423,23 +508,25 @@ class LandingControl(Node):
         self.traj_total_T = total_T
         self.get_logger().info(f"Planned landing trajectory: {len(self.traj_segments)} segments, total {self.traj_total_T:.2f}s")
 
+
     def _plan_test_trajectory(self):
         """
-        Build a simple test trajectory: current position -> Point 1 offset by (+2m, +2m, current z) -> Point 2 offset by (-2m, +2m, current z).
-        Each axis planned independently; durations scale with distance (max ~0.5 m/s).
+        Plan a trajectory with n-segments
+        waypoints are received from the waypoint service
         """
         if not self.have_pose:
             return
-
+        
+        self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints for test trajectory.")
         p0 = self.curr_xyz.copy()
-        p1 = p0 + np.array([2.0, 2.0, 0.0], dtype=float)
-        p2 = p1 + np.array([-2.0, 2.0, 0.0], dtype=float)
-
-        waypoints = [p0, p1, p2]
+        waypoints = [p0]
+        for wp in self.r_waypoints:
+            wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
+            #self.get_logger().info(f"Planning to waypoint: x={wp_array[0]:.2f}, y={wp_array[1]:.2f}, z={wp_array[2]:.2f}")  
+            waypoints.append(wp_array)
         self.traj_segments.clear()
         self.segment_times.clear()
         total_T = 0.0
-
         v0 = np.zeros(3)
         a0 = np.zeros(3)
 
@@ -448,6 +535,7 @@ class LandingControl(Node):
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
             T = max(1.0, d / 0.5)  # ~0.5 m/s nominal
+            self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
             coeffs_xyz = []
             for axis in range(3):
                 coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
@@ -459,25 +547,6 @@ class LandingControl(Node):
         self.traj_total_T = total_T
         self.get_logger().info(f"Planned test trajectory: {len(self.traj_segments)} segments, total {self.traj_total_T:.2f}s")
 
-    def _publish_traj_at_time(self, t):
-        """Publish position along the multi-segment cubic trajectory at elapsed time t(s)."""
-        t_rem = t
-        for seg_idx, T in enumerate(self.segment_times):
-            if t_rem <= T:
-                coeffs_x, coeffs_y, coeffs_z = self.traj_segments[seg_idx]
-                px, _, _ = eval_cubic(coeffs_x, t_rem)
-                py, _, _ = eval_cubic(coeffs_y, t_rem)
-                pz, _, _ = eval_cubic(coeffs_z, t_rem)
-                self._publish_xyz(px, py, pz)
-                return
-            t_rem -= T
-
-        # If time exceeded, publish last point of final segment
-        coeffs_x, coeffs_y, coeffs_z = self.traj_segments[-1]
-        px, _, _ = eval_cubic(coeffs_x, self.segment_times[-1])
-        py, _, _ = eval_cubic(coeffs_y, self.segment_times[-1])
-        pz, _, _ = eval_cubic(coeffs_z, self.segment_times[-1])
-        self._publish_xyz(px, py, pz)
 
     # -------------------- publishers --------------------
 
@@ -522,7 +591,7 @@ class LandingControl(Node):
 
     def _is_offboard_and_armed(self) -> bool:
         return (self.mav_state.mode == "OFFBOARD") and bool(self.mav_state.armed)
-    
+
     def _is_armed(self) -> bool:
         return bool(self.mav_state.armed)
 
@@ -551,7 +620,7 @@ def main():
                         help="Loiter circle radius in meters.")
     parser.add_argument("--landing-timeout", type=float, default=15.0,
                         help="Seconds to wait for landing position before landing at home.")
-    parser.add_argument("--publish-hz", type=float, default=30.0,
+    parser.add_argument("--publish-hz", type=float, default=60.0,
                         help="Setpoint publish rate (Hz).")
     args = parser.parse_args()
 
