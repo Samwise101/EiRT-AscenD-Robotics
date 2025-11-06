@@ -19,9 +19,9 @@ DRONEHIVE_INITIALISE_SLAVE_BOX_TOPIC = "/dronehive/box_slave_initialise"
 DRONEHIVE_DEINITIALISE_SLAVE_BOX_TOPIC = "/dronehive/deinitialise_slave_box"
 
 # HMI sends request to return a drone to home position
-DRONEHIVE_HMI_REQUEST_RETURN_HOME_TOPIC = "/dronehive/request_return_home"
+DRONEHIVE_GUI_REQUEST_RETURN_HOME_TOPIC = "/dronehive/request_return_home"
 # Topic that sends a request to the drone to land at a specific position.
-DRONEHIVE_DRONE_RETURN_TO_HOME = "/dronehive/drone_land_request"
+DRONEHIVE_DRONE_RETURN_TO_HOME = "/dronehive/drone_return_to_home_request"
 
 # Topic that sends a request for landing position, the drone ID should be formatted in the topic.
 DRONEHIVE_DRONE_LAND_REQUEST = "/dronehive/drone_land_request"
@@ -39,6 +39,8 @@ DRONEHIVE_GUI_SLAVE_BOX_INFO_SERVICE = "/dronehive/gui_slave_box_info_service"
 
 DRONEHIVE_DRONE_LAND_NOTIFY_GUI = "/dronehive/drone_update_box_state"
 DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE = "/dronehive/gui_request_waypoint_trajectory"
+DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE = "/dronehive/gui_request_drone_land_service"
+DRONEHIVE_GUI_REQUEST_DRONE_RETURN_HOME_SERVICE = "/dronehive/gui_request_drone_return_home_service"
 
 ###########
 # Actions #

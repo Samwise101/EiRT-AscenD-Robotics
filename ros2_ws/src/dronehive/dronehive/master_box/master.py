@@ -392,7 +392,7 @@ class MasterBoxNode(Node):
 
 		self.create_service(
 			RequestReturnHome,
-			dh.DRONEHIVE_HMI_REQUEST_RETURN_HOME_TOPIC,
+			dh.DRONEHIVE_GUI_REQUEST_RETURN_HOME_TOPIC,
 			self.return_home_request
 		)
 
@@ -415,11 +415,12 @@ class MasterBoxNode(Node):
 			callback_group=ReentrantCallbackGroup()
 		)
 
-		# self.create_service(
-		# 	RequestDroneLanding,
-		# 	dh.DRONEHIVE_DRONE_LAND_REQUEST,
-		# 	self.drone_request_landing
-		# )
+		self.create_service(
+			RequestDroneLanding,
+			dh.DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE,
+			self.forward_landing_request_to_drone,
+			callback_group=ReentrantCallbackGroup()
+		)
 
 	#####################
 	# SERVICE Callbacks #
@@ -640,11 +641,20 @@ class MasterBoxNode(Node):
 		return response
 
 
-	def drone_request_landing(self,
+	def forward_landing_request_to_drone(self,
 						   request: RequestDroneLanding.Request,
 						   response: RequestDroneLanding.Response) -> RequestDroneLanding.Response:
 
-		self.get_logger().info(f"Received drone landing request for drone ID: '{request.drone_id}'")
+		self.get_logger().info(f"Received drone landing request for drone ID: '{request.drone_id}' at position: {request.drone_pos}")
+		self.client_manager.call_async(
+			DroneLandingService,
+			dh.DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE + f"_{request.drone_id}",
+			request,
+			lambda future: self.get_logger().info(
+					f"Forwarded drone landing request for drone ID: '{future.result().landing_position}'"
+				),
+			10
+		 )
 
 		return response
 
