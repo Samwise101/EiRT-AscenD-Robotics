@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
+from rclpy.utilities import ok as rclpy_ok
 from rclpy.node import Node
 from rclpy.logging import get_logger
 import time
@@ -118,7 +119,7 @@ class XL430Controller:
 		self.write4(ControlCommand.ADDR_GOAL_POSITION, position_ticks)
 		get_logger(f"motor_{self.dxl_id}").info(f"Moving to {position_ticks} ticks...")
 
-		while rclpy.ok():
+		while rclpy_ok():
 			pos = self.read4(ControlCommand.ADDR_PRESENT_POSITION)
 			cur = self.read2(ControlCommand.ADDR_PRESENT_CURRENT)
 			get_logger(f"motor_{self.dxl_id}").info(f"REQUESETED: {position_ticks:10f} Pos: {pos}, Current: {cur}")

@@ -1,3 +1,4 @@
+from typing import Optional
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from rclpy.task import Future
@@ -6,7 +7,7 @@ from std_msgs.msg import String, Bool
 import dronehive.utils as dh
 
 from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage
-from dronehive_interfaces.srv import BoxStatusService
+from dronehive_interfaces.srv import BoxStatusService, DroneTrajectoryWaypointsService
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -73,6 +74,11 @@ class SlaveBoxNode(Node):
 
 		# Drop the initialiser to free memory
 		self.initialiser = None
+		try:
+			self.motor = dh.XL430Controller(dxl_id=1)
+		except Exception as e:
+			self.get_logger().error(f"Failed to initialise motor controller: {e}")
+			self.motor = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 
@@ -114,6 +120,12 @@ class SlaveBoxNode(Node):
 			self.provide_box_status
 		)
 
+		self.create_service(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{self.config.box_id}",
+			self.handle_trajectory_waypoints_request
+		)
+
 
 	def create_actions(self) -> None:
 		pass
@@ -124,6 +136,7 @@ class SlaveBoxNode(Node):
 
 	def provide_box_status(self, request: BoxStatusService.Request, response: BoxStatusService.Response) -> BoxStatusService.Response:
 		if request.box_id != self.config.box_id:
+			self.get_logger().info(f"Box status request for different box ID: {request.box_id}, expected: {self.config.box_id}")
 			response.accept = False
 			return response
 
@@ -132,6 +145,13 @@ class SlaveBoxNode(Node):
 		response.drone_id = self.config.drone_id
 
 		self.get_logger().info(f"Responding with landing position: {response.landing_pos} and drone ID: {response.drone_id}")
+		return response
+
+	def handle_trajectory_waypoints_request(self,
+										 request: DroneTrajectoryWaypointsService.Request,
+										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
+		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
+		response.ack = True
 		return response
 
 
@@ -144,14 +164,17 @@ class SlaveBoxNode(Node):
 	def _deinitialise_box_callback(self, msg: String) -> None:
 		if msg.data == self.config.box_id:
 			self.get_logger().warn(f"Deinitialising box with ID: {self.config.box_id}")
-			self.config.initialised = False
-			self.config.save()
+			dh.dronehive_deinitialise(self.config)
 
-			# Destroy all connections
+			# Destroy all connections.
 			self.destroy_interfaces()
 
-			# Recreate the initialisation publisher and timer
+			# Recreate the initialisation publisher and timer.
 			self.box_init_interfaces()
+
+			# Destroy motor controller if exists.
+			if self.motor is not None:
+				self.motor.destroy()
 
 
 	def destroy_interfaces(self) -> None:
