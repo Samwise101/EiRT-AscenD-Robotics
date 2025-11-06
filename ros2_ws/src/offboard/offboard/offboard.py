@@ -132,6 +132,7 @@ class LandingControl(Node):
         self.home_xy = None
         self.home_alt0 = None
         self.takeoff_reached = False
+        self.last_requested_pose = np.zeros(3)
 
         # Loiter
         self._circle_angle_deg = 0.0
@@ -192,6 +193,7 @@ class LandingControl(Node):
             self.r_waypoints = request.waypoints
             self.waypoints_ready = True
             response.ack = True
+            self.current_segment_idx = 0
             self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service: {self.r_waypoints}")
             self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
         return response
@@ -331,7 +333,7 @@ class LandingControl(Node):
                     self.get_logger().info("Landing trajectory complete.")
                 return
                 """
-                self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.curr_xyz[2])
+                self._publish_xyz(self.last_requested_pose[0], self.last_requested_pose[1], self.last_requested_pose[2])
                 if self.curr_xyz[2] < 0.1:
                     self.waypoints_ready = False
                     self.get_logger().info("Reached the end of the trajectory loitering while waiting for new waypoints.")
@@ -355,6 +357,7 @@ class LandingControl(Node):
             px, _, _ = eval_cubic(coeffs_x, t_in_seg)
             py, _, _ = eval_cubic(coeffs_y, t_in_seg)
             pz, _, _ = eval_cubic(coeffs_z, t_in_seg)
+            self.last_requested_pose = np.array([px, py, pz])
 
             # Publish current target
             self._publish_xyz(px, py, pz, self.curr_heading[2])
@@ -550,6 +553,7 @@ class LandingControl(Node):
                 coeffs_xyz.append(coeffs)
             self.traj_segments.append(coeffs_xyz)
             self.segment_times.append(T)
+            self.current_segment_idx = 0
             total_T += T
 
         self.traj_total_T = total_T
