@@ -174,14 +174,14 @@ class XL430Controller:
 		get_logger(f"motor_{self.dxl_id}").info("Port closed")
 
 
-	def open_box(self):
+	def open_box(self) -> bool:
 		get_logger(f"motor_{self.dxl_id}").info("Opening box...")
-		self.move_extended(4096 * 5 - 900, profile_velocity=150, profile_accel=100)
+		return self.move_extended(4096 * 5 - 900, profile_velocity=150, profile_accel=100)
 
 
-	def close_box(self):
+	def close_box(self) -> bool:
 		get_logger(f"motor_{self.dxl_id}").info("Closing box...")
-		self.move_extended(-4500, profile_velocity=150, profile_accel=100)
+		return self.move_extended(-4500, profile_velocity=150, profile_accel=100)
 
 
 
