@@ -606,7 +606,12 @@ class MasterBoxNode(Node):
 			return response
 
 		if box_id == self.config.box_id:
-			response.ack = True
+			if self.motor:
+				response.ack = self.motor.open_box()
+			else:
+				self.get_logger().error("Motor controller not initialised. Cannot open box.")
+				response.ack = False
+
 			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			return response
 
