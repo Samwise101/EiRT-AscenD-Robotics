@@ -452,19 +452,40 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
 
         this->ui->droneComboBox->removeItem(current_index);
 
-        this->ui->drone_altitude_value_label->setText("Unknown");;
-        this->ui->drone_latitude_value_label->setText("Unknown");;
-        this->ui->drone_longitude_value_label->setText("Unknown");;
+        if(this->ui->droneComboBox->count() <= 0)
+        {
+            this->ui->drone_altitude_value_label->setText("Unknown");;
+            this->ui->drone_latitude_value_label->setText("Unknown");;
+            this->ui->drone_longitude_value_label->setText("Unknown");;
 
-        this->ui->droneIdLabel->setText("Unknown");
-        QPalette palette = this->ui->droneColorCodeLabel->palette();
-        palette.setColor(QPalette::Window, Qt::white);
-        this->ui->droneColorCodeLabel->setPalette(palette);
+            this->ui->droneIdLabel->setText("Unknown");
+            QPalette palette = this->ui->droneColorCodeLabel->palette();
+            palette.setColor(QPalette::Window, Qt::white);
+            this->ui->droneColorCodeLabel->setPalette(palette);
+
+            this->ui->parentBoxLabel->setText("None");
+
+            this->drones.erase(this->drones.begin() + current_index);
+        }
+        else{
+
+            QString current_data = this->ui->droneComboBox->currentText();
+            int current_index = this->ui->droneComboBox->currentIndex();
+
+            this->ui->drone_altitude_value_label->setText("Unknown");;
+            this->ui->drone_latitude_value_label->setText("Unknown");;
+            this->ui->drone_longitude_value_label->setText("Unknown");;
+
+            this->ui->droneIdLabel->setText("Unknown");
+            QPalette palette = this->ui->droneColorCodeLabel->palette();
+            palette.setColor(QPalette::Window, Qt::white);
+            this->ui->droneColorCodeLabel->setPalette(palette);
 
 
-        this->ui->parentBoxLabel->setText("None");
+            this->ui->parentBoxLabel->setText("None");
 
-        this->drones.erase(this->drones.begin() + current_index);
+            this->drones.erase(this->drones.begin() + current_index);
+        }
     }
 }
 
