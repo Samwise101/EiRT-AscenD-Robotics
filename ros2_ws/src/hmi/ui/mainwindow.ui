@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1038</width>
+    <width>1001</width>
     <height>644</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -155,7 +161,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -315,6 +321,13 @@
                 </widget>
                </item>
                <item>
+                <widget class="Line" name="line_28">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QPushButton" name="clearVisualsButton">
                  <property name="font">
                   <font>
@@ -400,6 +413,9 @@
                  </item>
                  <item>
                   <layout class="QVBoxLayout" name="box_information_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="10,0">
                      <item>
@@ -880,7 +896,10 @@ Drone:</string>
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0">
+                 <property name="spacing">
+                  <number>10</number>
+                 </property>
                  <item>
                   <widget class="Line" name="line_10">
                    <property name="orientation">
@@ -916,13 +935,6 @@ Drone:</string>
                     </widget>
                    </item>
                   </layout>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_25">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
                  </item>
                  <item>
                   <widget class="Line" name="line_8">
@@ -1219,13 +1231,6 @@ Drone:</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="Line" name="line_17">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <layout class="QGridLayout" name="gridLayout_6">
                    <item row="1" column="0">
                     <widget class="QLabel" name="drone_longitude_label">
@@ -1346,17 +1351,6 @@ Drone:</string>
            <attribute name="title">
             <string>Statistics</string>
            </attribute>
-           <widget class="QWidget" name="gridLayoutWidget_2">
-            <property name="geometry">
-             <rect>
-              <x>120</x>
-              <y>50</y>
-              <width>501</width>
-              <height>361</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_4"/>
-           </widget>
           </widget>
           <widget class="QWidget" name="preset_tab">
            <attribute name="icon">
@@ -1366,16 +1360,6 @@ Drone:</string>
            <attribute name="title">
             <string>Presets</string>
            </attribute>
-           <widget class="QTreeView" name="treeView">
-            <property name="geometry">
-             <rect>
-              <x>140</x>
-              <y>60</y>
-              <width>441</width>
-              <height>351</height>
-             </rect>
-            </property>
-           </widget>
           </widget>
          </widget>
         </item>
@@ -1390,7 +1374,7 @@ Drone:</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1038</width>
+     <width>1001</width>
      <height>22</height>
     </rect>
    </property>
@@ -1588,6 +1572,38 @@ Drone:</string>
    </hints>
   </connection>
   <connection>
+   <sender>addDroneButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_addDroneButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>restartButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_restartButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>612</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>zoomOutButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -1600,22 +1616,6 @@ Drone:</string>
     <hint type="destinationlabel">
      <x>934</x>
      <y>612</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_4</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_return_home_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>779</x>
-     <y>464</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>871</x>
-     <y>427</y>
     </hint>
    </hints>
   </connection>
@@ -1636,6 +1636,54 @@ Drone:</string>
    </hints>
   </connection>
   <connection>
+   <sender>pushButton_7</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_remove_box_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>934</x>
+     <y>166</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>673</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_return_home_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>464</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>871</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_5</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_path_upload_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>868</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>clearVisualsButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -1652,66 +1700,18 @@ Drone:</string>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_6</sender>
+   <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>on_request_status_pushButton_clicked()</slot>
+   <slot>on_arm_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>904</x>
-     <y>390</y>
+     <x>779</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
-     <x>868</x>
-     <y>184</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>boxComboBox</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>934</x>
-     <y>112</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>182</x>
-     <y>232</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoomPlusButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_zoomPlusButton_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>275</x>
-     <y>486</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>611</x>
-     <y>616</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_land_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>904</x>
-     <y>464</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>869</x>
-     <y>397</y>
+     <x>865</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -1748,6 +1748,70 @@ Drone:</string>
    </hints>
   </connection>
   <connection>
+   <sender>pushButton_6</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_request_status_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>904</x>
+     <y>390</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>868</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadMapButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_loadMapButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>967</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>979</x>
+     <y>25</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_boxComboBox_currentIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>934</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>182</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_land_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>904</x>
+     <y>464</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>droneComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -1764,18 +1828,34 @@ Drone:</string>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_7</sender>
+   <sender>zoomPlusButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>on_remove_box_pushButton_clicked()</slot>
+   <slot>on_zoomPlusButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>934</x>
-     <y>166</y>
+     <x>275</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>673</x>
-     <y>67</y>
+     <x>611</x>
+     <y>616</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_6</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_request_drone_status_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>904</x>
+     <y>390</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>966</x>
+     <y>114</y>
     </hint>
    </hints>
   </connection>
@@ -1808,102 +1888,6 @@ Drone:</string>
     <hint type="destinationlabel">
      <x>820</x>
      <y>31</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadMapButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_loadMapButton_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>967</x>
-     <y>100</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>979</x>
-     <y>25</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_arm_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>779</x>
-     <y>433</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>865</x>
-     <y>374</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_5</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_path_upload_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>779</x>
-     <y>393</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>155</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_6</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_request_drone_status_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>904</x>
-     <y>390</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>966</x>
-     <y>114</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addDroneButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_addDroneButton_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>33</x>
-     <y>213</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>50</x>
-     <y>171</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>restartButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_restartButton_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>134</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>171</x>
-     <y>612</y>
     </hint>
    </hints>
   </connection>

@@ -87,7 +87,9 @@
         "__tree": "cpp",
         "qrandomgenerator": "cpp",
         "qobject": "cpp",
-        "qhboxlayout": "cpp"
+        "qhboxlayout": "cpp",
+        "regex": "cpp",
+        "__locale": "cpp"
     },
     "cmake.sourceDirectory": "/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/dronehive_interfaces"
 }

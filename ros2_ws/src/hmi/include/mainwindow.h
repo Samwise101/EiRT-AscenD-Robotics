@@ -48,6 +48,8 @@ public:
     void update_box_comboBox(int& new_box_number);
     void cleanup();
 
+    bool isMasterId(std::string box_id);
+
     void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
     void onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg);

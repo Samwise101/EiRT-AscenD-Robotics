@@ -17,7 +17,6 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
@@ -27,7 +26,6 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
-#include <QtWidgets/QTreeView>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -81,6 +79,7 @@ public:
     QPushButton *loadMapButton;
     QFrame *line_22;
     QPushButton *loadTrajectoryButton;
+    QFrame *line_28;
     QPushButton *clearVisualsButton;
     QWidget *box_tab;
     QWidget *verticalLayoutWidget_3;
@@ -140,7 +139,6 @@ public:
     QHBoxLayout *horizontalLayout_12;
     QLabel *label;
     QComboBox *droneComboBox;
-    QFrame *line_25;
     QFrame *line_8;
     QPushButton *removeDroneButton;
     QFrame *line_3;
@@ -165,7 +163,6 @@ public:
     QPushButton *pushButton_5;
     QPushButton *pushButton_2;
     QFrame *line_16;
-    QFrame *line_17;
     QGridLayout *gridLayout_6;
     QLabel *drone_longitude_label;
     QLabel *latitude_label;
@@ -174,10 +171,7 @@ public:
     QLabel *drone_longitude_value_label;
     QLabel *drone_altitude_value_label;
     QWidget *stat_tab;
-    QWidget *gridLayoutWidget_2;
-    QGridLayout *gridLayout_4;
     QWidget *preset_tab;
-    QTreeView *treeView;
     QMenuBar *menubar;
     QMenu *menuFile;
     QMenu *menuEdit;
@@ -189,7 +183,12 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1038, 644);
+        MainWindow->resize(1001, 644);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
+        MainWindow->setSizePolicy(sizePolicy);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         QIcon icon;
@@ -243,9 +242,6 @@ public:
         actionOpen_Presets->setIcon(icon);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(centralwidget->sizePolicy().hasHeightForWidth());
         centralwidget->setSizePolicy(sizePolicy);
         centralwidget->setMinimumSize(QSize(1000, 600));
@@ -439,6 +435,13 @@ public:
 
         verticalLayout_3->addWidget(loadTrajectoryButton);
 
+        line_28 = new QFrame(horizontalLayoutWidget);
+        line_28->setObjectName(QString::fromUtf8("line_28"));
+        line_28->setFrameShape(QFrame::HLine);
+        line_28->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_3->addWidget(line_28);
+
         clearVisualsButton = new QPushButton(horizontalLayoutWidget);
         clearVisualsButton->setObjectName(QString::fromUtf8("clearVisualsButton"));
         clearVisualsButton->setFont(font);
@@ -496,6 +499,7 @@ public:
         horizontalLayout_2->addWidget(line_14);
 
         box_information_layout = new QVBoxLayout();
+        box_information_layout->setSpacing(0);
         box_information_layout->setObjectName(QString::fromUtf8("box_information_layout"));
         horizontalLayout_11 = new QHBoxLayout();
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
@@ -782,6 +786,7 @@ public:
         horizontalLayout_9->addWidget(line_15);
 
         verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setSpacing(10);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
         line_10 = new QFrame(verticalLayoutWidget_2);
         line_10->setObjectName(QString::fromUtf8("line_10"));
@@ -806,13 +811,6 @@ public:
 
 
         verticalLayout_5->addLayout(horizontalLayout_12);
-
-        line_25 = new QFrame(verticalLayoutWidget_2);
-        line_25->setObjectName(QString::fromUtf8("line_25"));
-        line_25->setFrameShape(QFrame::HLine);
-        line_25->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout_5->addWidget(line_25);
 
         line_8 = new QFrame(verticalLayoutWidget_2);
         line_8->setObjectName(QString::fromUtf8("line_8"));
@@ -985,13 +983,6 @@ public:
 
         verticalLayout_5->addWidget(line_16);
 
-        line_17 = new QFrame(verticalLayoutWidget_2);
-        line_17->setObjectName(QString::fromUtf8("line_17"));
-        line_17->setFrameShape(QFrame::HLine);
-        line_17->setFrameShadow(QFrame::Sunken);
-
-        verticalLayout_5->addWidget(line_17);
-
         gridLayout_6 = new QGridLayout();
         gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
         drone_longitude_label = new QLabel(verticalLayoutWidget_2);
@@ -1050,18 +1041,9 @@ public:
         tabWidget->addTab(drone_tab, icon5, QString());
         stat_tab = new QWidget();
         stat_tab->setObjectName(QString::fromUtf8("stat_tab"));
-        gridLayoutWidget_2 = new QWidget(stat_tab);
-        gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(120, 50, 501, 361));
-        gridLayout_4 = new QGridLayout(gridLayoutWidget_2);
-        gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
-        gridLayout_4->setContentsMargins(0, 0, 0, 0);
         tabWidget->addTab(stat_tab, icon6, QString());
         preset_tab = new QWidget();
         preset_tab->setObjectName(QString::fromUtf8("preset_tab"));
-        treeView = new QTreeView(preset_tab);
-        treeView->setObjectName(QString::fromUtf8("treeView"));
-        treeView->setGeometry(QRect(140, 60, 441, 351));
         tabWidget->addTab(preset_tab, icon, QString());
 
         verticalLayout_2->addWidget(tabWidget);
@@ -1076,7 +1058,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1038, 22));
+        menubar->setGeometry(QRect(0, 0, 1001, 22));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menubar);
@@ -1112,28 +1094,28 @@ public:
         QObject::connect(pushButton1, SIGNAL(clicked()), MainWindow, SLOT(on_settings_pushButton_clicked()));
         QObject::connect(addBox, SIGNAL(clicked()), MainWindow, SLOT(on_add_box_pushButton_clicked()));
         QObject::connect(updateSystem, SIGNAL(clicked()), MainWindow, SLOT(on_updateSystem_pushButton_clicked()));
-        QObject::connect(zoomOutButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomOutButton_pushButton_clicked()));
-        QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
-        QObject::connect(requestStatusPushButtin, SIGNAL(clicked()), MainWindow, SLOT(on_request_box_status_pushButton_clicked()));
-        QObject::connect(clearVisualsButton, SIGNAL(clicked()), MainWindow, SLOT(on_clearVisualsButton_pushButton_clicked()));
-        QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_status_pushButton_clicked()));
-        QObject::connect(boxComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_boxComboBox_currentIndexChanged(int)));
-        QObject::connect(zoomPlusButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomPlusButton_pushButton_clicked()));
-        QObject::connect(pushButton_2, SIGNAL(clicked()), MainWindow, SLOT(on_land_pushButton_clicked()));
-        QObject::connect(removeDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_removeDroneButton_pushButton_clicked()));
-        QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(on_takeoff_pushButton_clicked()));
-        QObject::connect(droneComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_droneComboBox_currentIndexChanged(int)));
-        QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
-        QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_zoom_in_out_slider_valueChanged(int)));
-        QObject::connect(loadTrajectoryButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadTrajectoryButton_pushButton_clicked()));
-        QObject::connect(loadMapButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadMapButton_pushButton_clicked()));
-        QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
-        QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_path_upload_pushButton_clicked()));
-        QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
         QObject::connect(addDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_addDroneButton_pushButton_clicked()));
         QObject::connect(restartButton, SIGNAL(clicked()), MainWindow, SLOT(on_restartButton_pushButton_clicked()));
+        QObject::connect(zoomOutButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomOutButton_pushButton_clicked()));
+        QObject::connect(requestStatusPushButtin, SIGNAL(clicked()), MainWindow, SLOT(on_request_box_status_pushButton_clicked()));
+        QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
+        QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
+        QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_path_upload_pushButton_clicked()));
+        QObject::connect(clearVisualsButton, SIGNAL(clicked()), MainWindow, SLOT(on_clearVisualsButton_pushButton_clicked()));
+        QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
+        QObject::connect(removeDroneButton, SIGNAL(clicked()), MainWindow, SLOT(on_removeDroneButton_pushButton_clicked()));
+        QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(on_takeoff_pushButton_clicked()));
+        QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_status_pushButton_clicked()));
+        QObject::connect(loadMapButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadMapButton_pushButton_clicked()));
+        QObject::connect(boxComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_boxComboBox_currentIndexChanged(int)));
+        QObject::connect(pushButton_2, SIGNAL(clicked()), MainWindow, SLOT(on_land_pushButton_clicked()));
+        QObject::connect(droneComboBox, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(on_droneComboBox_currentIndexChanged(int)));
+        QObject::connect(zoomPlusButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomPlusButton_pushButton_clicked()));
+        QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
+        QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_zoom_in_out_slider_valueChanged(int)));
+        QObject::connect(loadTrajectoryButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadTrajectoryButton_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

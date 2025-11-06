@@ -154,6 +154,8 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 {
     RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box status : %s", msg->box_status);
 
+    if(msg->box_id.empty()) return;
+
     std::cout << msg->box_id << ", " << msg->box_status << std::endl;
     std::string box_id = msg->box_id;
     std::string drone_id = msg->drone_id;
@@ -186,7 +188,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             ui->boxComboBox->addItem(id);
         }
         Coordinates coord{box_lat, box_lon, box_elv};
-        if(box_id == "Master")
+        if(isMasterId(box_id))
         {
             Box box(BoxType::MASTER, coord, box_id, box_status, this->boxes.size() + 1);
             this->boxes.push_back(box);
@@ -230,7 +232,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 
     this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
 
-    if(box_id == "Master")
+    if(isMasterId(box_id))
         this->ui->boxTypeValueLabel->setText("Master");
     else
         this->ui->boxTypeValueLabel->setText("Slave");
@@ -288,7 +290,10 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
     std::cout << "Got new BOX request\n";
     std::cout << "Got box id: " << msg->box_id << std::endl;
 
+    if(msg->box_id.empty()) return;
+
     NewBoxDialog dialog(this, msg->landing_pos.lat, msg->landing_pos.lon, msg->landing_pos.elv, msg->box_id);
+
 
     // Run the dialog modally
     if (dialog.exec() == QDialog::Accepted) {
@@ -307,7 +312,7 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
         Coordinates coord{dialog.get_box_lat(),dialog.get_box_lon(),dialog.get_box_alt()};
         std::cout << "Coord" << coord.alt << std::endl;
 
-        if(msg->box_id == "Master")
+        if(isMasterId(msg->box_id))
         {
             std::cout << "Adding a MASTER box\n";
             Box box(BoxType::MASTER, coord, return_msg.box_id, boxStatusToString(BoxState::EMPTY) ,this->boxes.size() + 1);
@@ -397,24 +402,45 @@ void MainWindow::on_remove_box_pushButton_clicked()
         int drone_index = this->ui->droneComboBox->findText(child_drone_id);
 
         this->ui->droneComboBox->removeItem(drone_index);
+        this->drones.erase(this->drones.begin() + drone_index);
 
-        this->ui->drone_altitude_value_label->setText("Unknown");;
-        this->ui->drone_latitude_value_label->setText("Unknown");;
-        this->ui->drone_longitude_value_label->setText("Unknown");;
+        if(this->ui->droneComboBox->count() <= 0)
+        {
+            this->ui->drone_altitude_value_label->setText("Unknown");;
+            this->ui->drone_latitude_value_label->setText("Unknown");;
+            this->ui->drone_longitude_value_label->setText("Unknown");;
 
-        this->ui->droneIdLabel->setText("Unknown");
-        
-        QPalette palette = this->ui->droneColorCodeLabel->palette();
-        palette.setColor(QPalette::Window, Qt::white);
-        this->ui->droneColorCodeLabel->setPalette(palette);
+            this->ui->droneIdLabel->setText("Unknown");
+            
+            QPalette palette = this->ui->droneColorCodeLabel->palette();
+            palette.setColor(QPalette::Window, Qt::white);
+            this->ui->droneColorCodeLabel->setPalette(palette);
 
-        this->ui->parentBoxLabel->setText("None");
+            this->ui->parentBoxLabel->setText("None");
 
-        this->drones.erase(this->drones.begin() + current_index);
+            this->imageLabel_drone->clear();
+            this->batteryTextLabel_drone->clear();
+            this->batteryImageLabel_drone->clear();
+        }
+        else if(!drones.empty())
+        {
+            QString current_data = this->ui->droneComboBox->currentText();
+            int current_index = this->ui->droneComboBox->currentIndex();
 
-        this->imageLabel_drone->clear();
-        this->batteryTextLabel_drone->clear();
-        this->batteryImageLabel_drone->clear();
+            this->ui->drone_altitude_value_label->setText(QString::number(this->drones[current_index].get_drone_alt(), 'f', 4));;
+            this->ui->drone_latitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lat(), 'f', 4));;
+            this->ui->drone_longitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lon(), 'f', 4));;
+
+            this->ui->droneIdLabel->setText(QString::fromStdString(this->drones[current_index].get_drone_id()));
+
+            QPalette palette = this->ui->droneColorCodeLabel->palette();
+            palette.setColor(QPalette::Window, this->drones[current_index].get_drone_color());
+            this->ui->droneColorCodeLabel->setPalette(palette);
+
+            this->ui->parentBoxLabel->setText(QString::fromStdString(this->drones[current_index].get_parent_box_id()));
+
+            this->setDroneGraphics(0.0f);
+        }
 
     }
 
@@ -426,21 +452,43 @@ void MainWindow::on_remove_box_pushButton_clicked()
     std::cout << "Current index = " << current_index << std::endl; 
     if (current_index >= 0) {
         this->ui->boxComboBox->removeItem(current_index);
+
+        if(this->ui->boxComboBox->count() <= 0)
+        {
+            this->ui->box_latitude_value_label->setText("Unknown");
+            this->ui->box_longitude_value_label->setText("Unknown");
+            this->ui->box_altitude_value_label->setText("Unknown");
+            this->ui->boxIdValueLabel->setText("Unknown");
+            this->ui->boxNumberValueLabel->setText("Unknown");
+            this->ui->boxTypeValueLabel->setText("Unknown");
+            this->ui->boxStatusValueLabel->setText("Unknown");
+
+            this->imageLabel_box->clear();
+            this->batteryTextLabel_box->clear();
+            this->batteryImageLabel_box->clear();
+
+            this->ui->assignedDroneLabel->setText("None");
+        }
+        else
+        {
+            QString current_data = this->ui->boxComboBox->currentText();
+            int current_index = this->ui->boxComboBox->currentIndex();
+
+            this->ui->box_altitude_value_label->setText(QString::number(this->boxes[current_index].get_box_landing_alt(), 'f', 4));
+            this->ui->box_latitude_value_label->setText(QString::number(this->boxes[current_index].get_box_landing_lat(), 'f', 4));
+            this->ui->box_longitude_value_label->setText(QString::number(this->boxes[current_index].get_box_landing_lon(), 'f', 4));
+
+            this->ui->boxIdValueLabel->setText(QString::fromStdString(this->boxes[current_index].get_box_id()));
+            this->ui->boxNumberValueLabel->setText(QString::number(this->boxes[current_index].get_box_number()));
+            this->ui->assignedDroneLabel->setText(QString::fromStdString(this->boxes[current_index].get_assigned_drone_id()));
+
+            std::string box_status = this->boxes[current_index].get_box_status();
+
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
+
+            this->setBoxStateGraphics(box_status, 0.0f);
+        }
     }
-
-    this->ui->box_latitude_value_label->setText("Unknown");
-    this->ui->box_longitude_value_label->setText("Unknown");
-    this->ui->box_altitude_value_label->setText("Unknown");
-    this->ui->boxIdValueLabel->setText("Unknown");
-    this->ui->boxNumberValueLabel->setText("Unknown");
-    this->ui->boxTypeValueLabel->setText("Unknown");
-    this->ui->boxStatusValueLabel->setText("Unknown");
-
-    this->imageLabel_box->clear();
-    this->batteryTextLabel_box->clear();
-    this->batteryImageLabel_box->clear();
-
-    this->ui->assignedDroneLabel->setText("None");
 }
 
 void MainWindow::on_removeDroneButton_pushButton_clicked()
@@ -466,6 +514,10 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
             this->ui->droneColorCodeLabel->setPalette(palette);
 
             this->ui->parentBoxLabel->setText("None");
+
+            this->imageLabel_drone->clear();
+            this->batteryTextLabel_drone->clear();
+            this->batteryImageLabel_drone->clear();
         }
         else if(!drones.empty())
         {
@@ -879,4 +931,19 @@ void MainWindow::on_restartButton_pushButton_clicked()
 
         this->backEndManager->startBackend();
     }
+}
+
+bool MainWindow::isMasterId(std::string box_id)
+{
+    std::string box_id_cmp = "master";
+
+    if (box_id.length() != box_id_cmp.length())
+        return false;
+
+    for (int i = 0; i < box_id.length(); ++i) {
+        if (tolower(box_id[i]) != tolower(box_id_cmp[i]))
+            return false;
+    }
+
+    return true;
 }
