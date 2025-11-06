@@ -561,21 +561,22 @@ class MasterBoxNode(Node):
 			status).
 		"""
 		box_info = self.linked_slave_boxes.get(request.box_id, None)
-		response.box_id = request.box_id
+		response.status.box_id = request.box_id
 
 		if box_info is None:
 			self.get_logger().warn(f"Slave box info request received for unknown box ID: '{request.box_id}'. Responding with empty info.")
-			response.drone_id = ""
-			response.landing_pos = PositionMessage()
-			response.status = BoxStatusEnum.UNKNOWN.value
+			response.status.drone_id = ""
+			response.status.landing_pos = PositionMessage()
+			response.status.status = BoxStatusEnum.UNKNOWN.value
 
 		else:
 			self.get_logger().info(f"Slave box info request received for box ID: '{request.box_id}'. Responding with info: {box_info}")
-			response.drone_id = box_info.drone_id
-			response.landing_pos = box_info.position
-			response.status = box_info.status.value
+			response.status.drone_id = box_info.drone_id
+			response.status.landing_pos = box_info.position
+			response.status.status = box_info.status.value
 
 		return response
+
 
 	def find_box_id_from_drone_id(self, drone_id: str) -> str | None:
 		for box_id, box_status in self.linked_slave_boxes.items():
