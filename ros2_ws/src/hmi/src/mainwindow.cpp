@@ -240,6 +240,8 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
         }
     }
 
+    std::cout << this->ui->boxComboBox->currentText().toStdString() << ", " << box_id << std::endl;
+
     if(this->ui->boxComboBox->currentText().toStdString() == box_id)
     {
         std::cout << "updating visualizations for " << this->ui->boxComboBox->currentText().toStdString() << " based on id " << box_id << std::endl;
@@ -563,24 +565,21 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 
     if(this->ui->boxComboBox->count() > 0 && !this->boxes.empty())
     {
-        float box_altitude = this->boxes[index].get_box_landing_alt();
-        float box_longitude = this->boxes[index].get_box_landing_lon();
-        float box_latitude = this->boxes[index].get_box_landing_lat();
-        std::string box_id = this->boxes[index].get_box_id();
-        int box_number = this->boxes[index].get_box_number();
-        int box_type = this->boxes[index].get_box_type();
         std::string box_status = this->boxes[index].get_box_status();
 
-        this->ui->box_altitude_value_label->setText(QString::number(box_altitude, 'f', 4));
-        this->ui->box_longitude_value_label->setText(QString::number(box_longitude, 'f', 4));
-        this->ui->box_latitude_value_label->setText(QString::number(box_latitude, 'f', 4));
-        this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
-        this->ui->boxNumberValueLabel->setText(QString::number(box_number));
-        this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
+        this->ui->box_altitude_value_label->setText(QString::number(this->boxes[index].get_box_landing_alt(), 'f', 4));
+        this->ui->box_longitude_value_label->setText(QString::number(this->boxes[index].get_box_landing_lon(), 'f', 4));
+        this->ui->box_latitude_value_label->setText(QString::number(this->boxes[index].get_box_landing_lat(), 'f', 4));
+        this->ui->boxIdValueLabel->setText(QString::fromStdString(this->boxes[index].get_box_id()));
+        this->ui->boxNumberValueLabel->setText(QString::number(this->boxes[index].get_box_number()));
+        this->ui->boxStatusValueLabel->setText(QString::fromStdString(this->boxes[index].get_box_status()));
+        this->ui->assignedDroneLabel->setText(QString::fromStdString(this->boxes[index].get_assigned_drone_id()));
 
         std::cout << "Index = " << index << ", box_status = " << box_status << std::endl;
 
         this->setBoxStateGraphics(box_status, 0.0f);
+
+        int box_type = this->boxes[index].get_box_type();
 
         if(box_type == BoxType::SLAVE)
             this->ui->boxTypeValueLabel->setText("Slave");
