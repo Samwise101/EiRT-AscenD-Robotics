@@ -193,10 +193,10 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
         this->pending_box_responses_--; 
 
     auto msg = dronehive_interfaces::msg::BoxFullStatus();
-    msg.box_id = response->box_id;
-    msg.drone_id = response->drone_id;
-    msg.landing_pos = response->landing_pos;
-    msg.box_status = response->status;
+    msg.box_id = response->status.box_id;
+    msg.drone_id = response->status.drone_id;
+    msg.landing_pos = response->status.landing_pos;
+    msg.box_status = response->status.status;
 
     box_status_pub_->publish(msg);
 }
