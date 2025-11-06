@@ -452,6 +452,8 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
 
         this->ui->droneComboBox->removeItem(current_index);
 
+        this->drones.erase(this->drones.begin() + current_index);
+
         if(this->ui->droneComboBox->count() <= 0)
         {
             this->ui->drone_altitude_value_label->setText("Unknown");;
@@ -464,27 +466,25 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
             this->ui->droneColorCodeLabel->setPalette(palette);
 
             this->ui->parentBoxLabel->setText("None");
-
-            this->drones.erase(this->drones.begin() + current_index);
         }
-        else{
-
+        else if(!drones.empty())
+        {
             QString current_data = this->ui->droneComboBox->currentText();
             int current_index = this->ui->droneComboBox->currentIndex();
 
-            this->ui->drone_altitude_value_label->setText("Unknown");;
-            this->ui->drone_latitude_value_label->setText("Unknown");;
-            this->ui->drone_longitude_value_label->setText("Unknown");;
+            this->ui->drone_altitude_value_label->setText(QString::number(this->drones[current_index].get_drone_alt(), 'f', 4));;
+            this->ui->drone_latitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lat(), 'f', 4));;
+            this->ui->drone_longitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lon(), 'f', 4));;
 
-            this->ui->droneIdLabel->setText("Unknown");
+            this->ui->droneIdLabel->setText(QString::fromStdString(this->drones[current_index].get_drone_id()));
+
             QPalette palette = this->ui->droneColorCodeLabel->palette();
-            palette.setColor(QPalette::Window, Qt::white);
+            palette.setColor(QPalette::Window, this->drones[current_index].get_drone_color());
             this->ui->droneColorCodeLabel->setPalette(palette);
 
+            this->ui->parentBoxLabel->setText(QString::fromStdString(this->drones[current_index].get_parent_box_id()));
 
-            this->ui->parentBoxLabel->setText("None");
-
-            this->drones.erase(this->drones.begin() + current_index);
+            this->setDroneGraphics(0.0f);
         }
     }
 }
