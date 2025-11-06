@@ -3,7 +3,9 @@
 #include <QDebug>
 #include <chrono>
 #include <thread>
-   
+#include <QStringList>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 namespace qos_profiles
 {
     static const rclcpp::QoS master_qos = [] {
@@ -33,6 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
     
     this->batteryImageLabel_drone = new QLabel(ui->frame_drone);
     this->batteryTextLabel_drone = new QLabel(ui->frame_drone);
+
+    this->list_widget = new QListWidget(this);
+    this->ui->verticalLayout_3->addWidget(this->list_widget);
+
+    connect(this->list_widget, &QListWidget::itemDoubleClicked,
+        this, &MainWindow::onListItemDoubleClicked);
     
     // Create ROS2 node
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
@@ -85,6 +93,8 @@ MainWindow::~MainWindow()
 void MainWindow::cleanup()
 {
     delete this->warehouseFrame;
+    this->warehouseFrame = nullptr;
+
     delete this->imageLabel_box;
     delete this->imageLabel_drone;
     delete this->batteryImageLabel_box;
@@ -92,7 +102,10 @@ void MainWindow::cleanup()
     delete this->batteryImageLabel_drone;
     delete this->batteryTextLabel_drone;
 
+    this->backEndManager->stopBackend();
+
     delete this->backEndManager;
+    this->backEndManager = nullptr;
         // Stop timers first
     if (spinTimer_) {
         spinTimer_->stop();
@@ -106,6 +119,8 @@ void MainWindow::cleanup()
 
     delete this->spinTimer_;
     delete this->ui;
+
+    rclcpp::shutdown();
 }
 
 void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg)
@@ -143,6 +158,9 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     std::string box_id = msg->box_id;
     std::string drone_id = msg->drone_id;
     std::string box_status =  msg->box_status;
+
+    std::cout << "Box ID = " << box_id << ", drone_id = " << drone_id << ", box_status = " << box_status << std::endl;
+
     float box_lat = msg->landing_pos.lat;
     float box_lon = msg->landing_pos.lon;
     float box_elv = msg->landing_pos.elv;
@@ -161,6 +179,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 
     if(!box_exists)
     {
+        std::cout << "Creating a new box\n";
         QString id = QString::fromStdString(msg->box_id);
         if (ui->boxComboBox) {
             box_update_happened = true;
@@ -260,7 +279,7 @@ void MainWindow::onBackendMessage(const std_msgs::msg::String::SharedPtr msg)
 
 void MainWindow::onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg)
 {
-    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got heartbeat: '%s'", msg->data.c_str());
+    // RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got heartbeat: '%s'", msg->data.c_str());
     backEndManager->setMissedHeartBeat(0);
 }
 
@@ -319,19 +338,16 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
 void MainWindow::onBackEndStopped()
 {
     std::cout << "Hello from stopped\n";
-    delete this->backEndManager;
-    std::system("pkill -TERM -f app_node");   // graceful
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::system("pkill -9 -f app_node");      // force if needed
+
 }
 
 void MainWindow::onBackEndCrashed()
 {
     std::cout << "Hello from crash\n";
+    this->backEndManager->stopBackend();
+
     delete this->backEndManager;
-    std::system("pkill -TERM -f app_node");   // graceful
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::system("pkill -9 -f app_node");      // force if needed
+    this->backEndManager = nullptr;
 }
 
 std::vector<Box> MainWindow::get_boxes()
@@ -436,19 +452,40 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
 
         this->ui->droneComboBox->removeItem(current_index);
 
-        this->ui->drone_altitude_value_label->setText("Unknown");;
-        this->ui->drone_latitude_value_label->setText("Unknown");;
-        this->ui->drone_longitude_value_label->setText("Unknown");;
-
-        this->ui->droneIdLabel->setText("Unknown");
-        QPalette palette = this->ui->droneColorCodeLabel->palette();
-        palette.setColor(QPalette::Window, Qt::white);
-        this->ui->droneColorCodeLabel->setPalette(palette);
-
-
-        this->ui->parentBoxLabel->setText("None");
-
         this->drones.erase(this->drones.begin() + current_index);
+
+        if(this->ui->droneComboBox->count() <= 0)
+        {
+            this->ui->drone_altitude_value_label->setText("Unknown");;
+            this->ui->drone_latitude_value_label->setText("Unknown");;
+            this->ui->drone_longitude_value_label->setText("Unknown");;
+
+            this->ui->droneIdLabel->setText("Unknown");
+            QPalette palette = this->ui->droneColorCodeLabel->palette();
+            palette.setColor(QPalette::Window, Qt::white);
+            this->ui->droneColorCodeLabel->setPalette(palette);
+
+            this->ui->parentBoxLabel->setText("None");
+        }
+        else if(!drones.empty())
+        {
+            QString current_data = this->ui->droneComboBox->currentText();
+            int current_index = this->ui->droneComboBox->currentIndex();
+
+            this->ui->drone_altitude_value_label->setText(QString::number(this->drones[current_index].get_drone_alt(), 'f', 4));;
+            this->ui->drone_latitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lat(), 'f', 4));;
+            this->ui->drone_longitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lon(), 'f', 4));;
+
+            this->ui->droneIdLabel->setText(QString::fromStdString(this->drones[current_index].get_drone_id()));
+
+            QPalette palette = this->ui->droneColorCodeLabel->palette();
+            palette.setColor(QPalette::Window, this->drones[current_index].get_drone_color());
+            this->ui->droneColorCodeLabel->setPalette(palette);
+
+            this->ui->parentBoxLabel->setText(QString::fromStdString(this->drones[current_index].get_parent_box_id()));
+
+            this->setDroneGraphics(0.0f);
+        }
     }
 }
 
@@ -545,17 +582,17 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {
-    if(this->ui->boxComboBox->count() > 0 && !box_update_happened && !this->boxes.empty())
+    if(this->ui->boxComboBox->count() > 0 && !this->boxes.empty())
     {
         this->currentBoxIndex = index;
 
-        float box_altitude = this->boxes[this->currentBoxIndex].get_box_landing_alt();
-        float box_longitude = this->boxes[this->currentBoxIndex].get_box_landing_lon();
-        float box_latitude = this->boxes[this->currentBoxIndex].get_box_landing_lat();
-        std::string box_id = this->boxes[this->currentBoxIndex].get_box_id();
-        int box_number = this->boxes[this->currentBoxIndex].get_box_number();
-        int box_type = this->boxes[this->currentBoxIndex].get_box_type();
-        std::string box_status = this->boxes[this->currentBoxIndex].get_box_status();
+        float box_altitude = this->boxes[index].get_box_landing_alt();
+        float box_longitude = this->boxes[index].get_box_landing_lon();
+        float box_latitude = this->boxes[index].get_box_landing_lat();
+        std::string box_id = this->boxes[index].get_box_id();
+        int box_number = this->boxes[index].get_box_number();
+        int box_type = this->boxes[index].get_box_type();
+        std::string box_status = this->boxes[index].get_box_status();
 
         this->ui->box_altitude_value_label->setText(QString::number(box_altitude, 'f', 4));
         this->ui->box_longitude_value_label->setText(QString::number(box_longitude, 'f', 4));
@@ -564,12 +601,15 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
         this->ui->boxNumberValueLabel->setText(QString::number(box_number));
         this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
 
+        std::cout << "Index = " << index << ", box_status = " << box_status << std::endl;
+
         this->setBoxStateGraphics(box_status, 0.0f);
 
         if(box_type == BoxType::SLAVE)
             this->ui->boxTypeValueLabel->setText("Slave");
         else if(box_type == BoxType::MASTER)
             this->ui->boxTypeValueLabel->setText("Master");
+            
     }
 }
 
@@ -605,14 +645,19 @@ void MainWindow::on_droneComboBox_currentIndexChanged(int index)
 
 void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_level)
 {
+    std::string pkg_path = ament_index_cpp::get_package_share_directory("hmi");
+
     if(boxStateFromString(box_status) == BoxState::EMPTY)
     {
-        QPixmap pixmap("src/hmi/resources/box_empty.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/box_empty.png");
+        QPixmap pixmap(img_path);
         this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(boxStateFromString(box_status) == BoxState::OCCUPIED)
     {
-        QPixmap pixmap("src/hmi/resources/box_full.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/box_full.png");
+        std::cout << img_path.toStdString() << std::endl;
+        QPixmap pixmap(img_path);
         this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
@@ -623,32 +668,38 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
 
     if(box_battery_level <= 0.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_empty.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_20.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_40.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
-    {
-        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+    { 
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_60.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_80.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_full.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
@@ -667,7 +718,10 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
 
 void MainWindow::setDroneGraphics(float box_battery_level)
 {
-    QPixmap pixmap("src/hmi/resources/hexa_copter.png");
+    std::string pkg_path = ament_index_cpp::get_package_share_directory("hmi");
+    QString img_path = QString::fromStdString(pkg_path + "/resources/hexa_copter.png");
+    QPixmap pixmap(img_path);
+
     this->imageLabel_drone->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     this->imageLabel_drone->setAlignment(Qt::AlignCenter);
     this->imageLabel_drone->setFixedSize(400, 400);
@@ -676,32 +730,38 @@ void MainWindow::setDroneGraphics(float box_battery_level)
 
     if(box_battery_level <= 0.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_empty.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_empty.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 0.0f && box_battery_level < 20.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_20.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_20.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 20.0f && box_battery_level < 40.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_40.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_40.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_60.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_60.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 60.0f && box_battery_level < 80.0f)
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_80.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_80.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else
     {
-        QPixmap pixmap("src/hmi/resources/icons/battery_full.png");
+        QString img_path = QString::fromStdString(pkg_path + "/resources/icons/battery_full.png");
+        QPixmap pixmap(img_path);
         this->batteryImageLabel_drone->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 
@@ -718,6 +778,27 @@ void MainWindow::setDroneGraphics(float box_battery_level)
     this->batteryImageLabel_drone->show();
 }
 
+void MainWindow::onListItemDoubleClicked(QListWidgetItem *item)
+{
+    int curr_list_widget_index = this->list_widget->row(item);
+    std::cout << "Item at index = " << curr_list_widget_index << "was selected" << std::endl;
+
+    if(warehouseFrame == nullptr) return;
+
+    bool oldValue = warehouseFrame->isDisplaySet(curr_list_widget_index);
+
+    this->warehouseFrame->setDisplayByIndex(curr_list_widget_index, !oldValue);
+
+    ColorListWidget *cw = qobject_cast<ColorListWidget*>(this->list_widget->itemWidget(item));
+    if (cw)
+    {
+        cw->setEnabled(!oldValue);
+        cw->setChecked(!oldValue);
+    }
+
+    // item->setForeground(QBrush(Qt::gray));
+    // item->setFlags(item->flags() | Qt::ItemIsSelectable);
+}
 
 void MainWindow::on_loadMapButton_pushButton_clicked()
 {
@@ -741,10 +822,61 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
     );
 
     this->warehouseFrame->loadTrajectoryXml(filename);
+
+    for (int i = 0; i < this->list_widget->count(); ++i)
+    {
+        QWidget *w = this->list_widget->itemWidget(this->list_widget->item(i));
+        delete w;
+    }
+
+    this->list_widget->clear();
+    
+    auto drone_data = this->warehouseFrame->getDroneVisData();
+
+    for(auto drone : drone_data)
+    {
+        QColor drone_color = drone.drone_color;
+        QString drone_id = QString::fromStdString(drone.drone_id);
+        
+        QListWidgetItem* item = new QListWidgetItem(this->list_widget);
+
+        ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
+
+        item->setSizeHint(widget->sizeHint());
+        this->list_widget->addItem(item);
+        this->list_widget->setItemWidget(item, widget);
+    }
 }
 
 
 void MainWindow::on_clearVisualsButton_pushButton_clicked()
 {
     this->warehouseFrame->clearVisuals();
+
+    for (int i = 0; i < this->list_widget->count(); ++i)
+    {
+        QWidget *w = this->list_widget->itemWidget(this->list_widget->item(i));
+        delete w;
+    }
+
+    this->list_widget->clear();
+}
+
+void MainWindow::on_restartButton_pushButton_clicked()
+{
+    if(this->backEndManager == nullptr)
+    {
+        this->backEndManager = new BackEndManager(this);
+        this->backEndManager->startBackend();
+    }
+    else
+    {
+        this->backEndManager->stopBackend();
+
+        delete backEndManager;
+        backEndManager = nullptr;
+        this->backEndManager = new BackEndManager(this);
+
+        this->backEndManager->startBackend();
+    }
 }

@@ -40,6 +40,7 @@ set(SOURCES
   src/backend_manager.cpp
   src/box_timeout_dialog.cpp
   src/warehouseframe.cpp
+  src/ColorListWidget.cpp
 )
 
 set(HEADERS
@@ -52,6 +53,7 @@ set(HEADERS
   include/backend_manager.h
   include/helper.h
   include/warehouseframe.h
+  include/ColorListWidget.h
 )
 
 # Create the executable (only once!)
@@ -71,6 +73,10 @@ install(TARGETS frontend_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY resources/
+  DESTINATION share/${PROJECT_NAME}/resources
+)
 
 # ROS 2 deps
 ament_target_dependencies(frontend_node

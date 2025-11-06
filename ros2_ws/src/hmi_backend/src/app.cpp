@@ -85,9 +85,6 @@ App::App() : Node("app_node")
 App::~App()
 {
     rclcpp::shutdown();
-    std::system("pkill -TERM -f app_node");   // graceful
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::system("pkill -9 -f app_node");      // force if needed
 }
 
 void App::onNotifyGui(const std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Request> request, std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Response> response)
@@ -159,8 +156,12 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
     this->pending_box_responses_ = box_ids_size;
 
-    for (int i = 0; i < box_ids_size; ++i)
+    for (int i = 0; i < box_ids_size; i++)
     {
+        auto msg2 = std_msgs::msg::String();
+        msg2.data = "Starting status request for box id " + response->box_ids[i];
+        to_gui_msg_pub_->publish(msg2);
+
         if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
         {
             auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();

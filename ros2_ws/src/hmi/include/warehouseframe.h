@@ -10,8 +10,21 @@
 #include <string>
 #include <QFile>
 #include <QXmlStreamReader>
+#include <string>
 
 #include "drone.h"
+
+struct Line { float x1, y1, x2, y2; };
+struct Point { float x, y; };
+
+struct DroneVis
+{
+    std::string drone_id;
+    QColor drone_color;
+    std::vector<Point> drone_waypoints;
+    bool display;
+};
+
 
 class WarehouseFrame : public QFrame
 {
@@ -20,16 +33,6 @@ class WarehouseFrame : public QFrame
 public:
     explicit WarehouseFrame(QWidget *parent = nullptr);
     ~WarehouseFrame();
-
-    struct Line { float x1, y1, x2, y2; };
-    struct Point { float x, y; };
-
-    struct DroneVis
-    {
-        std::string drone_id;
-        QColor drone_color;
-        std::vector<Point> drone_waypoints;
-    };
 
     float scale_factor;
 
@@ -42,6 +45,10 @@ public:
     float getScaleFactor();
     void incrementScaleFactor();
     void decrementScaleFactor();
+    void setDisplayByIndex(int index, bool value);
+    bool isDisplaySet(int index);
+
+    std::vector<DroneVis> getDroneVisData();
 
     std::vector<DroneVis> drones;
 
