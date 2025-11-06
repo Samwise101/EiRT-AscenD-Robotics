@@ -123,8 +123,6 @@ void MainWindow::cleanup()
     rclcpp::shutdown();
 }
 
-
-
 void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg)
 {
     std::cout << "Got occupancy message due to drone changing its box\n";
