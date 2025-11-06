@@ -42,7 +42,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/RequestStatus.srv"
   "srv/SlaveBoxIDsService.srv"
   "srv/SlaveBoxInformationService.srv"
-  "srv/DroneTrajectoryWaypointsService.srv"
 
   "msg/BackendCommand.msg"
   "msg/BoxBroadcastMessage.msg"
