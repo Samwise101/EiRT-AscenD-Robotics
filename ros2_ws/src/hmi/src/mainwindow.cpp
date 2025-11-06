@@ -150,7 +150,7 @@ void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::Occupa
 
 void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg)
 {
-    RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "Got box status : %s", msg->box_status);
+    std::cout << "Got box id : " << msg->box_id << std::endl;
 
     if(msg->box_id.empty()) return;
 
@@ -245,7 +245,11 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     if(this->ui->boxComboBox->currentText().toStdString() == box_id)
     {
         std::cout << "updating visualizations for " << this->ui->boxComboBox->currentText().toStdString() << " based on id " << box_id << std::endl;
-        this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
+        if(drone_id.empty())
+            this->ui->assignedDroneLabel->setText(QString::fromStdString("None"));
+        else
+            this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
+
         this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
 
         if(isMasterId(box_id))
@@ -497,6 +501,7 @@ void MainWindow::on_remove_box_pushButton_clicked()
 
             this->ui->boxIdValueLabel->setText(QString::fromStdString(this->boxes[current_index].get_box_id()));
             this->ui->boxNumberValueLabel->setText(QString::number(this->boxes[current_index].get_box_number()));
+
             this->ui->assignedDroneLabel->setText(QString::fromStdString(this->boxes[current_index].get_assigned_drone_id()));
 
             std::string box_status = this->boxes[current_index].get_box_status();
@@ -937,6 +942,11 @@ void MainWindow::on_request_box_status_pushButton_clicked()
     std::cout << "Hello from the request box status button\n";
     auto command = dronehive_interfaces::msg::GuiCommand();
     command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS;
+    if(this->ui->boxComboBox->count() > 0)
+        command.box_id = this->ui->boxComboBox->currentText().toStdString();
+    else
+        command.box_id = "";
+    std::cout << "Box id  to update: " << command.box_id << std::endl;
     gui_cmd_pub_->publish(command);
 }
 

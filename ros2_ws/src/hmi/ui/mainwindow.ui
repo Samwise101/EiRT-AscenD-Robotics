@@ -365,7 +365,7 @@
              <rect>
               <x>10</x>
               <y>10</y>
-              <width>731</width>
+              <width>761</width>
               <height>511</height>
              </rect>
             </property>
@@ -864,7 +864,7 @@ Drone:</string>
              <rect>
               <x>10</x>
               <y>10</y>
-              <width>731</width>
+              <width>771</width>
               <height>511</height>
              </rect>
             </property>
@@ -1109,46 +1109,6 @@ Drone:</string>
                  </item>
                  <item>
                   <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="3" column="0">
-                    <widget class="QPushButton" name="pushButton">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Arm</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="pushButton_6">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="layoutDirection">
-                      <enum>Qt::LeftToRight</enum>
-                     </property>
-                     <property name="text">
-                      <string>Request Drone
- Status</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="3" column="1">
                     <widget class="QPushButton" name="pushButton_3">
                      <property name="font">
@@ -1164,24 +1124,6 @@ Drone:</string>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
                        <normaloff>:/images/icons/drone_takeoff.png</normaloff>:/images/icons/drone_takeoff.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QPushButton" name="pushButton_4">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Return Home</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/return_home.png</normaloff>:/images/icons/return_home.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1203,7 +1145,26 @@ Drone:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="1">
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="pushButton_4">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Pause Trajectory
+ Completion</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/pause.png</normaloff>:/images/icons/pause.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
                     <widget class="QPushButton" name="pushButton_2">
                      <property name="font">
                       <font>
@@ -1218,6 +1179,46 @@ Drone:</string>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
                        <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="pushButton_6">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="layoutDirection">
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="text">
+                      <string>Request Drone
+ Status</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QPushButton" name="pushButton">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Arm</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1648,22 +1649,6 @@ Drone:</string>
     <hint type="destinationlabel">
      <x>673</x>
      <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_4</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_return_home_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>779</x>
-     <y>464</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>871</x>
-     <y>427</y>
     </hint>
    </hints>
   </connection>

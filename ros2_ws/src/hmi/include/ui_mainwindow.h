@@ -156,12 +156,12 @@ public:
     QLabel *parentBoxLabel;
     QFrame *line_23;
     QGridLayout *gridLayout_3;
-    QPushButton *pushButton;
-    QPushButton *pushButton_6;
     QPushButton *pushButton_3;
-    QPushButton *pushButton_4;
     QPushButton *pushButton_5;
+    QPushButton *pushButton_4;
     QPushButton *pushButton_2;
+    QPushButton *pushButton_6;
+    QPushButton *pushButton;
     QFrame *line_16;
     QGridLayout *gridLayout_6;
     QLabel *drone_longitude_label;
@@ -462,7 +462,7 @@ public:
         box_tab->setSizePolicy(sizePolicy1);
         verticalLayoutWidget_3 = new QWidget(box_tab);
         verticalLayoutWidget_3->setObjectName(QString::fromUtf8("verticalLayoutWidget_3"));
-        verticalLayoutWidget_3->setGeometry(QRect(10, 10, 731, 511));
+        verticalLayoutWidget_3->setGeometry(QRect(10, 10, 761, 511));
         box_main_layout = new QVBoxLayout(verticalLayoutWidget_3);
         box_main_layout->setSpacing(0);
         box_main_layout->setObjectName(QString::fromUtf8("box_main_layout"));
@@ -758,7 +758,7 @@ public:
         drone_tab->setObjectName(QString::fromUtf8("drone_tab"));
         verticalLayoutWidget_2 = new QWidget(drone_tab);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 731, 511));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 771, 511));
         verticalLayout_4 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -920,14 +920,41 @@ public:
 
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        pushButton = new QPushButton(verticalLayoutWidget_2);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setFont(font);
+        pushButton_3 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pushButton_3->setFont(font);
         QIcon icon18;
-        icon18.addFile(QString::fromUtf8(":/images/icons/arm_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton->setIcon(icon18);
+        icon18.addFile(QString::fromUtf8(":/images/icons/drone_takeoff.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_3->setIcon(icon18);
 
-        gridLayout_3->addWidget(pushButton, 3, 0, 1, 1);
+        gridLayout_3->addWidget(pushButton_3, 3, 1, 1, 1);
+
+        pushButton_5 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
+        pushButton_5->setFont(font);
+        QIcon icon19;
+        icon19.addFile(QString::fromUtf8(":/images/icons/path.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_5->setIcon(icon19);
+
+        gridLayout_3->addWidget(pushButton_5, 0, 0, 1, 1);
+
+        pushButton_4 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
+        pushButton_4->setFont(font);
+        QIcon icon20;
+        icon20.addFile(QString::fromUtf8(":/images/icons/pause.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_4->setIcon(icon20);
+
+        gridLayout_3->addWidget(pushButton_4, 1, 0, 1, 1);
+
+        pushButton_2 = new QPushButton(verticalLayoutWidget_2);
+        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButton_2->setFont(font);
+        QIcon icon21;
+        icon21.addFile(QString::fromUtf8(":/images/icons/drone_land.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_2->setIcon(icon21);
+
+        gridLayout_3->addWidget(pushButton_2, 3, 0, 1, 1);
 
         pushButton_6 = new QPushButton(verticalLayoutWidget_2);
         pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
@@ -935,43 +962,16 @@ public:
         pushButton_6->setLayoutDirection(Qt::LeftToRight);
         pushButton_6->setIcon(icon16);
 
-        gridLayout_3->addWidget(pushButton_6, 0, 1, 1, 1);
+        gridLayout_3->addWidget(pushButton_6, 1, 1, 1, 1);
 
-        pushButton_3 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        pushButton_3->setFont(font);
-        QIcon icon19;
-        icon19.addFile(QString::fromUtf8(":/images/icons/drone_takeoff.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_3->setIcon(icon19);
-
-        gridLayout_3->addWidget(pushButton_3, 3, 1, 1, 1);
-
-        pushButton_4 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
-        pushButton_4->setFont(font);
-        QIcon icon20;
-        icon20.addFile(QString::fromUtf8(":/images/icons/return_home.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_4->setIcon(icon20);
-
-        gridLayout_3->addWidget(pushButton_4, 4, 0, 1, 1);
-
-        pushButton_5 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
-        pushButton_5->setFont(font);
-        QIcon icon21;
-        icon21.addFile(QString::fromUtf8(":/images/icons/path.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_5->setIcon(icon21);
-
-        gridLayout_3->addWidget(pushButton_5, 0, 0, 1, 1);
-
-        pushButton_2 = new QPushButton(verticalLayoutWidget_2);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setFont(font);
+        pushButton = new QPushButton(verticalLayoutWidget_2);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setFont(font);
         QIcon icon22;
-        icon22.addFile(QString::fromUtf8(":/images/icons/drone_land.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton_2->setIcon(icon22);
+        icon22.addFile(QString::fromUtf8(":/images/icons/arm_drone.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton->setIcon(icon22);
 
-        gridLayout_3->addWidget(pushButton_2, 4, 1, 1, 1);
+        gridLayout_3->addWidget(pushButton, 0, 1, 1, 1);
 
 
         verticalLayout_5->addLayout(gridLayout_3);
@@ -1099,7 +1099,6 @@ public:
         QObject::connect(zoomOutButton, SIGNAL(clicked()), MainWindow, SLOT(on_zoomOutButton_pushButton_clicked()));
         QObject::connect(requestStatusPushButtin, SIGNAL(clicked()), MainWindow, SLOT(on_request_box_status_pushButton_clicked()));
         QObject::connect(pushButton_7, SIGNAL(clicked()), MainWindow, SLOT(on_remove_box_pushButton_clicked()));
-        QObject::connect(pushButton_4, SIGNAL(clicked()), MainWindow, SLOT(on_return_home_pushButton_clicked()));
         QObject::connect(pushButton_5, SIGNAL(clicked()), MainWindow, SLOT(on_path_upload_pushButton_clicked()));
         QObject::connect(clearVisualsButton, SIGNAL(clicked()), MainWindow, SLOT(on_clearVisualsButton_pushButton_clicked()));
         QObject::connect(pushButton, SIGNAL(clicked()), MainWindow, SLOT(on_arm_pushButton_clicked()));
@@ -1179,13 +1178,14 @@ public:
         droneColorCodeLabel->setText(QString());
         label_6->setText(QCoreApplication::translate("MainWindow", "Parent Box:", nullptr));
         parentBoxLabel->setText(QCoreApplication::translate("MainWindow", "None", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
+        pushButton_3->setText(QCoreApplication::translate("MainWindow", "Take-Off", nullptr));
+        pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
+        pushButton_4->setText(QCoreApplication::translate("MainWindow", "Pause Trajectory\n"
+" Completion", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
         pushButton_6->setText(QCoreApplication::translate("MainWindow", "Request Drone\n"
 " Status", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("MainWindow", "Take-Off", nullptr));
-        pushButton_4->setText(QCoreApplication::translate("MainWindow", "Return Home", nullptr));
-        pushButton_5->setText(QCoreApplication::translate("MainWindow", "Path Upload", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
         drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lon:", nullptr));
         latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lat:", nullptr));
         altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Hone Pos. Alt:", nullptr));

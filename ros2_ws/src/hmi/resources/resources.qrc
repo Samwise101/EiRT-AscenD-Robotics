@@ -33,6 +33,8 @@
         <file>icons/update_system.png</file>
         <file>icons/refresh.png</file>
         <file>icons/cancle.png</file>
+        <file>icons/pause.png</file>
+        <file>icons/resume.png</file>
         <file>box_full.png</file>
         <file>box_empty.png</file>
         <file>hexa_copter.png</file>
