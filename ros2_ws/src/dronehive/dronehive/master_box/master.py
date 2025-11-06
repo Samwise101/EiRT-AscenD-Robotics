@@ -26,14 +26,16 @@ from dronehive_interfaces.msg import (
 )
 
 from dronehive_interfaces.srv import (
+	BoxStatusSlaveUpdateService,
 	BoxBroadcastService,
 	BoxStatusService,
 	DroneLandingService,
+	DroneTrajectoryWaypointsService,
 	OccupancyService,
+	RequestDroneLanding,
 	RequestReturnHome,
 	SlaveBoxIDsService,
 	SlaveBoxInformationService,
-	DroneTrajectoryWaypointsService,
 )
 import dronehive.utils as dh
 

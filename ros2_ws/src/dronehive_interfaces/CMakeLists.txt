@@ -25,9 +25,9 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/BosStatusSlaveUpdateService.srv"
   "srv/BoxBroadcastService.srv"
   "srv/BoxStatusService.srv"
+  "srv/BoxStatusSlaveUpdateService.srv"
   "srv/DroneLandingService.srv"
   "srv/DroneStatusService.srv"
   "srv/DroneTrajectoryWaypointsService.srv"
