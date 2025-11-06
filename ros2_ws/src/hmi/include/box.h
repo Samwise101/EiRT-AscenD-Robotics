@@ -64,6 +64,10 @@ class Box
 
         int get_box_number(void);
 
+        void set_box_landing_lat(float value);
+        void set_box_landing_lon(float value);
+        void set_box_landing_alt(float value);
+
     private:
         int box_type;
         float box_landing_position_lat;

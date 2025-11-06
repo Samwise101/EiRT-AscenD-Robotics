@@ -71,8 +71,6 @@ MainWindow::MainWindow(QWidget *parent)
     });
     spinTimer_->start(5);
 
-    box_update_happened = false;
-
     warehouseFrame = new WarehouseFrame();
     warehouseFrame->setStyleSheet("background-color:rgb(255,255,255)");
     warehouseFrame->setFrameShape(QFrame::Box);
@@ -168,13 +166,15 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     float box_elv = msg->landing_pos.elv;
 
     bool box_exists = false;
+    int box_index = 0;
 
-    for(Box box : this->boxes)
+    for(int i = 0; i < this->boxes.size(); i++)
     {
-        if(box.get_box_id() == box_id)
+        if(boxes[i].get_box_id() == box_id)
         {
             std::cout << "Box exists\n";
             box_exists = true;
+            box_index = i;
             break;
         }
     }
@@ -184,7 +184,6 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
         std::cout << "Creating a new box\n";
         QString id = QString::fromStdString(msg->box_id);
         if (ui->boxComboBox) {
-            box_update_happened = true;
             ui->boxComboBox->addItem(id);
         }
         Coordinates coord{box_lat, box_lon, box_elv};
@@ -198,16 +197,26 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             this->boxes.push_back(box);
         }
     }
+    else
+    {
+        boxes[box_index].set_assigned_drone_id(drone_id);
+        boxes[box_index].set_box_status(box_status);
+        boxes[box_index].set_box_landing_alt(box_elv);
+        boxes[box_index].set_box_landing_lat(box_lat);
+        boxes[box_index].set_box_landing_lon(box_lon);
+    }
 
     if(!drone_id.empty())
     {
         bool drone_exists = false;
+        int drone_curr_id = 0;
 
-        for(Drone drone : drones)
+        for(int j = 0; j < drones.size(); j++)
         {
-            if(drone_id == drone.get_drone_id())
+            if(drone_id == drones[j].get_drone_id())
             {
                 drone_exists = true;
+                drone_curr_id = j;
                 break;
             }
         }
@@ -225,26 +234,33 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
         else
         {
             std::cout << "Drone exists\n";
+            drones[drone_curr_id].set_drone_alt(box_elv);
+            drones[drone_curr_id].set_drone_lat(box_lat);
+            drones[drone_curr_id].set_drone_lon(box_lon);
         }
-
-        this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
     }
 
-    this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
+    if(this->ui->boxComboBox->currentText().toStdString() == box_id)
+    {
+        std::cout << "updating visualizations for " << this->ui->boxComboBox->currentText().toStdString() << " based on id " << box_id << std::endl;
+        this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
+        this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
 
-    if(isMasterId(box_id))
-        this->ui->boxTypeValueLabel->setText("Master");
-    else
-        this->ui->boxTypeValueLabel->setText("Slave");
+        if(isMasterId(box_id))
+            this->ui->boxTypeValueLabel->setText("Master");
+        else
+            this->ui->boxTypeValueLabel->setText("Slave");
 
-    this->ui->boxNumberValueLabel->setText(QString::number(this->boxes.size()));
-    this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
-    this->ui->box_latitude_value_label->setText(QString::number(box_lat, 'f', 4));
-    this->ui->box_longitude_value_label->setText(QString::number(box_lon, 'f', 4));
-    this->ui->box_altitude_value_label->setText(QString::number(box_elv, 'f', 4));
-    box_update_happened = false;
+        std::cout << "New  box status = " << box_status << std::endl;
 
-    this->setBoxStateGraphics(box_status, 0.0f);
+        this->ui->boxNumberValueLabel->setText(QString::number(this->boxes.size()));
+        this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
+        this->ui->box_latitude_value_label->setText(QString::number(box_lat, 'f', 4));
+        this->ui->box_longitude_value_label->setText(QString::number(box_lon, 'f', 4));
+        this->ui->box_altitude_value_label->setText(QString::number(box_elv, 'f', 4));
+
+        this->setBoxStateGraphics(box_status, 0.0f);
+    }
 }
 
 void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)
@@ -293,7 +309,6 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
     if(msg->box_id.empty()) return;
 
     NewBoxDialog dialog(this, msg->landing_pos.lat, msg->landing_pos.lon, msg->landing_pos.elv, msg->box_id);
-
 
     // Run the dialog modally
     if (dialog.exec() == QDialog::Accepted) {
@@ -541,103 +556,13 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
     }
 }
 
-void MainWindow::on_arm_pushButton_clicked()
-{
-    std::cout << "Hello from Arm Button! Can not ARM since safety is of the essence!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_ARMING;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_takeoff_pushButton_clicked()
-{
-    std::cout << "Hello from Takeoff Button! Can not TAKEOFF since safety is of the essence!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_TAKEOFF;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_return_home_pushButton_clicked()
-{
-    std::cout << "Hello from Return Home Button! Can not Return Home since safety is of the essence!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_land_pushButton_clicked()
-{
-    std::cout << "Hello from land button! Can not Land since safety is of the essence!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_request_drone_status_pushButton_clicked()
-{
-    std::cout << "Hello from request status button!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_upload_path_pushButton_clicked()
-{
-    std::cout << "Hello from upload path button!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::PATH_UPLOAD;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_add_box_pushButton_clicked()
-{
-    std::cout << "Hello from the add box button\n";
-    dronehive_interfaces::msg::GuiCommand command;
-    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_addDroneButton_pushButton_clicked()
-{
-    std::cout << "Hello from the add box button\n";
-    dronehive_interfaces::msg::GuiCommand command;
-    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_request_box_status_pushButton_clicked()
-{
-    std::cout << "Hello from the request box status button\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS;
-    gui_cmd_pub_->publish(command);
-}
-
-void MainWindow::on_zoomPlusButton_pushButton_clicked()
-{
-    std::cout << "Hello from the zoom in button\n";
-    this->warehouseFrame->incrementScaleFactor();
-}
-
-void MainWindow::on_zoomOutButton_pushButton_clicked()
-{
-    std::cout << "Hello from the zoom in button\n";
-    this->warehouseFrame->decrementScaleFactor();
-}
-
-// Slider slots
-void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
-{
-    std::cout << "Value of slider: " << float(value/10.0) << std::endl;
-    this->warehouseFrame->setScaleFactor(float(value/10.0));
-}
 
 void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 {
+    std::cout << "Box combo box value changed\n";
+
     if(this->ui->boxComboBox->count() > 0 && !this->boxes.empty())
     {
-        this->currentBoxIndex = index;
-
         float box_altitude = this->boxes[index].get_box_landing_alt();
         float box_longitude = this->boxes[index].get_box_landing_lon();
         float box_latitude = this->boxes[index].get_box_landing_lat();
@@ -708,7 +633,6 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
     else if(boxStateFromString(box_status) == BoxState::OCCUPIED)
     {
         QString img_path = QString::fromStdString(pkg_path + "/resources/box_full.png");
-        std::cout << img_path.toStdString() << std::endl;
         QPixmap pixmap(img_path);
         this->imageLabel_box->setPixmap(pixmap.scaled(QSize(400,400), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
@@ -847,9 +771,6 @@ void MainWindow::onListItemDoubleClicked(QListWidgetItem *item)
         cw->setEnabled(!oldValue);
         cw->setChecked(!oldValue);
     }
-
-    // item->setForeground(QBrush(Qt::gray));
-    // item->setFlags(item->flags() | Qt::ItemIsSelectable);
 }
 
 void MainWindow::on_loadMapButton_pushButton_clicked()
@@ -946,4 +867,95 @@ bool MainWindow::isMasterId(std::string box_id)
     }
 
     return true;
+}
+
+void MainWindow::on_arm_pushButton_clicked()
+{
+    std::cout << "Hello from Arm Button! Can not ARM since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_ARMING;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_takeoff_pushButton_clicked()
+{
+    std::cout << "Hello from Takeoff Button! Can not TAKEOFF since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_TAKEOFF;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_return_home_pushButton_clicked()
+{
+    std::cout << "Hello from Return Home Button! Can not Return Home since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_land_pushButton_clicked()
+{
+    std::cout << "Hello from land button! Can not Land since safety is of the essence!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_request_drone_status_pushButton_clicked()
+{
+    std::cout << "Hello from request status button!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_upload_path_pushButton_clicked()
+{
+    std::cout << "Hello from upload path button!\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::PATH_UPLOAD;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_add_box_pushButton_clicked()
+{
+    std::cout << "Hello from the add box button\n";
+    dronehive_interfaces::msg::GuiCommand command;
+    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_BOX;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_addDroneButton_pushButton_clicked()
+{
+    std::cout << "Hello from the add box button\n";
+    dronehive_interfaces::msg::GuiCommand command;
+    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_request_box_status_pushButton_clicked()
+{
+    std::cout << "Hello from the request box status button\n";
+    auto command = dronehive_interfaces::msg::GuiCommand();
+    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS;
+    gui_cmd_pub_->publish(command);
+}
+
+void MainWindow::on_zoomPlusButton_pushButton_clicked()
+{
+    std::cout << "Hello from the zoom in button\n";
+    this->warehouseFrame->incrementScaleFactor();
+}
+
+void MainWindow::on_zoomOutButton_pushButton_clicked()
+{
+    std::cout << "Hello from the zoom in button\n";
+    this->warehouseFrame->decrementScaleFactor();
+}
+
+// Slider slots
+void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
+{
+    std::cout << "Value of slider: " << float(value/10.0) << std::endl;
+    this->warehouseFrame->setScaleFactor(float(value/10.0));
 }
