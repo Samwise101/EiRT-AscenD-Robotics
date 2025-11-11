@@ -496,6 +496,17 @@ class MasterBoxNode(Node):
 			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
+		else:
+			# If the closest box is the master box, open the box.
+			self.get_logger().info(f"Assigning landing position of master box ID: {self.config.box_id} to drone ID: {request.drone_id}")
+
+			if self.motor:
+				self.get_logger().info("Opening master box for incoming drone...")
+				self.motor.open_box()
+			else:
+				self.get_logger().error("Motor controller not initialised. Cannot open box.")
+
+
 		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
 		return response
