@@ -620,7 +620,6 @@ class MasterBoxNode(Node):
 				response.ack = False
 				return response
 
-			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			response.ack = self.motor.open_box()
 
 			if not drone_client.wait_for_service(timeout_sec=2.0):
@@ -629,19 +628,21 @@ class MasterBoxNode(Node):
 				response.ack = False
 				return response
 
+			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			drone_future = drone_client.call_async(request)
 
 			exec = SingleThreadedExecutor()
 			exec.spin_until_future_complete(drone_future)
 			exec.shutdown()
 
-			if not drone_future or not drone_future.result():
+			drone_result: DroneTrajectoryWaypointsService.Response | None = drone_future.result()
+			if not drone_future or not drone_result:
 				self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
 				response.ack = False
 				return response
 
 			self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
-			response.ack = response.ack and drone_future.result().ack
+			response.ack = response.ack and drone_result.ack
 
 			# After the trajecotry is sent to the drone and the box is opened, set the box status to EMPTY
 			self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
@@ -679,14 +680,30 @@ class MasterBoxNode(Node):
 		exec.shutdown()
 
 		if not box_future or not drone_future:
-			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.")
+			msg = f"""
+			Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.
+			Drone result: {drone_future or "None"}, Box result: {box_future or "None"}
+			"""
+			self.get_logger().error(msg)
+			response.ack = False
+			return response
+
+		box_result: DroneTrajectoryWaypointsService.Response | None= box_future.result()
+		drone_result: DroneTrajectoryWaypointsService.Response | None = drone_future.result()
+
+		if not box_result or not drone_result:
+			msg = f"""
+			Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.
+			Drone result: {drone_result or "None"}, Box result: {box_result or "None"}
+			"""
+			self.get_logger().error(msg)
 			response.ack = False
 			return response
 
 		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
-		self.get_logger().info(f"Box response ack: {box_future.result().ack}, Drone response ack: {drone_future.result().ack}")
+		self.get_logger().info(f"Box response ack: {box_result.ack}, Drone response ack: {drone_result.ack}")
 
-		response.ack = box_future.result().ack and drone_future.result().ack
+		response.ack = box_result.ack and drone_result.ack
 
 		# After the trajecotry is sent to the drone and the box is opened, set the box status to EMPTY
 		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
