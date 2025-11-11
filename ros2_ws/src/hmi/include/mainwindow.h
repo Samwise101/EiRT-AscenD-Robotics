@@ -34,6 +34,7 @@
 #include "warehouseframe.h"
 #include "ColorListWidget.h"
 #include "flight_plan_dialog.h"
+#include "flight_preset_create_dialog.h"
 
 class MainWindow : public QMainWindow
 {

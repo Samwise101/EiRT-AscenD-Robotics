@@ -26,7 +26,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,10">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,10">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,10,0">
         <property name="spacing">
          <number>30</number>
         </property>
@@ -102,7 +102,7 @@ Drone: </string>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="altLineEdir"/>
+             <widget class="QLineEdit" name="altLineEdit"/>
             </item>
            </layout>
           </item>
@@ -129,6 +129,13 @@ Drone: </string>
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="saveAsPresetButton">
+          <property name="text">
+           <string>Save As Preset</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
@@ -139,14 +146,7 @@ Drone: </string>
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
+       <widget class="QListWidget" name="listWidget"/>
       </item>
      </layout>
     </item>
@@ -227,7 +227,7 @@ Drone: </string>
    <hints>
     <hint type="sourcelabel">
      <x>105</x>
-     <y>109</y>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>150</x>
@@ -243,7 +243,7 @@ Drone: </string>
    <hints>
     <hint type="sourcelabel">
      <x>164</x>
-     <y>198</y>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
      <x>187</x>
@@ -252,14 +252,14 @@ Drone: </string>
    </hints>
   </connection>
   <connection>
-   <sender>altLineEdir</sender>
+   <sender>altLineEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>FlightDialog</receiver>
    <slot>on_altLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>91</x>
-     <y>276</y>
+     <y>249</y>
     </hint>
     <hint type="destinationlabel">
      <x>138</x>
@@ -275,7 +275,7 @@ Drone: </string>
    <hints>
     <hint type="sourcelabel">
      <x>140</x>
-     <y>362</y>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>172</x>
@@ -291,27 +291,11 @@ Drone: </string>
    <hints>
     <hint type="sourcelabel">
      <x>62</x>
-     <y>419</y>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>94</x>
      <y>385</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>clearWaypointsButton</sender>
-   <signal>clicked()</signal>
-   <receiver>FlightDialog</receiver>
-   <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>104</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>180</x>
-     <y>439</y>
     </hint>
    </hints>
   </connection>
@@ -347,6 +331,38 @@ Drone: </string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>saveAsPresetButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_saveAsPresetButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>95</x>
+     <y>461</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearWaypointsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>417</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_openMapButton_pushButton_clicked()</slot>
@@ -358,5 +374,6 @@ Drone: </string>
   <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
   <slot>on_cancleButton_pushButton_clicked()</slot>
   <slot>on_applyButton_pushButton_clicked()</slot>
+  <slot>on_saveAsPresetButton_pushButton_clicked()</slot>
  </slots>
 </ui>

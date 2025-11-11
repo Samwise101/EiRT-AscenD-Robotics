@@ -28,6 +28,7 @@ set(UI_FILES
   ui/box_search_timeout_dialog.ui
   ui/update_system_dialog.ui
   ui/flight_plan_dialog.ui
+  ui/flight_preset_or_create_dialog.ui
 )
 qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 
@@ -43,6 +44,7 @@ set(SOURCES
   src/warehouseframe.cpp
   src/ColorListWidget.cpp
   src/flight_plan_dialog.cpp
+  src/flight_preset_create_dialog.cpp
 )
 
 set(HEADERS
@@ -61,6 +63,8 @@ set(HEADERS
   include/ui_box_timeout_dialog.h
   include/ui_mainwindow.h
   include/ui_new_box.h
+  include/ui_flight_preset_create_dialog.h
+  include/flight_preset_create_dialog.h
 )
 
 # Create the executable (only once!)

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FlightCreationDialog</class>
+ <widget class="QDialog" name="FlightCreationDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>197</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>10</y>
+     <width>431</width>
+     <height>171</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Choose an existing mission preset or create a new one</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="cancleButton">
+        <property name="text">
+         <string>Cancle</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/images/icons/cancle.png</normaloff>:/images/icons/cancle.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="choosePreset">
+        <property name="text">
+         <string>Choose Preset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="createPathPlanButton">
+        <property name="text">
+         <string>Create Path Plan</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="okButton">
+        <property name="text">
+         <string>Ok</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/images/icons/tick_mark.png</normaloff>:/images/icons/tick_mark.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightCreationDialog</receiver>
+   <slot>on_okButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>415</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>196</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancleButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightCreationDialog</receiver>
+   <slot>on_cancleButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>27</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>createPathPlanButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightCreationDialog</receiver>
+   <slot>on_createPlanButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>247</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>196</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>choosePreset</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightCreationDialog</receiver>
+   <slot>on_choosePreset_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>136</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>104</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>on_cancleButton_pushButton_clicked()</slot>
+  <slot>on_createPlanButton_pushButton_clicked()</slot>
+  <slot>on_okButton_pushButton_clicked()</slot>
+  <slot>on_choosePreset_pushButton_clicked()</slot>
+ </slots>
+</ui>

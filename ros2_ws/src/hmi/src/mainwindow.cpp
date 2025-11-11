@@ -394,9 +394,25 @@ void MainWindow::on_settings_pushButton_clicked(bool)
 void MainWindow::on_path_upload_pushButton_clicked()
 {
     std::cout << "Hello from path upload button!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::PATH_UPLOAD;
-    gui_cmd_pub_->publish(command);
+
+    // FlightCreationDialog dialog(this);
+
+    // if(dialog.exec() == QDialog::Rejected) 
+    // {
+    //     return;
+    // }
+
+    // else
+    // {
+
+    // }
+
+    FlightDialog flightPlanDialog(this);
+
+    if(flightPlanDialog.exec() == QDialog::Rejected) 
+    {
+        return;
+    }
 }
 
 void MainWindow::on_updateSystem_pushButton_clicked()
