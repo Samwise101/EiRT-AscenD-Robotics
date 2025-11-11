@@ -85,8 +85,9 @@ class FlightState(Enum):
     DONE = 6
     WAIT_ARM = 7
     WAIT_OFFBOARD = 8
-    WAIT_AND_PLAN_TEST_TRAJ = 9
+    WAIT_AND_PLAN_TRAJ = 9
     EXECUTE_TEST_TRAJ = 10
+    REQUEST_LANDING = 11
 
 class LandingControl(Node):
     def __init__(self,
@@ -117,6 +118,8 @@ class LandingControl(Node):
 
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
 
+        self.pub_status = self.create_publisher(DroneStatusMessage, f"/dronehive/drone_status_{self.drone_id}", 10)
+
         # Wait for MAVROS
         self.get_logger().info("Waiting for MAVROS services...")
         self.cli_mode.wait_for_service()
@@ -141,6 +144,7 @@ class LandingControl(Node):
         self.request_start_wall = None
         self.landing_received = False
         self.landing_target = None
+        self.isLanding = False
 
         # Trajectory
         self.traj_segments = []
@@ -196,6 +200,8 @@ class LandingControl(Node):
             self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
         return response
 
+    def _drone_status_cb(self, msg: DroneStatusMessage):
+
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
@@ -203,6 +209,8 @@ class LandingControl(Node):
         Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
         """
         now = time.time()
+
+        self._publish_status()
 
         if self.state == FlightState.INIT:
             # Need valid pose before proceeding
@@ -253,29 +261,40 @@ class LandingControl(Node):
             self._publish_hold_here()
             if self.mav_state.mode == "OFFBOARD":
                 self._begin_loiter_and_request(now)
-                self.get_logger().info("Operator set OFFBOARD. Loitering & requesting landing target.")
-                self.state = FlightState.WAIT_AND_PLAN_TEST_TRAJ
+                self.get_logger().info("Operator set OFFBOARD. Waiting for waypoints.")
+                self.state = FlightState.WAIT_AND_PLAN_TRAJ
 
         elif self.state == FlightState.TAKEOFF:
-            # Drive Z to takeoff altitude over home XY
-            self._publish_takeoff_sp()
+            #Simulation or real mode takeoff
+            if self.simulation_mode:
+                # Drive Z to takeoff altitude over home XY
+                self._publish_takeoff_sp()
+            else:
+                self._publish_takeoff_re()
             # Consider takeoff completed when close in altitude
             if abs(self.curr_xyz[2] - self.takeoff_alt) < 0.3:
                 self.takeoff_reached = True
-                self._begin_loiter_and_request(now)
-                self.get_logger().info("Takeoff reached. Loitering & requesting landing target.")
-                self.state = FlightState.LOITER_WAIT_SERVICE
+                self.get_logger().info("Takeoff altitude reached. Executing trajectory.")
+                self.state = FlightState.WAIT_AND_PLAN_TRAJ
+                #self._begin_loiter_and_request(now)
+                #self.get_logger().info("Takeoff reached. Loitering & requesting landing target.")
+                #self.state = FlightState.LOITER_WAIT_SERVICE
 
-        elif self.state == FlightState.WAIT_AND_PLAN_TEST_TRAJ:
+        elif self.state == FlightState.WAIT_AND_PLAN_TRAJ:
             # Wait for waypoints before for the trajectory, keep publishing hold here while waiting
+            self._publish_hold_here()
             if self._are_waypoints_ready():
-                self.get_logger().info("Waypoints ready. Planning and executing test trajectory.")
+                if self.takeoff_reached is False:
+                    self.get_logger().info("Takeoff not yet reached, cannot plan trajectory.")
+                    self.get_logger().info("Taking off to altitude...")
+                    self.state = FlightState.TAKEOFF
+                self.get_logger().info("Waypoints ready. Planning and executing trajectory.")
                 self._plan_test_trajectory()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.3
                 self.state = FlightState.EXECUTE_TRAJ
             else:
-                self._publish_hold_here()
+                #self._publish_hold_here()
                 if not hasattr(self, 'waypoints_ready_logged'):
                     self.waypoints_ready_logged = True
                     self.get_logger().info("Waiting for waypoints to be ready...")
@@ -319,6 +338,21 @@ class LandingControl(Node):
                 self.get_logger().warn("Landing request timed out. Landing back at home.")
                 return
 
+        elif self.state == FlightState.REQUEST_LANDING:
+            # Keep publishing hold here while requesting landing target
+            self._publish_hold_here()
+            if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=2.0):
+                self._call_landing_service(now)
+                self.get_logger().info("Requesting landing target...")
+            # Check for landing response
+            if self.landing_received and self.landing_target is not None:
+                self.isLanding = True
+                self._plan_landing_traj()
+                self.traj_t0_wall = now
+                self.position_tolerance = 0.1
+                self.state = FlightState.EXECUTE_TRAJ
+                self.get_logger().info("Landing target received. Executing landing trajectory.")
+                return
 
         elif self.state == FlightState.EXECUTE_TRAJ:
             # Feedback-based trajectory following
@@ -331,12 +365,17 @@ class LandingControl(Node):
                     self.get_logger().info("Landing trajectory complete.")
                 return
                 """
-                self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.curr_xyz[2])
-                if self.curr_xyz[2] < 0.1:
+                self._publish_xyz(self.last_requested_pose[0], self.last_requested_pose[1], self.last_requested_pose[2])
+                if self.isLanding is False:
                     self.waypoints_ready = False
-                    self.get_logger().info("Reached the end of the trajectory loitering while waiting for new waypoints.")
-                    self.state = FlightState.WAIT_AND_PLAN_TEST_TRAJ
-                    self._publish_circle_loiter()
+                    self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
+                    self.state = FlightState.REQUEST_LANDING
+                    self._publish_hold_here()
+                elif self.isLanding is True:
+                    self._publish_xyz(self.landing_target[0], self.landing_target[1], 0.0)
+                    if self.curr_xyz[2] < 0.1:
+                        self.state = FlightState.DONE
+                        self.get_logger().info("Landing trajectory complete.")
                 return
 
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
@@ -569,6 +608,10 @@ class LandingControl(Node):
         if self.home_xy is None:
             self.home_xy = self.curr_xyz[:2].copy()
         self._publish_xyz(self.home_xy[0], self.home_xy[1], self.takeoff_alt)
+    
+    def _publish_takeoff_re(self)
+    """Publish a setpoint at current XY and takeoff_alt Z (real takeoff)."""
+        self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.takeoff_alt)
 
     def _publish_circle_loiter(self):
         """Generate a small horizontal circle at the takeoff altitude."""
@@ -594,6 +637,20 @@ class LandingControl(Node):
         self.sp.pose.orientation.z = qz
         self.sp.pose.orientation.w = qw
         self.pub_sp.publish(self.sp)
+
+    def _publish_status(self):
+        """Publish the drone status message."""
+        msg = DroneStatusMessage()
+        msg.drone_id = self.drone_id
+        msg.battery_level = self._get_battery_level()
+        msg.fligt_state = self.state.name
+        pos_msg = PositionMessage()
+        pos_msg.lat = float(self.curr_xyz[0])
+        pos_msg.lon = float(self.curr_xyz[1])
+        pos_msg.elv = float(self.curr_xyz[2])
+        msg.current_position = pos_msg
+        self.pub_status.publish(msg)
+
 
     # -------------------- Utilities --------------------
 
