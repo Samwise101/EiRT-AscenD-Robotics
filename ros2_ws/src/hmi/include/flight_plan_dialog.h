@@ -39,6 +39,7 @@ class FlightDialog : public QDialog
     private:
         Drone* drone;
         Ui::FlightDialog ui;
+        
 };
 
 

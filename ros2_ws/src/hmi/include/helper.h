@@ -25,4 +25,12 @@ struct DroneVis
     bool display;
 };
 
+enum PathPlanStates
+{
+    CREATE_PLAN,
+    ACCEPTED,
+    REJECTED,
+    NONE
+};
+
 #endif

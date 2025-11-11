@@ -99,9 +99,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QtDataVisualization::Q3DCamera *camera = scatter3D->scene()->activeCamera();
     camera->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight); // starting view
-    camera->setZoomLevel(150.0f);     // optional starting zoom
+    camera->setZoomLevel(100.0f);     // optional starting zoom
 
-    scatter3D->scene()->activeCamera()->setZoomLevel(200.0f);    // zoom
+    scatter3D->scene()->activeCamera()->setZoomLevel(100.0f);    // zoom
     scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetFront);
     
     // You can show this container in your UI (e.g. side-by-side)
@@ -189,25 +189,6 @@ void MainWindow::update3DTrajectories(std::vector<DroneVis> drones)
 
         series->dataProxy()->resetArray(dataArray);
         scatter3D->addSeries(series);
-
-        // // Connect points with line segments
-        // for (int i = 0; i < drone.drone_waypoints.size() - 1; ++i)
-        // {
-        //     QVector3D start(drone.drone_waypoints[i].x, i * 0.2f, drone.drone_waypoints[i].y);
-        //     QVector3D end(drone.drone_waypoints[i + 1].x, (i + 1) * 0.2f, drone.drone_waypoints[i + 1].y);
-        //     QVector3D mid = (start + end) / 2.0f;
-        //     QVector3D diff = end - start;
-        //     float length = diff.length();
-
-        //     auto *segment = new QtDataVisualization::QCustom3DItem(
-        //         QImage(),
-        //         mid,
-        //         QVector3D(0.05f, length, 0.05f),
-        //         QQuaternion::fromDirection(diff.normalized(), QVector3D(0, 1, 0))
-        //     );
-        //     segment->setColor(drone.drone_color);
-        //     scatter3D->addCustomItem(segment);
-        // }
     }
 }
 
@@ -485,25 +466,46 @@ void MainWindow::on_path_upload_pushButton_clicked()
 {
     std::cout << "Hello from path upload button!\n";
 
-    // FlightCreationDialog dialog(this);
+    FlightCreationDialog dialog(this);
 
-    // if(dialog.exec() == QDialog::Rejected) 
-    // {
-    //     return;
-    // }
-
-    // else
-    // {
-
-    // }
-
-    FlightDialog flightPlanDialog(this);
-
-    if(flightPlanDialog.exec() == QDialog::Rejected) 
+    if(dialog.exec() == QDialog::Rejected) return;
+    else
     {
-        return;
+        int state = dialog.getState();
+
+        if(state == PathPlanStates::CREATE_PLAN)
+        {
+            std::cout << "Crating plan" << std::endl;
+
+            int current_drone_index = this->ui->droneComboBox->currentIndex();
+        
+            if(!drones.empty())
+            {
+                FlightDialog flightPlanDialog(this, &drones[current_drone_index]);
+                if(flightPlanDialog.exec() == QDialog::Rejected) return;
+                else
+                {
+
+                }
+            }
+            else
+            {
+                FlightDialog flightPlanDialog(this);
+                if(flightPlanDialog.exec() == QDialog::Rejected) return;
+                else 
+                {
+
+                }
+            }
+        }
+        else if(state == PathPlanStates::ACCEPTED)
+        {
+            std::cout << "Accepted" << std::endl;
+            // TO-DO add publisher sending the selected preset path plan
+        }
     }
 }
+
 
 void MainWindow::on_updateSystem_pushButton_clicked()
 {
@@ -568,11 +570,9 @@ void MainWindow::on_remove_box_pushButton_clicked()
 
             this->setDroneGraphics(0.0f);
         }
-
     }
 
     this->boxes.erase(this->boxes.begin() + current_index);
-
     command.box_id = current_data.toStdString();
     gui_cmd_pub_->publish(command);
 
@@ -696,7 +696,6 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
             this->ui->boxTypeValueLabel->setText("Slave");
         else if(box_type == BoxType::MASTER)
             this->ui->boxTypeValueLabel->setText("Master");
-            
     }
 }
 

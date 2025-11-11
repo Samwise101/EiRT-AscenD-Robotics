@@ -15,6 +15,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
@@ -28,21 +29,21 @@ public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
     QLabel *label;
+    QListWidget *listWidget;
     QHBoxLayout *horizontalLayout;
     QPushButton *cancleButton;
     QSpacerItem *horizontalSpacer;
     QPushButton *choosePreset;
     QPushButton *createPathPlanButton;
-    QPushButton *okButton;
 
     void setupUi(QDialog *FlightCreationDialog)
     {
         if (FlightCreationDialog->objectName().isEmpty())
             FlightCreationDialog->setObjectName(QString::fromUtf8("FlightCreationDialog"));
-        FlightCreationDialog->resize(445, 197);
+        FlightCreationDialog->resize(445, 374);
         verticalLayoutWidget = new QWidget(FlightCreationDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(9, 10, 431, 171));
+        verticalLayoutWidget->setGeometry(QRect(9, 10, 431, 351));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
@@ -55,6 +56,11 @@ public:
         label->setAlignment(Qt::AlignCenter);
 
         verticalLayout->addWidget(label);
+
+        listWidget = new QListWidget(verticalLayoutWidget);
+        listWidget->setObjectName(QString::fromUtf8("listWidget"));
+
+        verticalLayout->addWidget(listWidget);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
@@ -80,20 +86,11 @@ public:
 
         horizontalLayout->addWidget(createPathPlanButton);
 
-        okButton = new QPushButton(verticalLayoutWidget);
-        okButton->setObjectName(QString::fromUtf8("okButton"));
-        QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
-        okButton->setIcon(icon1);
-
-        horizontalLayout->addWidget(okButton);
-
 
         verticalLayout->addLayout(horizontalLayout);
 
 
         retranslateUi(FlightCreationDialog);
-        QObject::connect(okButton, SIGNAL(clicked()), FlightCreationDialog, SLOT(on_okButton_pushButton_clicked()));
         QObject::connect(cancleButton, SIGNAL(clicked()), FlightCreationDialog, SLOT(on_cancleButton_pushButton_clicked()));
         QObject::connect(createPathPlanButton, SIGNAL(clicked()), FlightCreationDialog, SLOT(on_createPlanButton_pushButton_clicked()));
         QObject::connect(choosePreset, SIGNAL(clicked()), FlightCreationDialog, SLOT(on_choosePreset_pushButton_clicked()));
@@ -108,7 +105,6 @@ public:
         cancleButton->setText(QCoreApplication::translate("FlightCreationDialog", "Cancle", nullptr));
         choosePreset->setText(QCoreApplication::translate("FlightCreationDialog", "Choose Preset", nullptr));
         createPathPlanButton->setText(QCoreApplication::translate("FlightCreationDialog", "Create Path Plan", nullptr));
-        okButton->setText(QCoreApplication::translate("FlightCreationDialog", "Ok", nullptr));
     } // retranslateUi
 
 };
