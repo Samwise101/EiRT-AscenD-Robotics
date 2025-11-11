@@ -642,6 +642,9 @@ class MasterBoxNode(Node):
 
 			self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
 			response.ack = response.ack and drone_future.result().ack
+
+			# After the trajecotry is sent to the drone and the box is opened, set the box status to EMPTY
+			self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
 			return response
 
 		# Create a transient node to make the client call
@@ -684,6 +687,10 @@ class MasterBoxNode(Node):
 		self.get_logger().info(f"Box response ack: {box_future.result().ack}, Drone response ack: {drone_future.result().ack}")
 
 		response.ack = box_future.result().ack and drone_future.result().ack
+
+		# After the trajecotry is sent to the drone and the box is opened, set the box status to EMPTY
+		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
+
 		return response
 
 
