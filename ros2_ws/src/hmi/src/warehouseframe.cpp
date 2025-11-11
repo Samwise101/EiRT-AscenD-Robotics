@@ -59,6 +59,9 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
+    if(!drones.empty())
+        drones.clear();
+
     QXmlStreamReader xml(&file);
 
     DroneVis current;

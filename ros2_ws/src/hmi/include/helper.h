@@ -23,6 +23,6 @@ struct DroneVis
     QColor drone_color;
     std::vector<Point> drone_waypoints;
     bool display;
-} ;
+};
 
 #endif

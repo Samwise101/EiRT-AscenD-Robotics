@@ -881,6 +881,9 @@ void MainWindow::onListItemDoubleClicked(QListWidgetItem *item)
         cw->setEnabled(!oldValue);
         cw->setChecked(!oldValue);
     }
+
+    if(!this->visuals2dOn)
+        this->update3DTrajectories(this->warehouseFrame->getDroneVisData());
 }
 
 void MainWindow::on_loadMapButton_pushButton_clicked()
@@ -916,24 +919,22 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
     
     auto drone_data = this->warehouseFrame->getDroneVisData();
 
-    if(this->visuals2dOn)
+    for(auto drone : drone_data)
     {
-        for(auto drone : drone_data)
-        {
-            QColor drone_color = drone.drone_color;
-            QString drone_id = QString::fromStdString(drone.drone_id);
-            
-            QListWidgetItem* item = new QListWidgetItem(this->list_widget);
+        QColor drone_color = drone.drone_color;
+        QString drone_id = QString::fromStdString(drone.drone_id);
+        
+        QListWidgetItem* item = new QListWidgetItem(this->list_widget);
 
-            ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
+        ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
 
-            item->setSizeHint(widget->sizeHint());
-            this->list_widget->addItem(item);
-            this->list_widget->setItemWidget(item, widget);
-        }
-
-        this->warehouseFrame->update();
+        item->setSizeHint(widget->sizeHint());
+        this->list_widget->addItem(item);
+        this->list_widget->setItemWidget(item, widget);
     }
+
+    if(this->visuals2dOn)
+        this->warehouseFrame->update();
     else
         this->update3DTrajectories(drone_data);
 }
@@ -941,6 +942,9 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
 void MainWindow::on_clearVisualsButton_pushButton_clicked()
 {
     this->warehouseFrame->clearVisuals();
+
+    for(auto series : this->scatter3D->seriesList())
+        this->scatter3D->removeSeries(series);
 
     for (int i = 0; i < this->list_widget->count(); ++i)
     {
@@ -1065,20 +1069,45 @@ void MainWindow::on_request_box_status_pushButton_clicked()
 void MainWindow::on_zoomPlusButton_pushButton_clicked()
 {
     std::cout << "Hello from the zoom in button\n";
-    this->warehouseFrame->incrementScaleFactor();
+    if(this->visuals2dOn)
+        this->warehouseFrame->incrementScaleFactor();
+    else
+    {
+        auto scale_factor = this->warehouseFrame->getScaleFactor();
+        auto zoom = scatter3D->scene()->activeCamera()->zoomLevel(); 
+        scatter3D->scene()->activeCamera()->setZoomLevel(zoom + 10*scale_factor);    // zoom
+    }
 }
 
 void MainWindow::on_zoomOutButton_pushButton_clicked()
 {
     std::cout << "Hello from the zoom in button\n";
-    this->warehouseFrame->decrementScaleFactor();
+    if(this->visuals2dOn)
+        this->warehouseFrame->decrementScaleFactor();
+    else
+    {
+        auto scale_factor = this->warehouseFrame->getScaleFactor();
+        auto zoom = scatter3D->scene()->activeCamera()->zoomLevel(); 
+        scatter3D->scene()->activeCamera()->setZoomLevel(zoom - 10*scale_factor);    // zoom
+    }
 }
 
 // Slider slots
 void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
 {
-    std::cout << "Value of slider: " << float(value/10.0) << std::endl;
-    this->warehouseFrame->setScaleFactor(float(value/10.0));
+    std::cout << "Value of slider: " << float(value/10.0f) << std::endl;
+
+    if(this->visuals2dOn)
+        this->warehouseFrame->setScaleFactor(float(value/10.0f));
+    else
+    {
+        float zoomFactor = float(value) / 10.0f;
+        float minZoom = 10.0f;
+        float maxZoom = 500.0f;
+        
+        float zoomLevel = minZoom + (maxZoom - minZoom) * (zoomFactor / 10.0f);
+        scatter3D->scene()->activeCamera()->setZoomLevel(zoomLevel);
+    }
 }
 
  void MainWindow::on_visualizationButton_pushButton_clicked()
