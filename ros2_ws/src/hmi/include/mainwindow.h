@@ -33,6 +33,7 @@
 #include "backend_manager.h"
 #include "warehouseframe.h"
 #include "ColorListWidget.h"
+#include "flight_plan_dialog.h"
 
 class MainWindow : public QMainWindow
 {

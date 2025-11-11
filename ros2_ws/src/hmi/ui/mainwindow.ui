@@ -161,7 +161,7 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
@@ -185,7 +185,7 @@
               <number>1</number>
              </property>
              <item>
-              <layout class="QVBoxLayout" name="map_layout" stretch="0,0,0">
+              <layout class="QVBoxLayout" name="map_layout" stretch="10,0,0">
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_6"/>
                </item>
@@ -366,7 +366,7 @@
               <x>10</x>
               <y>10</y>
               <width>761</width>
-              <height>511</height>
+              <height>521</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="box_main_layout" stretch="0,10">
@@ -865,7 +865,7 @@ Drone:</string>
               <x>10</x>
               <y>10</y>
               <width>771</width>
-              <height>511</height>
+              <height>521</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,10">

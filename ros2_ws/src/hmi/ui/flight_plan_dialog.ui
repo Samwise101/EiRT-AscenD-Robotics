@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FlightDialog</class>
+ <widget class="QDialog" name="FlightDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>705</width>
+    <height>532</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>10</y>
+     <width>701</width>
+     <height>518</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="10,0,0">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,10">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,10">
+        <property name="spacing">
+         <number>30</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="openMapButton">
+          <property name="text">
+           <string>Open Map</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Selected
+Drone: </string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Lat: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="latLineEdit"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Lon: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lonLineEdit"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Alt: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="altLineEdir"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="addNewWaypointButton">
+          <property name="text">
+           <string>Add New Waypoint</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="removeWaypointButton">
+          <property name="text">
+           <string>Remove Last Waypoint</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="clearWaypointsButton">
+          <property name="text">
+           <string>Clear All Waypoints</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
+      <item>
+       <widget class="QPushButton" name="cancleButton">
+        <property name="text">
+         <string>Cancle</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/images/icons/cancle.png</normaloff>:/images/icons/cancle.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="applyButton">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/images/icons/tick_mark.png</normaloff>:/images/icons/tick_mark.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>openMapButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_openMapButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>19</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>215</x>
+     <y>1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>latLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_latLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>109</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lonLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_lonLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>164</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>150</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>altLineEdir</sender>
+   <signal>editingFinished()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_altLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>91</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>138</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addNewWaypointButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_addNewWaypointButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>362</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>172</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeWaypointButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_removeWaypointButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>419</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>94</x>
+     <y>385</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearWaypointsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancleButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_cancleButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>518</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>183</x>
+     <y>506</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>applyButton</sender>
+   <signal>clicked()</signal>
+   <receiver>FlightDialog</receiver>
+   <slot>on_applyButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>659</x>
+     <y>508</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>504</x>
+     <y>506</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>on_openMapButton_pushButton_clicked()</slot>
+  <slot>on_latLineEdit_editingFinished()</slot>
+  <slot>on_lonLineEdit_editingFinished()</slot>
+  <slot>on_altLineEdit_editingFinished()</slot>
+  <slot>on_addNewWaypointButton_pushButton_clicked()</slot>
+  <slot>on_removeWaypointButton_pushButton_clicked()</slot>
+  <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
+  <slot>on_cancleButton_pushButton_clicked()</slot>
+  <slot>on_applyButton_pushButton_clicked()</slot>
+ </slots>
+</ui>
