@@ -466,11 +466,13 @@ class MasterBoxNode(Node):
 		print(f"Linked boxes: {list(info)}")
 		print(f"Drone position: {request.drone_pos}")
 
+		# Go through all the boxes (including the master box) and find the closest empty box.
 		for box_id, box_status in self.linked_slave_boxes.items():
 			if box_status.status != BoxStatusEnum.EMPTY:
 				print(f"Box ID: {box_id} is not empty (status: {box_status.status}). Skipping...")
 				continue
 
+			# Evaluate the best box by the proximity defined by Euclidean distance.
 			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
 			print(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
@@ -479,19 +481,24 @@ class MasterBoxNode(Node):
 				landing_pos = box_status.position
 				self.get_logger().info(f"Found empty slave box ID: {box_id} for drone ID: {request.drone_id}. Assigning landing position: {box_status.position}")
 
+		# If no empty box is found, return an empty position.
 		if closest_box_id == None:
 			self.get_logger().warn(f"No empty slave box found for drone ID: {request.drone_id}. Cannot assign landing position.")
 			response.landing_pos = PositionMessage()
 			return response
 
+		# Assign the drone to the closest box.
 		if closest_box_id == self.config.box_id:
 			self.get_logger().info(f"Assigning landing position of master box ID: {self.config.box_id} to drone ID: {request.drone_id}")
 			self.config.drone_id = request.drone_id
 			dh.dronehive_update_config(self.config)
 			landing_pos = self.config.landing_position
 
+		# Update the localy kept status of the box.
 		self.linked_slave_boxes[closest_box_id].drone_id = request.drone_id
 		self.linked_slave_boxes[closest_box_id].status = BoxStatusEnum.OCCUPIED
+
+		# Let the slave box know a drone is incoming.
 		if closest_box_id != self.config.box_id:
 			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
