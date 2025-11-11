@@ -5,14 +5,15 @@ from rclpy.executors import MultiThreadedExecutor
 def main():
 	rclpy.init()
 
-	executor = MultiThreadedExecutor()
-	executor.add_node(SlaveBoxNode())
+	executor = MultiThreadedExecutor(3)
+	node = SlaveBoxNode()
+	executor.add_node(node)
 
 	try:
 		executor.spin()
 
 	except KeyboardInterrupt:
-		rclpy.logging.get_logger("box_node").info("Shutting down master box node...")
+		node.get_logger().info("Shutting down master box node...")
 		executor.shutdown()
 
 	rclpy.shutdown()

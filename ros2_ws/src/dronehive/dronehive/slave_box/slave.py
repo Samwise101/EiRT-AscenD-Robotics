@@ -1,13 +1,23 @@
 from typing import Optional
 from rclpy.node import Node
+from rclpy.executors import SingleThreadedExecutor
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from rclpy.task import Future
 from std_msgs.msg import String, Bool
 
 import dronehive.utils as dh
 
-from dronehive_interfaces.msg import BoxBroadcastMessage, BoxSetupConfirmationMessage
-from dronehive_interfaces.srv import BoxStatusService, DroneTrajectoryWaypointsService
+from dronehive_interfaces.msg import (
+	BoxBroadcastMessage,
+	BoxSetupConfirmationMessage,
+	BoxStatusMessage,
+)
+
+from dronehive_interfaces.srv import (
+	BoxStatusService,
+	BoxStatusSlaveUpdateService,
+	DroneTrajectoryWaypointsService,
+)
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -18,6 +28,7 @@ qos_profile = QoSProfile(
 class SlaveBoxNode(Node):
 	def __init__(self) -> None:
 		self.config: dh.Config = dh.dronehive_initialise()
+		self.temp_node: Node = Node("temp_node_for_clients")
 
 		super().__init__(f"slave_box_node_{self.config.box_id}")
 
@@ -30,7 +41,6 @@ class SlaveBoxNode(Node):
 		# When the box is initialised at startup we can directly initialise the connections.
 		# If everything is fine, the initialiser will be None.
 		self.initialise_connections()
-		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
 
 	def box_init_interfaces(self) -> None:
@@ -72,14 +82,31 @@ class SlaveBoxNode(Node):
 		self.create_services()
 		self.create_actions()
 
-		# Drop the initialiser to free memory
-		self.initialiser = None
+		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
+
 		try:
-			self.motor = dh.XL430Controller(dxl_id=1)
+			self.motor = dh.XL430Controller(dxl_id=0)
 		except Exception as e:
 			self.get_logger().error(f"Failed to initialise motor controller: {e}")
 			self.motor = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
+
+		request=BoxStatusSlaveUpdateService.Request(
+			status=BoxStatusMessage(
+				landing_pos=self.config.landing_position,
+				box_battery_level=100.0,
+				box_id=self.config.box_id,
+				drone_id=self.config.drone_id,
+				status=dh.BoxStatusEnum.EMPTY.value
+			)
+		)
+
+		self.client_manager.call_async(
+			BoxStatusSlaveUpdateService,
+			dh.DRONEHIVE_BOX_STATUS_SLAVE_UPDATE_SERVICE,
+			request,
+			lambda fut: self.get_logger().info(f"Box status update response: {fut.result() or 'Update failed'}")
+		)
 
 
 	##########################
@@ -151,7 +178,43 @@ class SlaveBoxNode(Node):
 										 request: DroneTrajectoryWaypointsService.Request,
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
 		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
-		response.ack = True
+
+		if not self.motor:
+			response.ack = False
+			self.get_logger().error("Motor controller not initialised.")
+			return response
+
+		drone_client = self.temp_node.create_client(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_DRONE_SEND_TRAJECTORY_SERVICE + f"{request.drone_id}"
+		)
+
+		if not drone_client.wait_for_service(timeout_sec=2.0):
+			self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
+			self.temp_node.destroy_node()
+			response.ack = False
+			return response
+
+		self.get_logger().info(f"Processing drone_id {request.drone_id} waypoints: '{request.waypoints}'")
+		drone_future = drone_client.call_async(request)
+		response.ack = self.motor.open_box()
+
+		self.get_logger().info("Box opened for waypoint transfer.")
+
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(drone_future)
+		exec.shutdown()
+
+		if not drone_future or not drone_future.result():
+			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{self.config.box_id}'.")
+			response.ack = False
+			return response
+
+		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{self.config.box_id}'")
+		result = drone_future.result() or DroneTrajectoryWaypointsService.Response(ack=False)
+		response.ack = response.ack and result.ack
+
 		return response
 
 
