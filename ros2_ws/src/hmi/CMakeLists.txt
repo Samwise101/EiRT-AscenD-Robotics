@@ -19,7 +19,7 @@ find_package(std_msgs REQUIRED)
 find_package(dronehive_interfaces REQUIRED)
 
 # Qt dependencies
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts Xml)
+find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts Xml DataVisualization)
 
 # UI + resources
 set(UI_FILES
@@ -103,6 +103,7 @@ target_link_libraries(frontend_node
   Qt5::Widgets
   Qt5::Charts
   Qt5::Xml
+  Qt5::DataVisualization
 )
 
 # Tests (optional)

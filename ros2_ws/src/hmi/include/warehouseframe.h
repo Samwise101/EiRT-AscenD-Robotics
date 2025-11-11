@@ -13,17 +13,7 @@
 #include <string>
 
 #include "drone.h"
-
-struct Line { float x1, y1, x2, y2; };
-struct Point { float x, y; };
-
-struct DroneVis
-{
-    std::string drone_id;
-    QColor drone_color;
-    std::vector<Point> drone_waypoints;
-    bool display;
-};
+#include "helper.h"
 
 
 class WarehouseFrame : public QFrame
@@ -50,7 +40,10 @@ public:
 
     std::vector<DroneVis> getDroneVisData();
 
+
+private:
     std::vector<DroneVis> drones;
+
 
 protected:   // <-- paintEvent should be protected, not private
     void paintEvent(QPaintEvent *event) override;

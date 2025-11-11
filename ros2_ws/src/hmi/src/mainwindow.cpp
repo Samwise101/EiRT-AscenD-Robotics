@@ -41,6 +41,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(this->list_widget, &QListWidget::itemDoubleClicked,
         this, &MainWindow::onListItemDoubleClicked);
+
+    auto *layout = new QHBoxLayout(this);
+    layout->addWidget(scatterContainer, 1);
     
     // Create ROS2 node
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
@@ -75,12 +78,38 @@ MainWindow::MainWindow(QWidget *parent)
     warehouseFrame->setStyleSheet("background-color:rgb(255,255,255)");
     warehouseFrame->setFrameShape(QFrame::Box);
     warehouseFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    warehouseFrame->setMinimumSize(200, 200); // optional safety
-    this->ui->verticalLayout_6->addWidget(warehouseFrame);
+    warehouseFrame->setMinimumSize(100, 100); // optional safety
 
     auto command = dronehive_interfaces::msg::GuiCommand();
     command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS;
     gui_cmd_pub_->publish(command);
+
+    this->visuals2dOn = false;
+    
+    scatter3D = new QtDataVisualization::Q3DScatter();
+    scatterContainer = QWidget::createWindowContainer(scatter3D);
+
+    scatter3D->activeTheme()->setType(QtDataVisualization::Q3DTheme::ThemeQt);
+    scatter3D->setShadowQuality(QtDataVisualization::QAbstract3DGraph::ShadowQualityNone);
+    scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight);
+
+    scatter3D->axisX()->setTitle("X");
+    scatter3D->axisY()->setTitle("Z");
+    scatter3D->axisZ()->setTitle("Y");
+
+    QtDataVisualization::Q3DCamera *camera = scatter3D->scene()->activeCamera();
+    camera->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight); // starting view
+    camera->setZoomLevel(150.0f);     // optional starting zoom
+
+    scatter3D->scene()->activeCamera()->setZoomLevel(200.0f);    // zoom
+    scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetFront);
+    
+    // You can show this container in your UI (e.g. side-by-side)
+    scatterContainer = QWidget::createWindowContainer(scatter3D, this);
+    scatterContainer->setMinimumSize(100, 100);
+    scatterContainer->setFocusPolicy(Qt::StrongFocus);
+
+    this->ui->visLayout->addWidget(scatterContainer, 1);
 }
 
 MainWindow::~MainWindow()
@@ -119,6 +148,67 @@ void MainWindow::cleanup()
     delete this->ui;
 
     rclcpp::shutdown();
+}
+
+void MainWindow::update3DTrajectories(std::vector<DroneVis> drones)
+{
+    if (!scatter3D)
+        return;
+
+    // --- Remove old series manually ---
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries)
+        scatter3D->removeSeries(series);
+
+    // --- Remove old custom items manually ---
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems)
+        scatter3D->removeCustomItem(item);
+
+    // --- Rebuild trajectory for each drone ---
+    for (DroneVis drone : drones)
+    {
+        if (!drone.display || drone.drone_waypoints.empty())
+            continue;
+
+        // Create scatter points (waypoints)
+        auto *series = new QtDataVisualization::QScatter3DSeries();
+        series->setMesh(QtDataVisualization::QAbstract3DSeries::MeshSphere);
+        series->setItemSize(0.15f);
+        series->setBaseColor(drone.drone_color);
+
+        auto *dataArray = new QtDataVisualization::QScatterDataArray;
+        dataArray->resize(drone.drone_waypoints.size());
+
+        for (int i = 0; i < drone.drone_waypoints.size(); ++i)
+        {
+            const auto &wp = drone.drone_waypoints[i];
+            float z = i * 0.2f;  // artificial altitude or index
+            (*dataArray)[i].setPosition(QVector3D(wp.x, z, wp.y));
+        }
+
+        series->dataProxy()->resetArray(dataArray);
+        scatter3D->addSeries(series);
+
+        // // Connect points with line segments
+        // for (int i = 0; i < drone.drone_waypoints.size() - 1; ++i)
+        // {
+        //     QVector3D start(drone.drone_waypoints[i].x, i * 0.2f, drone.drone_waypoints[i].y);
+        //     QVector3D end(drone.drone_waypoints[i + 1].x, (i + 1) * 0.2f, drone.drone_waypoints[i + 1].y);
+        //     QVector3D mid = (start + end) / 2.0f;
+        //     QVector3D diff = end - start;
+        //     float length = diff.length();
+
+        //     auto *segment = new QtDataVisualization::QCustom3DItem(
+        //         QImage(),
+        //         mid,
+        //         QVector3D(0.05f, length, 0.05f),
+        //         QQuaternion::fromDirection(diff.normalized(), QVector3D(0, 1, 0))
+        //     );
+        //     segment->setColor(drone.drone_color);
+        //     scatter3D->addCustomItem(segment);
+        // }
+    }
 }
 
 void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg)
@@ -826,21 +916,27 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
     
     auto drone_data = this->warehouseFrame->getDroneVisData();
 
-    for(auto drone : drone_data)
+    if(this->visuals2dOn)
     {
-        QColor drone_color = drone.drone_color;
-        QString drone_id = QString::fromStdString(drone.drone_id);
-        
-        QListWidgetItem* item = new QListWidgetItem(this->list_widget);
+        for(auto drone : drone_data)
+        {
+            QColor drone_color = drone.drone_color;
+            QString drone_id = QString::fromStdString(drone.drone_id);
+            
+            QListWidgetItem* item = new QListWidgetItem(this->list_widget);
 
-        ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
+            ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
 
-        item->setSizeHint(widget->sizeHint());
-        this->list_widget->addItem(item);
-        this->list_widget->setItemWidget(item, widget);
+            item->setSizeHint(widget->sizeHint());
+            this->list_widget->addItem(item);
+            this->list_widget->setItemWidget(item, widget);
+        }
+
+        this->warehouseFrame->update();
     }
+    else
+        this->update3DTrajectories(drone_data);
 }
-
 
 void MainWindow::on_clearVisualsButton_pushButton_clicked()
 {
@@ -984,3 +1080,38 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     std::cout << "Value of slider: " << float(value/10.0) << std::endl;
     this->warehouseFrame->setScaleFactor(float(value/10.0));
 }
+
+ void MainWindow::on_visualizationButton_pushButton_clicked()
+ {
+    if(this->visuals2dOn)
+    {
+        // set 3D visuals for map
+        this->visuals2dOn = false;
+        this->ui->visualizationButton->setText("3D Visualization");
+
+        this->warehouseFrame->hide();
+        this->ui->visLayout->removeWidget(warehouseFrame);
+        this->ui->visLayout->addWidget(scatterContainer);
+
+        scatterContainer->show();
+
+        std::vector<DroneVis> drone_data = this->warehouseFrame->getDroneVisData();
+        this->update3DTrajectories(drone_data);
+    }
+    else
+    {
+        // set 2D visuals for map
+        this->visuals2dOn = true;
+        this->ui->visualizationButton->setText("2D Visualization");
+
+        scatterContainer->hide();
+        this->ui->visLayout->removeWidget(scatterContainer);
+        this->ui->visLayout->addWidget(warehouseFrame);
+
+        this->warehouseFrame->show();
+
+        this->warehouseFrame->update();
+    }
+ }
+
+ 

@@ -66,7 +66,7 @@ public:
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout_8;
     QVBoxLayout *map_layout;
-    QVBoxLayout *verticalLayout_6;
+    QHBoxLayout *visLayout;
     QFrame *line_13;
     QHBoxLayout *slider_layout;
     QSpacerItem *horizontalSpacer_3;
@@ -76,6 +76,8 @@ public:
     QSpacerItem *horizontalSpacer_4;
     QFrame *line_21;
     QVBoxLayout *verticalLayout_3;
+    QPushButton *visualizationButton;
+    QFrame *line_17;
     QPushButton *loadMapButton;
     QFrame *line_22;
     QPushButton *loadTrajectoryButton;
@@ -353,10 +355,10 @@ public:
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
         map_layout = new QVBoxLayout();
         map_layout->setObjectName(QString::fromUtf8("map_layout"));
-        verticalLayout_6 = new QVBoxLayout();
-        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        visLayout = new QHBoxLayout();
+        visLayout->setObjectName(QString::fromUtf8("visLayout"));
 
-        map_layout->addLayout(verticalLayout_6);
+        map_layout->addLayout(visLayout);
 
         line_13 = new QFrame(horizontalLayoutWidget);
         line_13->setObjectName(QString::fromUtf8("line_13"));
@@ -404,6 +406,7 @@ public:
 
         map_layout->addLayout(slider_layout);
 
+        map_layout->setStretch(0, 10);
 
         horizontalLayout_8->addLayout(map_layout);
 
@@ -416,6 +419,19 @@ public:
 
         verticalLayout_3 = new QVBoxLayout();
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        visualizationButton = new QPushButton(horizontalLayoutWidget);
+        visualizationButton->setObjectName(QString::fromUtf8("visualizationButton"));
+        visualizationButton->setFont(font);
+
+        verticalLayout_3->addWidget(visualizationButton);
+
+        line_17 = new QFrame(horizontalLayoutWidget);
+        line_17->setObjectName(QString::fromUtf8("line_17"));
+        line_17->setFrameShape(QFrame::HLine);
+        line_17->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_3->addWidget(line_17);
+
         loadMapButton = new QPushButton(horizontalLayoutWidget);
         loadMapButton->setObjectName(QString::fromUtf8("loadMapButton"));
         loadMapButton->setFont(font);
@@ -462,7 +478,7 @@ public:
         box_tab->setSizePolicy(sizePolicy1);
         verticalLayoutWidget_3 = new QWidget(box_tab);
         verticalLayoutWidget_3->setObjectName(QString::fromUtf8("verticalLayoutWidget_3"));
-        verticalLayoutWidget_3->setGeometry(QRect(10, 10, 761, 511));
+        verticalLayoutWidget_3->setGeometry(QRect(10, 10, 761, 521));
         box_main_layout = new QVBoxLayout(verticalLayoutWidget_3);
         box_main_layout->setSpacing(0);
         box_main_layout->setObjectName(QString::fromUtf8("box_main_layout"));
@@ -758,7 +774,7 @@ public:
         drone_tab->setObjectName(QString::fromUtf8("drone_tab"));
         verticalLayoutWidget_2 = new QWidget(drone_tab);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 771, 511));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 771, 521));
         verticalLayout_4 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -1113,8 +1129,9 @@ public:
         QObject::connect(pushButton_6, SIGNAL(clicked()), MainWindow, SLOT(on_request_drone_status_pushButton_clicked()));
         QObject::connect(zoom_slider, SIGNAL(valueChanged(int)), MainWindow, SLOT(on_zoom_in_out_slider_valueChanged(int)));
         QObject::connect(loadTrajectoryButton, SIGNAL(clicked()), MainWindow, SLOT(on_loadTrajectoryButton_pushButton_clicked()));
+        QObject::connect(visualizationButton, SIGNAL(clicked()), MainWindow, SLOT(on_visualizationButton_pushButton_clicked()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1143,6 +1160,7 @@ public:
         pushButton1->setText(QCoreApplication::translate("MainWindow", "Settings", nullptr));
         zoomPlusButton->setText(QString());
         zoomOutButton->setText(QString());
+        visualizationButton->setText(QCoreApplication::translate("MainWindow", "3D Visualization", nullptr));
         loadMapButton->setText(QCoreApplication::translate("MainWindow", "Load Map", nullptr));
         loadTrajectoryButton->setText(QCoreApplication::translate("MainWindow", "Load\n"
 " Trajectory", nullptr));

@@ -1,6 +1,9 @@
 #include "warehouseframe.h"
 #include <algorithm>
 
+#include <QHBoxLayout>
+#include <QVector3D>
+
 #define MAX(x,y) ((x > y) ? x : y)
 #define MIN(x,y) ((x < y) ? x : y)
 
@@ -10,6 +13,7 @@ WarehouseFrame::WarehouseFrame(QWidget *parent) : QFrame(parent)
 }
 
 WarehouseFrame::~WarehouseFrame(){}
+
 
 void WarehouseFrame::loadWarehouseJson(QString filename)
 {

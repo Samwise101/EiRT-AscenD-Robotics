@@ -12,6 +12,8 @@
 #include <QColor>
 #include <QThread>
 #include <QListWidget>
+#include <QFile>
+#include <QXmlStreamReader>
 
 #include <memory>
 #include <vector>
@@ -35,6 +37,14 @@
 #include "ColorListWidget.h"
 #include "flight_plan_dialog.h"
 #include "flight_preset_create_dialog.h"
+#include "helper.h"
+
+#include <QtDataVisualization/Q3DScatter>
+#include <QtDataVisualization/QScatter3DSeries>
+#include <QtDataVisualization/QScatterDataProxy>
+#include <QtDataVisualization/QCustom3DItem>
+#include <QtDataVisualization/Q3DCamera>
+#include <QtDataVisualization/QValue3DAxis>
 
 class MainWindow : public QMainWindow
 {
@@ -61,6 +71,7 @@ public:
 
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
+    
 
 private slots:
 
@@ -88,6 +99,7 @@ private slots:
     void on_removeDroneButton_pushButton_clicked();
     void on_addDroneButton_pushButton_clicked();
     void on_restartButton_pushButton_clicked();
+    void on_visualizationButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
     void on_droneComboBox_currentIndexChanged(int index);
@@ -97,6 +109,8 @@ private slots:
     void on_add_box_pushButton_clicked();
 
     void onListItemDoubleClicked(QListWidgetItem *item);
+
+    void update3DTrajectories(std::vector<DroneVis> drones);
 
 private:
     Ui::MainWindow *ui;
@@ -130,6 +144,12 @@ private:
     QLabel* batteryImageLabel_box;
     QLabel* batteryTextLabel_box;
     QListWidget* list_widget;
+
+    QtDataVisualization::Q3DScatter *scatter3D = nullptr;
+    QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
+    QWidget *scatterContainer = nullptr;
+
+    bool visuals2dOn;
 };
 
 #endif
