@@ -1,32 +1,51 @@
 #include <iostream>
 #include "flight_plan_dialog.h"
 
-FlightDialog::FlightDialog(QWidget* parent, Drone* drone)
+FlightDialog::FlightDialog(QWidget* parent, QColor drone_color, std::string drone_id) : drone_id(drone_id), drone_color(drone_color)
 {
     ui.setupUi(this);
 
-    // if(drone != nullptr);
-    // {
-    //     this->drone = drone;
+    this->ui.label_5->setText(QString::fromStdString(this->drone_id));
 
-    //     QPalette palette = this->ui.label_5->palette();
-    //     palette.setColor(QPalette::Window, this->drone->get_drone_color());
-    //     this->ui.label_5->setPalette(palette);
-    // }
+    std::cout << "Got color " << this->drone_color.name().toStdString() << std::endl;
 
-    // this->ui.latLineEdit->setText("0.0");
-    // this->ui.lonLineEdit->setText("0.0");
-    // this->ui.altLineEdit->setText("0.0");
+    QPalette palette = this->ui.label_6->palette();
+    palette.setColor(QPalette::Window, this->drone_color);
+    ui.label_6->setAutoFillBackground(true);   // <-- Important!
+    this->ui.label_6->setPalette(palette);
+
+    this->ui.latLineEdit->setText("0.0");
+    this->ui.lonLineEdit->setText("0.0");
+    this->ui.altLineEdit->setText("0.0");
+
+    scatter3D = new QtDataVisualization::Q3DScatter();
+    scatterContainer = QWidget::createWindowContainer(scatter3D);
+
+    scatter3D->activeTheme()->setType(QtDataVisualization::Q3DTheme::ThemeQt);
+    scatter3D->setShadowQuality(QtDataVisualization::QAbstract3DGraph::ShadowQualityNone);
+    scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight);
+
+    scatter3D->axisX()->setTitle("X");
+    scatter3D->axisY()->setTitle("Z");
+    scatter3D->axisZ()->setTitle("Y");
+
+    QtDataVisualization::Q3DCamera *camera = scatter3D->scene()->activeCamera();
+    camera->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight); // starting view
+    camera->setZoomLevel(100.0f);     // optional starting zoom
+
+    scatter3D->scene()->activeCamera()->setZoomLevel(100.0f);    // zoom
+    scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetFront);
+    
+    // You can show this container in your UI (e.g. side-by-side)
+    scatterContainer = QWidget::createWindowContainer(scatter3D, this);
+    scatterContainer->setMinimumSize(100, 100);
+    scatterContainer->setFocusPolicy(Qt::StrongFocus);
+
+    this->ui.verticalLayout_4->addWidget(scatterContainer, 1);
 }
 
 FlightDialog::~FlightDialog()
-{
-    if(this->drone != nullptr)
-    {    
-        delete this->drone;
-        this->drone = nullptr;
-    }
-}
+{}
 
 void FlightDialog::on_openMapButton_pushButton_clicked()
 {

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>705</width>
-    <height>532</height>
+    <width>704</width>
+    <height>565</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,16 +17,16 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>10</y>
+     <y>20</y>
      <width>701</width>
-     <height>518</height>
+     <height>538</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout" stretch="10,0,0">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,10">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,10,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,10,10,10,0">
         <property name="spacing">
          <number>30</number>
         </property>
@@ -43,7 +43,7 @@
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>Selected
-Drone: </string>
+Drone ID: </string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -52,6 +52,28 @@ Drone: </string>
           </item>
           <item>
            <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Selected
+Drone Color</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_6">
             <property name="text">
              <string/>
             </property>
@@ -146,7 +168,7 @@ Drone: </string>
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="listWidget"/>
+       <layout class="QVBoxLayout" name="verticalLayout_4"/>
       </item>
      </layout>
     </item>

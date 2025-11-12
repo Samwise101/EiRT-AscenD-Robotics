@@ -17,7 +17,6 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
-#include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
@@ -36,6 +35,9 @@ public:
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_4;
     QLabel *label_5;
+    QHBoxLayout *horizontalLayout_8;
+    QLabel *label_7;
+    QLabel *label_6;
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_3;
@@ -51,7 +53,7 @@ public:
     QPushButton *clearWaypointsButton;
     QPushButton *saveAsPresetButton;
     QFrame *line;
-    QListWidget *listWidget;
+    QVBoxLayout *verticalLayout_4;
     QFrame *line_2;
     QHBoxLayout *horizontalLayout_2;
     QPushButton *cancleButton;
@@ -62,10 +64,10 @@ public:
     {
         if (FlightDialog->objectName().isEmpty())
             FlightDialog->setObjectName(QString::fromUtf8("FlightDialog"));
-        FlightDialog->resize(705, 532);
+        FlightDialog->resize(704, 565);
         verticalLayoutWidget = new QWidget(FlightDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(0, 10, 701, 518));
+        verticalLayoutWidget->setGeometry(QRect(0, 20, 701, 538));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
@@ -94,6 +96,22 @@ public:
 
 
         verticalLayout_2->addLayout(horizontalLayout_6);
+
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        label_7 = new QLabel(verticalLayoutWidget);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+        label_7->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_8->addWidget(label_7);
+
+        label_6 = new QLabel(verticalLayoutWidget);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+
+        horizontalLayout_8->addWidget(label_6);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_8);
 
         verticalLayout_3 = new QVBoxLayout();
         verticalLayout_3->setSpacing(0);
@@ -166,9 +184,9 @@ public:
 
         verticalLayout_2->addWidget(saveAsPresetButton);
 
-        verticalLayout_2->setStretch(3, 10);
         verticalLayout_2->setStretch(4, 10);
         verticalLayout_2->setStretch(5, 10);
+        verticalLayout_2->setStretch(6, 10);
 
         horizontalLayout->addLayout(verticalLayout_2);
 
@@ -179,10 +197,10 @@ public:
 
         horizontalLayout->addWidget(line);
 
-        listWidget = new QListWidget(verticalLayoutWidget);
-        listWidget->setObjectName(QString::fromUtf8("listWidget"));
+        verticalLayout_4 = new QVBoxLayout();
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
 
-        horizontalLayout->addWidget(listWidget);
+        horizontalLayout->addLayout(verticalLayout_4);
 
         horizontalLayout->setStretch(2, 10);
 
@@ -242,8 +260,11 @@ public:
         FlightDialog->setWindowTitle(QCoreApplication::translate("FlightDialog", "Dialog", nullptr));
         openMapButton->setText(QCoreApplication::translate("FlightDialog", "Open Map", nullptr));
         label_4->setText(QCoreApplication::translate("FlightDialog", "Selected\n"
-"Drone: ", nullptr));
+"Drone ID: ", nullptr));
         label_5->setText(QString());
+        label_7->setText(QCoreApplication::translate("FlightDialog", "Selected\n"
+"Drone Color", nullptr));
+        label_6->setText(QString());
         label_3->setText(QCoreApplication::translate("FlightDialog", "Lat: ", nullptr));
         label->setText(QCoreApplication::translate("FlightDialog", "Lon: ", nullptr));
         label_2->setText(QCoreApplication::translate("FlightDialog", "Alt: ", nullptr));

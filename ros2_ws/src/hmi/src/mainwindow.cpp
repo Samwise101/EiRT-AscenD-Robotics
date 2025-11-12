@@ -110,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
     scatterContainer->setFocusPolicy(Qt::StrongFocus);
 
     this->ui->visLayout->addWidget(scatterContainer, 1);
+    this->ui->visualizationButton->setText("2D Visualization");
 }
 
 MainWindow::~MainWindow()
@@ -481,7 +482,7 @@ void MainWindow::on_path_upload_pushButton_clicked()
         
             if(!drones.empty())
             {
-                FlightDialog flightPlanDialog(this, &drones[current_drone_index]);
+                FlightDialog flightPlanDialog(this, drones[current_drone_index].get_drone_color(), drones[current_drone_index].get_drone_id());
                 if(flightPlanDialog.exec() == QDialog::Rejected) return;
                 else
                 {
@@ -490,7 +491,7 @@ void MainWindow::on_path_upload_pushButton_clicked()
             }
             else
             {
-                FlightDialog flightPlanDialog(this);
+                FlightDialog flightPlanDialog(this, nullptr);
                 if(flightPlanDialog.exec() == QDialog::Rejected) return;
                 else 
                 {
@@ -1115,7 +1116,7 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     {
         // set 3D visuals for map
         this->visuals2dOn = false;
-        this->ui->visualizationButton->setText("3D Visualization");
+        this->ui->visualizationButton->setText("2D Visualization");
 
         this->warehouseFrame->hide();
         this->ui->visLayout->removeWidget(warehouseFrame);
@@ -1130,7 +1131,7 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     {
         // set 2D visuals for map
         this->visuals2dOn = true;
-        this->ui->visualizationButton->setText("2D Visualization");
+        this->ui->visualizationButton->setText("3D Visualization");
 
         scatterContainer->hide();
         this->ui->visLayout->removeWidget(scatterContainer);

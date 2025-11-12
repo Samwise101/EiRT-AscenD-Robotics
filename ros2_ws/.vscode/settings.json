@@ -92,7 +92,8 @@
         "__locale": "cpp",
         "qframe": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "qfiledialog": "cpp"
     },
     "cmake.sourceDirectory": "/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/dronehive_interfaces"
 }

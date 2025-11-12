@@ -39,13 +39,6 @@
 #include "flight_preset_create_dialog.h"
 #include "helper.h"
 
-#include <QtDataVisualization/Q3DScatter>
-#include <QtDataVisualization/QScatter3DSeries>
-#include <QtDataVisualization/QScatterDataProxy>
-#include <QtDataVisualization/QCustom3DItem>
-#include <QtDataVisualization/Q3DCamera>
-#include <QtDataVisualization/QValue3DAxis>
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

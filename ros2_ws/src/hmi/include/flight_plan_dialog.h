@@ -15,12 +15,19 @@
 
 #include "drone.h"
 
+#include <QtDataVisualization/Q3DScatter>
+#include <QtDataVisualization/QScatter3DSeries>
+#include <QtDataVisualization/QScatterDataProxy>
+#include <QtDataVisualization/QCustom3DItem>
+#include <QtDataVisualization/Q3DCamera>
+#include <QtDataVisualization/QValue3DAxis>
+
 class FlightDialog : public QDialog
 {
     Q_OBJECT
 
     public:
-        explicit FlightDialog(QWidget* parent = nullptr, Drone* drone = nullptr);
+        explicit FlightDialog(QWidget* parent = nullptr, QColor drone_color = Qt::white, std::string drone_id = "");
         ~FlightDialog();
 
 
@@ -37,10 +44,15 @@ class FlightDialog : public QDialog
         void on_saveAsPresetButton_pushButton_clicked();
     
     private:
-        Drone* drone;
+        std::string drone_id;
+        QColor drone_color;
         Ui::FlightDialog ui;
+
+        QtDataVisualization::Q3DScatter *scatter3D = nullptr;
+        QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
+        QWidget *scatterContainer = nullptr;
         
 };
 
 
-#endif FLIGHT_DIALOG_H
+#endif
