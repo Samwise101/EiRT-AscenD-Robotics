@@ -35,10 +35,14 @@ void FlightCreationDialog::on_createPlanButton_pushButton_clicked()
 
 void FlightCreationDialog::on_choosePreset_pushButton_clicked()
 {
+
+    QString presetDirPath = QDir(QCoreApplication::applicationDirPath())
+                            .filePath("../src/hmi/presets");
+
     this->file_name = QFileDialog::getOpenFileName(
         this,           
         "Open Preset File",
-        QDir::currentPath(),
+        presetDirPath,
         "Document files (*.xml)"
     );
 

@@ -70,7 +70,7 @@ void FlightDialog::on_addNewWaypointButton_pushButton_clicked()
 
     std::cout << "Created  awaypoint [" << this->ui.latLineEdit->text().toStdString() << ", " << this->ui.lonLineEdit->text().toStdString() 
     << ", " <<  this->ui.altLineEdit->text().toStdString() << std::endl;
-    
+
     QVector3D waypoint{lat, lon, alt};
     this->waypoints.push_back(waypoint);
 
@@ -191,12 +191,11 @@ void FlightDialog::update3DTrajectories()
 
     for (int i = 0; i < this->waypoints.size(); ++i)
     {
-        auto &wp = this->waypoints[i];
+        QVector3D wp;
         wp.setX(waypoints[i].x());
         wp.setY(waypoints[i].z());
         wp.setZ(waypoints[i].y());
 
-        float z = i * 0.2f;  // artificial altitude or index
         (*dataArray)[i].setPosition(wp);
     }
 

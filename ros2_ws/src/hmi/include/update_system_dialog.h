@@ -39,7 +39,7 @@ public:
     {
         if (UpdateSystemDialog->objectName().isEmpty())
             UpdateSystemDialog->setObjectName(QString::fromUtf8("UpdateSystemDialog"));
-        UpdateSystemDialog->resize(406, 240);
+        UpdateSystemDialog->resize(407, 203);
         verticalLayoutWidget = new QWidget(UpdateSystemDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(20, 40, 351, 131));

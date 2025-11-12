@@ -67,7 +67,7 @@ public:
         cancleButton = new QPushButton(verticalLayoutWidget);
         cancleButton->setObjectName(QString::fromUtf8("cancleButton"));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/resources/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
         cancleButton->setIcon(icon);
 
         horizontalLayout->addWidget(cancleButton);

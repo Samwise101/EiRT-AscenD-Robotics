@@ -210,7 +210,7 @@ public:
         cancleButton = new QPushButton(verticalLayoutWidget);
         cancleButton->setObjectName(QString::fromUtf8("cancleButton"));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/resources/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
         cancleButton->setIcon(icon);
 
         horizontalLayout_2->addWidget(cancleButton);
@@ -222,7 +222,7 @@ public:
         applyButton = new QPushButton(verticalLayoutWidget);
         applyButton->setObjectName(QString::fromUtf8("applyButton"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/resources/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
         applyButton->setIcon(icon1);
 
         horizontalLayout_2->addWidget(applyButton);

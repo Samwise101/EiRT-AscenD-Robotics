@@ -47,7 +47,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
-            <normaloff>:/images/icons/add_box.png</normaloff>:/images/icons/add_box.png</iconset>
+            <normaloff>:/resources/icons/add_box.png</normaloff>:/resources/icons/add_box.png</iconset>
           </property>
          </widget>
         </item>
@@ -72,7 +72,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
-            <normaloff>:/images/icons/add_drone.png</normaloff>:/images/icons/add_drone.png</iconset>
+            <normaloff>:/resources/icons/add_drone.png</normaloff>:/resources/icons/add_drone.png</iconset>
           </property>
          </widget>
         </item>
@@ -90,7 +90,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
-            <normaloff>:/images/icons/update_system.png</normaloff>:/images/icons/update_system.png</iconset>
+            <normaloff>:/resources/icons/update_system.png</normaloff>:/resources/icons/update_system.png</iconset>
           </property>
          </widget>
         </item>
@@ -108,7 +108,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
-            <normaloff>:/images/icons/refresh.png</normaloff>:/images/icons/refresh.png</iconset>
+            <normaloff>:/resources/icons/refresh.png</normaloff>:/resources/icons/refresh.png</iconset>
           </property>
          </widget>
         </item>
@@ -131,7 +131,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
-            <normaloff>:/images/icons/settings2.png</normaloff>:/images/icons/settings2.png</iconset>
+            <normaloff>:/resources/icons/settings2.png</normaloff>:/resources/icons/settings2.png</iconset>
           </property>
          </widget>
         </item>
@@ -161,12 +161,12 @@
            </font>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="map_tab">
            <attribute name="icon">
             <iconset resource="../resources/resources.qrc">
-             <normaloff>:/images/icons/map.png</normaloff>:/images/icons/map.png</iconset>
+             <normaloff>:/resources/icons/map.png</normaloff>:/resources/icons/map.png</iconset>
            </attribute>
            <attribute name="title">
             <string>Map</string>
@@ -221,7 +221,7 @@
                    </property>
                    <property name="icon">
                     <iconset resource="../resources/resources.qrc">
-                     <normaloff>:/images/icons/zoom_in.png</normaloff>:/images/icons/zoom_in.png</iconset>
+                     <normaloff>:/resources/icons/zoom_in.png</normaloff>:/resources/icons/zoom_in.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -251,7 +251,7 @@
                    </property>
                    <property name="icon">
                     <iconset resource="../resources/resources.qrc">
-                     <normaloff>:/images/icons/zoom_out.png</normaloff>:/images/icons/zoom_out.png</iconset>
+                     <normaloff>:/resources/icons/zoom_out.png</normaloff>:/resources/icons/zoom_out.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -376,7 +376,7 @@
            </property>
            <attribute name="icon">
             <iconset resource="../resources/resources.qrc">
-             <normaloff>:/images/icons/box.png</normaloff>:/images/icons/box.png</iconset>
+             <normaloff>:/resources/icons/box.png</normaloff>:/resources/icons/box.png</iconset>
            </attribute>
            <attribute name="title">
             <string>Box</string>
@@ -492,7 +492,7 @@
                        </property>
                        <property name="icon">
                         <iconset resource="../resources/resources.qrc">
-                         <normaloff>:/images/icons/remove_box.png</normaloff>:/images/icons/remove_box.png</iconset>
+                         <normaloff>:/resources/icons/remove_box.png</normaloff>:/resources/icons/remove_box.png</iconset>
                        </property>
                       </widget>
                      </item>
@@ -520,7 +520,7 @@ Box Status</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                       <normaloff>:/resources/icons/request_status.png</normaloff>:/resources/icons/request_status.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -875,7 +875,7 @@ Drone:</string>
           <widget class="QWidget" name="drone_tab">
            <attribute name="icon">
             <iconset resource="../resources/resources.qrc">
-             <normaloff>:/images/icons/drone.png</normaloff>:/images/icons/drone.png</iconset>
+             <normaloff>:/resources/icons/drone.png</normaloff>:/resources/icons/drone.png</iconset>
            </attribute>
            <attribute name="title">
             <string>Drone</string>
@@ -978,7 +978,7 @@ Drone:</string>
                    </property>
                    <property name="icon">
                     <iconset resource="../resources/resources.qrc">
-                     <normaloff>:/images/icons/remove_drone.png</normaloff>:/images/icons/remove_drone.png</iconset>
+                     <normaloff>:/resources/icons/remove_drone.png</normaloff>:/resources/icons/remove_drone.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -1144,7 +1144,7 @@ Drone:</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/drone_takeoff.png</normaloff>:/images/icons/drone_takeoff.png</iconset>
+                       <normaloff>:/resources/icons/drone_takeoff.png</normaloff>:/resources/icons/drone_takeoff.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1162,7 +1162,7 @@ Drone:</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/path.png</normaloff>:/images/icons/path.png</iconset>
+                       <normaloff>:/resources/icons/path.png</normaloff>:/resources/icons/path.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1176,12 +1176,12 @@ Drone:</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Pause Trajectory
- Completion</string>
+                      <string>Start Trajectory
+Completion</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/pause.png</normaloff>:/images/icons/pause.png</iconset>
+                       <normaloff>:/resources/icons/resume.png</normaloff>:/resources/icons/resume.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1199,7 +1199,7 @@ Drone:</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/drone_land.png</normaloff>:/images/icons/drone_land.png</iconset>
+                       <normaloff>:/resources/icons/drone_land.png</normaloff>:/resources/icons/drone_land.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1217,11 +1217,11 @@ Drone:</string>
                      </property>
                      <property name="text">
                       <string>Request Drone
- Status</string>
+Status</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/request_status.png</normaloff>:/images/icons/request_status.png</iconset>
+                       <normaloff>:/resources/icons/request_status.png</normaloff>:/resources/icons/request_status.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1239,7 +1239,7 @@ Drone:</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/images/icons/arm_drone.png</normaloff>:/images/icons/arm_drone.png</iconset>
+                       <normaloff>:/resources/icons/arm_drone.png</normaloff>:/resources/icons/arm_drone.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1365,24 +1365,6 @@ Drone:</string>
             </layout>
            </widget>
           </widget>
-          <widget class="QWidget" name="stat_tab">
-           <attribute name="icon">
-            <iconset resource="../resources/resources.qrc">
-             <normaloff>:/images/icons/chart.png</normaloff>:/images/icons/chart.png</iconset>
-           </attribute>
-           <attribute name="title">
-            <string>Statistics</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="preset_tab">
-           <attribute name="icon">
-            <iconset resource="../resources/resources.qrc">
-             <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
-           </attribute>
-           <attribute name="title">
-            <string>Presets</string>
-           </attribute>
-          </widget>
          </widget>
         </item>
        </layout>
@@ -1441,7 +1423,7 @@ Drone:</string>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
    </property>
    <property name="text">
@@ -1470,7 +1452,7 @@ Drone:</string>
   </action>
   <action name="actionPreferences">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/settings1.png</normaloff>:/images/icons/settings1.png</iconset>
    </property>
    <property name="text">
@@ -1488,7 +1470,7 @@ Drone:</string>
   </action>
   <action name="actionOpen_Map_View">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/map.png</normaloff>:/images/icons/map.png</iconset>
    </property>
    <property name="text">
@@ -1497,7 +1479,7 @@ Drone:</string>
   </action>
   <action name="actionOpen_Box_View">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/box.png</normaloff>:/images/icons/box.png</iconset>
    </property>
    <property name="text">
@@ -1506,7 +1488,7 @@ Drone:</string>
   </action>
   <action name="actionOpen_Drone_View">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/drone.png</normaloff>:/images/icons/drone.png</iconset>
    </property>
    <property name="text">
@@ -1515,7 +1497,7 @@ Drone:</string>
   </action>
   <action name="actionOpen_Statistics">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/chart.png</normaloff>:/images/icons/chart.png</iconset>
    </property>
    <property name="text">
@@ -1524,7 +1506,7 @@ Drone:</string>
   </action>
   <action name="actionUser">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/user.png</normaloff>:/images/icons/user.png</iconset>
    </property>
    <property name="text">
@@ -1533,7 +1515,7 @@ Drone:</string>
   </action>
   <action name="actionOpen_Presets">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
    </property>
    <property name="text">
