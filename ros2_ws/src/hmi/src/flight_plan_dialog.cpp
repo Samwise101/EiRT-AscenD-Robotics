@@ -47,10 +47,6 @@ FlightDialog::FlightDialog(QWidget* parent, QColor drone_color, std::string dron
 FlightDialog::~FlightDialog()
 {}
 
-void FlightDialog::on_openMapButton_pushButton_clicked()
-{
-    std::cout << "Hello from open map button" << std::endl;
-}
 
 void FlightDialog::on_cancleButton_pushButton_clicked()
 {
@@ -72,11 +68,21 @@ void FlightDialog::on_removeWaypointButton_pushButton_clicked()
 void FlightDialog::on_addNewWaypointButton_pushButton_clicked()
 {
     std::cout << "Hello from add new waypoint button" << std::endl;
+
+    float alt = this->ui.altLineEdit->text().toFloat();
+    float lat = this->ui.latLineEdit->text().toFloat();
+    float lon = this->ui.lonLineEdit->text().toFloat();
+
+    QVector3D waypoint{lat, lon, alt};
+    this->waypoints.push_back(waypoint);
+
+    this->update3DTrajectories();
 }
 
 void FlightDialog::on_clearWaypointsButton_pushButton_clicked()
 {
     std::cout << "Hello from clear waypoints button" << std::endl;
+    this->waypoints.clear();
 }
 
 void FlightDialog::on_latLineEdit_editingFinished()
@@ -97,4 +103,41 @@ void FlightDialog::on_altLineEdit_editingFinished()
 void FlightDialog::on_saveAsPresetButton_pushButton_clicked()
 {
     std::cout << "Hello from save as preset button" << std::endl;
+}
+
+void FlightDialog::update3DTrajectories()
+{
+    if (!scatter3D)
+        return;
+
+    if(this->waypoints.empty()) return;
+
+    // --- Remove old series manually ---
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries)
+        scatter3D->removeSeries(series);
+
+    // --- Remove old custom items manually ---
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems)
+        scatter3D->removeCustomItem(item);
+
+    // Create scatter points (waypoints)
+    auto *series = new QtDataVisualization::QScatter3DSeries();
+    series->setMesh(QtDataVisualization::QAbstract3DSeries::MeshSphere);
+    series->setItemSize(0.15f);
+    series->setBaseColor(this->drone_color);
+
+    auto *dataArray = new QtDataVisualization::QScatterDataArray;
+    dataArray->resize(this->waypoints.size());
+
+    for (int i = 0; i < this->waypoints.size(); ++i)
+    {
+        const auto &wp = this->waypoints[i];
+        float z = i * 0.2f;  // artificial altitude or index
+        (*dataArray)[i].setPosition(wp);
+    }
+
+    series->dataProxy()->resetArray(dataArray);
+    scatter3D->addSeries(series);
 }

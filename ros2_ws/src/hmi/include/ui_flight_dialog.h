@@ -31,7 +31,6 @@ public:
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout_2;
-    QPushButton *openMapButton;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_4;
     QLabel *label_5;
@@ -76,11 +75,6 @@ public:
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(30);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        openMapButton = new QPushButton(verticalLayoutWidget);
-        openMapButton->setObjectName(QString::fromUtf8("openMapButton"));
-
-        verticalLayout_2->addWidget(openMapButton);
-
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         label_4 = new QLabel(verticalLayoutWidget);
@@ -184,9 +178,9 @@ public:
 
         verticalLayout_2->addWidget(saveAsPresetButton);
 
+        verticalLayout_2->setStretch(3, 10);
         verticalLayout_2->setStretch(4, 10);
         verticalLayout_2->setStretch(5, 10);
-        verticalLayout_2->setStretch(6, 10);
 
         horizontalLayout->addLayout(verticalLayout_2);
 
@@ -241,7 +235,6 @@ public:
         verticalLayout->setStretch(0, 10);
 
         retranslateUi(FlightDialog);
-        QObject::connect(openMapButton, SIGNAL(clicked()), FlightDialog, SLOT(on_openMapButton_pushButton_clicked()));
         QObject::connect(latLineEdit, SIGNAL(editingFinished()), FlightDialog, SLOT(on_latLineEdit_editingFinished()));
         QObject::connect(lonLineEdit, SIGNAL(editingFinished()), FlightDialog, SLOT(on_lonLineEdit_editingFinished()));
         QObject::connect(altLineEdit, SIGNAL(editingFinished()), FlightDialog, SLOT(on_altLineEdit_editingFinished()));
@@ -258,7 +251,6 @@ public:
     void retranslateUi(QDialog *FlightDialog)
     {
         FlightDialog->setWindowTitle(QCoreApplication::translate("FlightDialog", "Dialog", nullptr));
-        openMapButton->setText(QCoreApplication::translate("FlightDialog", "Open Map", nullptr));
         label_4->setText(QCoreApplication::translate("FlightDialog", "Selected\n"
 "Drone ID: ", nullptr));
         label_5->setText(QString());

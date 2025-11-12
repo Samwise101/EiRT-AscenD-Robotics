@@ -26,17 +26,10 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,10">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,10,10,10,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,10,0">
         <property name="spacing">
          <number>30</number>
         </property>
-        <item>
-         <widget class="QPushButton" name="openMapButton">
-          <property name="text">
-           <string>Open Map</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
@@ -225,22 +218,6 @@ Drone Color</string>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>openMapButton</sender>
-   <signal>clicked()</signal>
-   <receiver>FlightDialog</receiver>
-   <slot>on_openMapButton_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>102</x>
-     <y>19</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>215</x>
-     <y>1</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>latLineEdit</sender>
    <signal>editingFinished()</signal>

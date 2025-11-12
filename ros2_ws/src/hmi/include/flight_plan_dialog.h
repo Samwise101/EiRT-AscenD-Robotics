@@ -32,7 +32,6 @@ class FlightDialog : public QDialog
 
 
     private slots:
-        void on_openMapButton_pushButton_clicked();
         void on_cancleButton_pushButton_clicked();
         void on_applyButton_pushButton_clicked();
         void on_removeWaypointButton_pushButton_clicked();
@@ -52,6 +51,9 @@ class FlightDialog : public QDialog
         QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
         QWidget *scatterContainer = nullptr;
         
+        std::vector<QVector3D> waypoints;
+
+        void update3DTrajectories();
 };
 
 
