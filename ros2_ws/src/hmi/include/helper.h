@@ -9,7 +9,7 @@
 #include <QtMath>
 
 struct Line { float x1, y1, x2, y2; };
-struct Point { float x, y; };
+struct Point { float x, y, z;};
 
 typedef struct
 {

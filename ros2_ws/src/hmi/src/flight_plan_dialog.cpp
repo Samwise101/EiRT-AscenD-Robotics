@@ -45,7 +45,23 @@ FlightDialog::FlightDialog(QWidget* parent, QColor drone_color, std::string dron
 }
 
 FlightDialog::~FlightDialog()
-{}
+{
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries) {
+        scatter3D->removeSeries(series);
+        delete series;
+    }
+
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems) {
+        scatter3D->removeCustomItem(item);
+        delete item;
+    }
+
+    delete this->scatter3D;
+    delete this->trajectorySeries;
+    delete this->scatterContainer;
+}
 
 
 void FlightDialog::on_cancleButton_pushButton_clicked()

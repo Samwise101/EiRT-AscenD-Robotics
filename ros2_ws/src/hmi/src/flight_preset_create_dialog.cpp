@@ -8,8 +8,38 @@ FlightCreationDialog::FlightCreationDialog(QWidget* parent)
     connect(this->ui.listWidget, &QListWidget::itemDoubleClicked,
     this, &FlightCreationDialog::onListItemDoubleClicked);
 
+    connect(this->ui.listWidget, &QListWidget::itemClicked,
+    this, &FlightCreationDialog::onListItemClicked);
+
     this->curr_list_widget_index = -1;
     this->state = PathPlanStates::NONE;
+
+    scatter3D = new QtDataVisualization::Q3DScatter();
+    scatterContainer = QWidget::createWindowContainer(scatter3D);
+
+    scatter3D->activeTheme()->setType(QtDataVisualization::Q3DTheme::ThemeQt);
+    scatter3D->setShadowQuality(QtDataVisualization::QAbstract3DGraph::ShadowQualityNone);
+    scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight);
+
+    scatter3D->axisX()->setTitle("X");
+    scatter3D->axisY()->setTitle("Z");
+    scatter3D->axisZ()->setTitle("Y");
+
+    QtDataVisualization::Q3DCamera *camera = scatter3D->scene()->activeCamera();
+    camera->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetIsometricRight); // starting view
+    camera->setZoomLevel(100.0f);     // optional starting zoom
+
+    scatter3D->scene()->activeCamera()->setZoomLevel(100.0f);    // zoom
+    scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetFront);
+    
+    // You can show this container in your UI (e.g. side-by-side)
+    scatterContainer = QWidget::createWindowContainer(scatter3D, this);
+    scatterContainer->setMinimumSize(100, 100);
+    scatterContainer->setFocusPolicy(Qt::StrongFocus);
+
+    this->ui.verticalLayout_2->addWidget(scatterContainer, 1);
+
+    this->cw = nullptr;
 }
 
 FlightCreationDialog::~FlightCreationDialog()
@@ -18,6 +48,24 @@ FlightCreationDialog::~FlightCreationDialog()
     {
         delete this->ui.listWidget->item(i);
     }
+
+    delete this->cw;
+
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries) {
+        scatter3D->removeSeries(series);
+        delete series;
+    }
+
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems) {
+        scatter3D->removeCustomItem(item);
+        delete item;
+    }
+
+    delete this->scatter3D;
+    delete this->trajectorySeries;
+    delete this->scatterContainer;
 }
 
 void FlightCreationDialog::on_cancleButton_pushButton_clicked()
@@ -64,12 +112,8 @@ void FlightCreationDialog::loadTrajectoryFromXmlFile(QString& filename)
 
     QXmlStreamReader xml(&file);
 
-    drones.clear();
-
     DroneVis current;
     bool insideDrone = false;
-
-    std::vector<DroneVis> drones;
 
     while (!xml.atEnd())
     {
@@ -94,6 +138,7 @@ void FlightCreationDialog::loadTrajectoryFromXmlFile(QString& filename)
             Point p;
             p.x = attrs.value("x").toDouble();
             p.y = attrs.value("y").toDouble();
+            p.z = attrs.value("z").toDouble();
             current.drone_waypoints.push_back(p);
         }
 
@@ -102,17 +147,11 @@ void FlightCreationDialog::loadTrajectoryFromXmlFile(QString& filename)
         {
             drones.push_back(current);
             insideDrone = false;
+            this->addItemToList(current);
         }
     }
 
     file.close();
-    
-    if(drones.empty()) return;
-
-    for(auto drone: drones)
-    {
-        this->addItemToList(drone);
-    }
 }
 
 void FlightCreationDialog::addItemToList(DroneVis& drone)
@@ -131,15 +170,31 @@ void FlightCreationDialog::onListItemDoubleClicked(QListWidgetItem* item)
     curr_list_widget_index = this->ui.listWidget->row(item);
     std::cout << "Item at index = " << curr_list_widget_index << "was selected" << std::endl;
 
-    ColorListWidget *cw = qobject_cast<ColorListWidget*>(this->ui.listWidget->itemWidget(item));
-    if (cw)
+    ColorListWidget *cw_new = qobject_cast<ColorListWidget*>(this->ui.listWidget->itemWidget(item));
+    if (cw_new)
     {
-        cw->setEnabled(true);
-        cw->setChecked(true);
+        cw_new->setEnabled(true);
+        cw_new->setChecked(true);
     }
 
+    std::cout << "hello double clicked" << std::endl; 
     this->state = PathPlanStates::ACCEPTED;
     this->accept();
+}
+
+void FlightCreationDialog::onListItemClicked(QListWidgetItem* item)
+{
+    curr_list_widget_index = this->ui.listWidget->row(item);
+    std::cout << "Item at index = " << curr_list_widget_index << "was selected" << std::endl;
+
+    ColorListWidget *cw_new = qobject_cast<ColorListWidget*>(this->ui.listWidget->itemWidget(item));
+    if (cw_new)
+    {
+        cw_new->setEnabled(true);
+        cw_new->setChecked(true);
+    }
+
+    this->update3DTrajectories();
 }
 
 int FlightCreationDialog::getSelectedItemIndex()
@@ -150,4 +205,54 @@ int FlightCreationDialog::getSelectedItemIndex()
 int FlightCreationDialog::getState()
 {
     return this->state;
+}
+
+void FlightCreationDialog::update3DTrajectories()
+{
+    if (!scatter3D)
+        return;
+
+    // --- Remove old series manually ---
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries) {
+        scatter3D->removeSeries(series);
+        delete series;
+    }
+
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems) {
+        scatter3D->removeCustomItem(item);
+        delete item;
+    }
+
+    if (this->curr_list_widget_index < 0) return;
+    if (this->drones.empty()) return;
+
+    const auto &drone = drones[curr_list_widget_index];
+
+    // --- Create scatter points (waypoints) ---
+    auto *series = new QtDataVisualization::QScatter3DSeries();
+    series->setMesh(QtDataVisualization::QAbstract3DSeries::MeshSphere);
+    series->setItemSize(0.15f);
+    series->setBaseColor(drone.drone_color);
+
+    auto *dataArray = new QtDataVisualization::QScatterDataArray;
+    dataArray->resize(drone.drone_waypoints.size());
+
+    QVector<QVector3D> waypoints;
+    for (int i = 0; i < drone.drone_waypoints.size(); ++i)
+    {
+        QVector3D wp;
+        wp.setX(drone.drone_waypoints[i].x);
+        wp.setY(drone.drone_waypoints[i].y); // assuming z is height
+        wp.setZ(drone.drone_waypoints[i].z);
+
+        (*dataArray)[i].setPosition(wp);
+        waypoints.append(wp);
+    }
+
+    series->dataProxy()->resetArray(dataArray);
+    scatter3D->addSeries(series);
+
+    scatter3D->activeTheme()->setType(scatter3D->activeTheme()->type()); // force visual refresh
 }

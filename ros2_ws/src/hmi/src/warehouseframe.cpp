@@ -90,6 +90,7 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
             Point p;
             p.x = attrs.value("x").toDouble();
             p.y = attrs.value("y").toDouble();
+            p.z = attrs.value("z").toDouble();
             current.drone_waypoints.push_back(p);
         }
 

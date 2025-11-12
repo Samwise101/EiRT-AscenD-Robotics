@@ -139,13 +139,26 @@ void MainWindow::cleanup()
         spinTimer_->disconnect();  // disconnect all signals
     }
 
-    // Shutdown ROS 2
-    rclcpp::shutdown();
-
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     delete this->spinTimer_;
     delete this->ui;
+
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries) {
+        scatter3D->removeSeries(series);
+        delete series;
+    }
+
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems) {
+        scatter3D->removeCustomItem(item);
+        delete item;
+    }
+
+    delete this->scatter3D;
+    delete this->trajectorySeries;
+    delete this->scatterContainer;
 
     rclcpp::shutdown();
 }

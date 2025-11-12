@@ -17,6 +17,13 @@
 #include <QFile>
 #include <QXmlStreamReader>
 
+#include <QtDataVisualization/Q3DScatter>
+#include <QtDataVisualization/QScatter3DSeries>
+#include <QtDataVisualization/QScatterDataProxy>
+#include <QtDataVisualization/QCustom3DItem>
+#include <QtDataVisualization/Q3DCamera>
+#include <QtDataVisualization/QValue3DAxis>
+
 class FlightCreationDialog : public QDialog
 {
     Q_OBJECT
@@ -38,12 +45,24 @@ class FlightCreationDialog : public QDialog
 
         void onListItemDoubleClicked(QListWidgetItem* item);
 
+        void onListItemClicked(QListWidgetItem* item);
+
     private:
         Ui::FlightCreationDialog ui;
         QString file_name;
         std::vector<DroneVis> drones;
         int curr_list_widget_index;
         int state;
+
+        QtDataVisualization::Q3DScatter *scatter3D = nullptr;
+        QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
+        QWidget *scatterContainer = nullptr;
+        
+        std::vector<QVector3D> waypoints;
+
+        ColorListWidget *cw;
+
+        void update3DTrajectories();
 };
 
 #endif FLIGHT_CREATION_DIALOG_H

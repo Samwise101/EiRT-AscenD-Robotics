@@ -13,6 +13,7 @@
 #include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QListWidget>
@@ -29,7 +30,10 @@ public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
     QLabel *label;
+    QHBoxLayout *horizontalLayout_2;
     QListWidget *listWidget;
+    QFrame *line;
+    QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout;
     QPushButton *cancleButton;
     QSpacerItem *horizontalSpacer;
@@ -40,10 +44,16 @@ public:
     {
         if (FlightCreationDialog->objectName().isEmpty())
             FlightCreationDialog->setObjectName(QString::fromUtf8("FlightCreationDialog"));
-        FlightCreationDialog->resize(445, 374);
+        FlightCreationDialog->resize(630, 425);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(FlightCreationDialog->sizePolicy().hasHeightForWidth());
+        FlightCreationDialog->setSizePolicy(sizePolicy);
+        FlightCreationDialog->setMinimumSize(QSize(630, 425));
         verticalLayoutWidget = new QWidget(FlightCreationDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(9, 10, 431, 351));
+        verticalLayoutWidget->setGeometry(QRect(9, 10, 601, 401));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
@@ -57,10 +67,29 @@ public:
 
         verticalLayout->addWidget(label);
 
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(0);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         listWidget = new QListWidget(verticalLayoutWidget);
         listWidget->setObjectName(QString::fromUtf8("listWidget"));
 
-        verticalLayout->addWidget(listWidget);
+        horizontalLayout_2->addWidget(listWidget);
+
+        line = new QFrame(verticalLayoutWidget);
+        line->setObjectName(QString::fromUtf8("line"));
+        line->setFrameShape(QFrame::VLine);
+        line->setFrameShadow(QFrame::Sunken);
+
+        horizontalLayout_2->addWidget(line);
+
+        verticalLayout_2 = new QVBoxLayout();
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+
+        horizontalLayout_2->addLayout(verticalLayout_2);
+
+        horizontalLayout_2->setStretch(2, 1);
+
+        verticalLayout->addLayout(horizontalLayout_2);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
