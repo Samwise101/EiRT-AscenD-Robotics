@@ -486,7 +486,7 @@ void MainWindow::on_path_upload_pushButton_clicked()
                 if(flightPlanDialog.exec() == QDialog::Rejected) return;
                 else
                 {
-
+                    
                 }
             }
             else

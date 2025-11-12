@@ -5,15 +5,18 @@
 #include "ui_flight_dialog.h"
 #include <QObject>
 #include <QWidget>
-#include <QFrame>
 #include <QPalette>
 #include <QColor>
 #include <QFileDialog>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QDateTime>
 
 #include <memory>
 #include <string>
 
 #include "drone.h"
+#include "helper.h"
 
 #include <QtDataVisualization/Q3DScatter>
 #include <QtDataVisualization/QScatter3DSeries>
@@ -34,7 +37,6 @@ class FlightDialog : public QDialog
     private slots:
         void on_cancleButton_pushButton_clicked();
         void on_applyButton_pushButton_clicked();
-        void on_removeWaypointButton_pushButton_clicked();
         void on_addNewWaypointButton_pushButton_clicked();
         void on_clearWaypointsButton_pushButton_clicked();
         void on_latLineEdit_editingFinished();
@@ -54,6 +56,7 @@ class FlightDialog : public QDialog
         std::vector<QVector3D> waypoints;
 
         void update3DTrajectories();
+        void saveTrajectoryXml(const QString& filename);
 };
 
 

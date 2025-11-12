@@ -5,7 +5,7 @@ FlightDialog::FlightDialog(QWidget* parent, QColor drone_color, std::string dron
 {
     ui.setupUi(this);
 
-    this->ui.label_5->setText(QString::fromStdString(this->drone_id));
+    this->ui.label_5->setText(QString::fromStdString(drone_id));
 
     std::cout << "Got color " << this->drone_color.name().toStdString() << std::endl;
 
@@ -60,11 +60,6 @@ void FlightDialog::on_applyButton_pushButton_clicked()
     this->accept();
 }
 
-void FlightDialog::on_removeWaypointButton_pushButton_clicked()
-{
-    std::cout << "Hello from remove waypoint button" << std::endl;
-}
-
 void FlightDialog::on_addNewWaypointButton_pushButton_clicked()
 {
     std::cout << "Hello from add new waypoint button" << std::endl;
@@ -73,6 +68,9 @@ void FlightDialog::on_addNewWaypointButton_pushButton_clicked()
     float lat = this->ui.latLineEdit->text().toFloat();
     float lon = this->ui.lonLineEdit->text().toFloat();
 
+    std::cout << "Created  awaypoint [" << this->ui.latLineEdit->text().toStdString() << ", " << this->ui.lonLineEdit->text().toStdString() 
+    << ", " <<  this->ui.altLineEdit->text().toStdString() << std::endl;
+    
     QVector3D waypoint{lat, lon, alt};
     this->waypoints.push_back(waypoint);
 
@@ -83,6 +81,21 @@ void FlightDialog::on_clearWaypointsButton_pushButton_clicked()
 {
     std::cout << "Hello from clear waypoints button" << std::endl;
     this->waypoints.clear();
+
+    const auto existingSeries = scatter3D->seriesList();
+    for (auto *series : existingSeries) {
+        scatter3D->removeSeries(series);
+        delete series;
+    }
+
+    const auto existingItems = scatter3D->customItems();
+    for (auto *item : existingItems) {
+        scatter3D->removeCustomItem(item);
+        delete item;
+    }
+
+    this->update3DTrajectories();
+    scatter3D->activeTheme()->setType(scatter3D->activeTheme()->type()); // force visual refresh
 }
 
 void FlightDialog::on_latLineEdit_editingFinished()
@@ -103,24 +116,69 @@ void FlightDialog::on_altLineEdit_editingFinished()
 void FlightDialog::on_saveAsPresetButton_pushButton_clicked()
 {
     std::cout << "Hello from save as preset button" << std::endl;
+
+    QString file_name = QFileDialog::getSaveFileName(
+        this,
+        "Create a new preset file",
+        QDir::currentPath(),
+        "Document files (*.xml)");
+    
+    this->saveTrajectoryXml(file_name);
 }
+
+void FlightDialog::saveTrajectoryXml(const QString& filename)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qWarning() << "Could not open file for writing:" << filename;
+        return;
+    }
+
+    QXmlStreamWriter xml(&file);
+    xml.setAutoFormatting(true);
+    xml.writeStartDocument();
+    xml.writeStartElement("drones");
+
+    xml.writeStartElement("drone");
+    xml.writeAttribute("id", QString::fromStdString(this->drone_id));
+    xml.writeAttribute("color", this->drone_color.name());
+
+    for (const auto& point : this->waypoints)
+    {
+        xml.writeStartElement("point");
+        xml.writeAttribute("x", QString::number(point.x(), 'f', 3));
+        xml.writeAttribute("y", QString::number(point.y(), 'f', 3));
+        xml.writeAttribute("z", QString::number(point.z(), 'f', 3)); // Added 3D coordinate
+        xml.writeEndElement(); // </point>
+    }
+
+    xml.writeEndElement(); // </drone>
+
+    xml.writeEndElement(); // </drones>
+    xml.writeEndDocument();
+
+    file.close();
+}
+
 
 void FlightDialog::update3DTrajectories()
 {
     if (!scatter3D)
         return;
 
-    if(this->waypoints.empty()) return;
-
     // --- Remove old series manually ---
     const auto existingSeries = scatter3D->seriesList();
-    for (auto *series : existingSeries)
+    for (auto *series : existingSeries) {
         scatter3D->removeSeries(series);
+        delete series;
+    }
 
-    // --- Remove old custom items manually ---
     const auto existingItems = scatter3D->customItems();
-    for (auto *item : existingItems)
+    for (auto *item : existingItems) {
         scatter3D->removeCustomItem(item);
+        delete item;
+    }
 
     // Create scatter points (waypoints)
     auto *series = new QtDataVisualization::QScatter3DSeries();
@@ -133,11 +191,16 @@ void FlightDialog::update3DTrajectories()
 
     for (int i = 0; i < this->waypoints.size(); ++i)
     {
-        const auto &wp = this->waypoints[i];
+        auto &wp = this->waypoints[i];
+        wp.setX(waypoints[i].x());
+        wp.setY(waypoints[i].z());
+        wp.setZ(waypoints[i].y());
+
         float z = i * 0.2f;  // artificial altitude or index
         (*dataArray)[i].setPosition(wp);
     }
 
     series->dataProxy()->resetArray(dataArray);
     scatter3D->addSeries(series);
+    scatter3D->activeTheme()->setType(scatter3D->activeTheme()->type()); // force visual refresh
 }

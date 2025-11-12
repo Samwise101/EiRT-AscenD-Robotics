@@ -48,9 +48,9 @@ public:
     QLabel *label_2;
     QLineEdit *altLineEdit;
     QPushButton *addNewWaypointButton;
-    QPushButton *removeWaypointButton;
     QPushButton *clearWaypointsButton;
     QPushButton *saveAsPresetButton;
+    QSpacerItem *verticalSpacer;
     QFrame *line;
     QVBoxLayout *verticalLayout_4;
     QFrame *line_2;
@@ -163,11 +163,6 @@ public:
 
         verticalLayout_2->addWidget(addNewWaypointButton);
 
-        removeWaypointButton = new QPushButton(verticalLayoutWidget);
-        removeWaypointButton->setObjectName(QString::fromUtf8("removeWaypointButton"));
-
-        verticalLayout_2->addWidget(removeWaypointButton);
-
         clearWaypointsButton = new QPushButton(verticalLayoutWidget);
         clearWaypointsButton->setObjectName(QString::fromUtf8("clearWaypointsButton"));
 
@@ -178,9 +173,12 @@ public:
 
         verticalLayout_2->addWidget(saveAsPresetButton);
 
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_2->addItem(verticalSpacer);
+
         verticalLayout_2->setStretch(3, 10);
         verticalLayout_2->setStretch(4, 10);
-        verticalLayout_2->setStretch(5, 10);
 
         horizontalLayout->addLayout(verticalLayout_2);
 
@@ -239,11 +237,10 @@ public:
         QObject::connect(lonLineEdit, SIGNAL(editingFinished()), FlightDialog, SLOT(on_lonLineEdit_editingFinished()));
         QObject::connect(altLineEdit, SIGNAL(editingFinished()), FlightDialog, SLOT(on_altLineEdit_editingFinished()));
         QObject::connect(addNewWaypointButton, SIGNAL(clicked()), FlightDialog, SLOT(on_addNewWaypointButton_pushButton_clicked()));
-        QObject::connect(removeWaypointButton, SIGNAL(clicked()), FlightDialog, SLOT(on_removeWaypointButton_pushButton_clicked()));
         QObject::connect(cancleButton, SIGNAL(clicked()), FlightDialog, SLOT(on_cancleButton_pushButton_clicked()));
         QObject::connect(applyButton, SIGNAL(clicked()), FlightDialog, SLOT(on_applyButton_pushButton_clicked()));
         QObject::connect(saveAsPresetButton, SIGNAL(clicked()), FlightDialog, SLOT(on_saveAsPresetButton_pushButton_clicked()));
-        QObject::connect(clearWaypointsButton, SIGNAL(clicked()), FlightDialog, SLOT(on_clearWaypointsButton_pushBUtton_clicked()));
+        QObject::connect(clearWaypointsButton, SIGNAL(clicked()), FlightDialog, SLOT(on_clearWaypointsButton_pushButton_clicked()));
 
         QMetaObject::connectSlotsByName(FlightDialog);
     } // setupUi
@@ -261,7 +258,6 @@ public:
         label->setText(QCoreApplication::translate("FlightDialog", "Lon: ", nullptr));
         label_2->setText(QCoreApplication::translate("FlightDialog", "Alt: ", nullptr));
         addNewWaypointButton->setText(QCoreApplication::translate("FlightDialog", "Add New Waypoint", nullptr));
-        removeWaypointButton->setText(QCoreApplication::translate("FlightDialog", "Remove Last Waypoint", nullptr));
         clearWaypointsButton->setText(QCoreApplication::translate("FlightDialog", "Clear All Waypoints", nullptr));
         saveAsPresetButton->setText(QCoreApplication::translate("FlightDialog", "Save As Preset", nullptr));
         cancleButton->setText(QCoreApplication::translate("FlightDialog", "Cancle", nullptr));

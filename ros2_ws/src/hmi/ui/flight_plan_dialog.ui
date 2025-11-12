@@ -26,7 +26,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,10">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,10,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,10,10,0,0">
         <property name="spacing">
          <number>30</number>
         </property>
@@ -131,13 +131,6 @@ Drone Color</string>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="removeWaypointButton">
-          <property name="text">
-           <string>Remove Last Waypoint</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="clearWaypointsButton">
           <property name="text">
            <string>Clear All Waypoints</string>
@@ -150,6 +143,19 @@ Drone Color</string>
            <string>Save As Preset</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -225,8 +231,8 @@ Drone Color</string>
    <slot>on_latLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>193</y>
+     <x>145</x>
+     <y>181</y>
     </hint>
     <hint type="destinationlabel">
      <x>150</x>
@@ -241,8 +247,8 @@ Drone Color</string>
    <slot>on_lonLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
-     <y>227</y>
+     <x>185</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
      <x>187</x>
@@ -257,8 +263,8 @@ Drone Color</string>
    <slot>on_altLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>249</y>
+     <x>130</x>
+     <y>235</y>
     </hint>
     <hint type="destinationlabel">
      <x>138</x>
@@ -273,28 +279,12 @@ Drone Color</string>
    <slot>on_addNewWaypointButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>140</x>
-     <y>307</y>
+     <x>143</x>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
      <x>172</x>
      <y>330</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removeWaypointButton</sender>
-   <signal>clicked()</signal>
-   <receiver>FlightDialog</receiver>
-   <slot>on_removeWaypointButton_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>62</x>
-     <y>364</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>94</x>
-     <y>385</y>
     </hint>
    </hints>
   </connection>
@@ -305,8 +295,8 @@ Drone Color</string>
    <slot>on_cancleButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>518</y>
+     <x>46</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
      <x>183</x>
@@ -321,8 +311,8 @@ Drone Color</string>
    <slot>on_applyButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>659</x>
-     <y>508</y>
+     <x>698</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
      <x>504</x>
@@ -337,8 +327,8 @@ Drone Color</string>
    <slot>on_saveAsPresetButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>461</y>
+     <x>98</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>129</x>
@@ -350,11 +340,11 @@ Drone Color</string>
    <sender>clearWaypointsButton</sender>
    <signal>clicked()</signal>
    <receiver>FlightDialog</receiver>
-   <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
+   <slot>on_clearWaypointsButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>417</y>
+     <x>107</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -370,7 +360,7 @@ Drone Color</string>
   <slot>on_altLineEdit_editingFinished()</slot>
   <slot>on_addNewWaypointButton_pushButton_clicked()</slot>
   <slot>on_removeWaypointButton_pushButton_clicked()</slot>
-  <slot>on_clearWaypointsButton_pushBUtton_clicked()</slot>
+  <slot>on_clearWaypointsButton_pushButton_clicked()</slot>
   <slot>on_cancleButton_pushButton_clicked()</slot>
   <slot>on_applyButton_pushButton_clicked()</slot>
   <slot>on_saveAsPresetButton_pushButton_clicked()</slot>
