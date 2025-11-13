@@ -214,7 +214,9 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.get_logger().info(f"Creating drone status subscribers for known drones: {self.known_drones}")
 		for drone in self.known_drones:
+			self.get_logger().info(f"Creating subscriber for drone status messages for drone ID: '{drone}'")
 			self.create_subscription(
 				DroneStatusMessage,
 				dh.DRONEHIVE_DRONE_STATUS_MESSAGE + f"_{drone}",
@@ -509,6 +511,14 @@ class MasterBoxNode(Node):
 		result = self._add_remove_drone(request.status.drone_id, add=True)
 		if not result:
 			self.get_logger().warn(f"Drone ID: '{request.status.drone_id}' is already known. Not adding again.")
+
+		self.create_subscription(
+			DroneStatusMessage,
+			dh.DRONEHIVE_DRONE_STATUS_MESSAGE + f"_{request.status.drone_id}",
+			self._republish_drone_status,
+			10,
+			callback_group=ReentrantCallbackGroup()
+		)
 
 		self.get_logger().info(f"Updated linked slave boxes: {self.linked_slave_boxes}")
 
