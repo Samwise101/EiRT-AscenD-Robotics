@@ -57,7 +57,7 @@ public:
     void update_box_comboBox(int& new_box_number);
     void cleanup();
 
-    bool isMasterId(std::string box_id);
+    bool isMaster();
 
     void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
@@ -134,6 +134,7 @@ private:
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
     bool new_box_request;
+    bool master_found;
     int currentBoxIndex;
     bool box_update_happened;
     QLabel* imageLabel_drone; 
