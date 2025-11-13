@@ -383,12 +383,14 @@ class LandingControl(Node):
                 """
                 self.get_logger().info("All trajectory segments completed, holding last position.")
                 self._publish_xyz(self.last_requested_pose[0], self.last_requested_pose[1], self.last_requested_pose[2])
-
-                self.waypoints_ready = False
-                self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
-                self.state = FlightState.REQUEST_LANDING
-                self._publish_hold_here()
-
+                if not self.isLanding:
+                    self.waypoints_ready = False
+                    self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
+                    self.state = FlightState.REQUEST_LANDING
+                else:
+                    if self.curr_xyz[2] < self.landing_target.copy()[2] + 0.1:
+                        self.state = FlightState.DONE
+                        self.get_logger().info("Landing trajectory complete.")   
                 return
 
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
