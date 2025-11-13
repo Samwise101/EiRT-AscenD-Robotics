@@ -794,6 +794,12 @@ class MasterBoxNode(Node):
 	def handle_add_remove_drone_request(self,
 									 request: AddRemoveDroneService.Request,
 									 response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
+
+		self.get_logger().info(f"Received add/remove drone request for drone ID: '{request.drone_id}' to box ID: '{request.box_id}'")
+
+		self.linked_slave_boxes[request.box_id].drone_id = request.drone_id if request.add else ""
+
+		response.ack = True
 		return response
 
 	##################
