@@ -31,6 +31,7 @@ from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypoin
 from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
 
 
+
 # ---------------------- helpers ---------------------------------
 
 def quat_to_euler(q):
@@ -110,6 +111,7 @@ class LandingControl(Node):
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
+        self.create_subscription(BatteryState, 'mavros/battery', self._drone_status_cb, 10)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
@@ -136,6 +138,10 @@ class LandingControl(Node):
         self.home_alt0 = None
         self.takeoff_reached = False
         self.last_requested_pose = np.zeros(3)
+
+        # Status
+        self.battery_percentage = 0.0  # percent
+        self.battery_voltage = 0.0  # volts
 
         # Loiter
         self._circle_angle_deg = 0.0
@@ -202,8 +208,9 @@ class LandingControl(Node):
             self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
         return response
 
-    def _drone_status_cb(self, msg: DroneStatusMessage):
-        pass
+    def _drone_status_cb(self, msg: BatteryState):
+        self.battery_percentage = msg.percentage * 100
+        self.battery_voltage = msg.voltage
 
     # -------------------- Main Timer --------------------
 
@@ -514,11 +521,6 @@ class LandingControl(Node):
         return self.waypoints_ready
 
 
-    def _get_battery_level(self) -> float:
-        # Placeholder for actual battery level retrieval logic
-        return 69.42
-
-
     # -------------------- Trajectory planning & execution --------------------
 
     def _plan_landing_traj(self):
@@ -652,7 +654,8 @@ class LandingControl(Node):
         """Publish the drone status message."""
         msg = DroneStatusMessage()
         msg.drone_id = self.drone_id
-        msg.battery_level = self._get_battery_level()
+        msg.battery_voltage = self.battery_voltage
+        msg.battery_percentage = self.battery_percentage
         msg.fligt_state = self.state.name
         pos_msg = PositionMessage()
         pos_msg.lat = float(self.curr_xyz[0])
