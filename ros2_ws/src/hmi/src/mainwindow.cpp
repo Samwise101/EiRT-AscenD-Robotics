@@ -110,6 +110,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->ui->visLayout->addWidget(scatterContainer, 1);
     this->ui->visualizationButton->setText("2D Visualization");
+
+    this->resume_trajectory_status = true;
 }
 
 MainWindow::~MainWindow()
@@ -1009,12 +1011,23 @@ void MainWindow::on_land_pushButton_clicked()
     gui_cmd_pub_->publish(command);
 }
 
-void MainWindow::on_request_drone_status_pushButton_clicked()
+void MainWindow::on_resumeTrajectoryButton_pushButton_clicked()
 {
-    std::cout << "Hello from request status button!\n";
-    auto command = dronehive_interfaces::msg::GuiCommand();
-    command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS;
-    gui_cmd_pub_->publish(command);
+    std::cout << "Hello from resume trajectory button" << std::endl;
+
+    this->resume_trajectory_status = (!this->resume_trajectory_status);
+
+    if(this->resume_trajectory_status)
+    {
+        QIcon icon(":/resources/icons/pause.png");
+        this->ui->resumeTrajectoryButton->setIcon(icon);
+        this->ui->resumeTrajectoryButton->setText("Stop\nTrajectory");
+    }
+    else{
+        QIcon icon(":/resources/icons/resume.png");
+        this->ui->resumeTrajectoryButton->setIcon(icon);
+        this->ui->resumeTrajectoryButton->setText("Resume\nTrajectory");
+    }
 }
 
 void MainWindow::on_upload_path_pushButton_clicked()
@@ -1036,9 +1049,41 @@ void MainWindow::on_add_box_pushButton_clicked()
 void MainWindow::on_addDroneButton_pushButton_clicked()
 {
     std::cout << "Hello from the add box button\n";
-    dronehive_interfaces::msg::GuiCommand command;
-    command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE;
-    gui_cmd_pub_->publish(command);
+
+    if(this->boxes.empty()) return;
+
+    QString box_id = this->ui->boxComboBox->currentText();
+    int box_index = this->ui->boxComboBox->currentIndex();
+
+    if(!this->boxes[box_index].get_assigned_drone_id().empty()) return;
+
+    AddDroneDialog dialog(this, box_id);
+
+    if(dialog.exec() == QDialog::Rejected) return;
+    else
+    {
+        std::string drone_id = dialog.getDroneId();
+        this->boxes[box_index].set_assigned_drone_id(drone_id);
+        this->boxes[box_index].set_box_status("OCCUPIED");
+
+
+        Coordinates coords{this->boxes[box_index].get_box_landing_lat(),this->boxes[box_index].get_box_landing_lon(),this->boxes[box_index].get_box_landing_alt()};
+     
+        Drone drone(DroneType::HexaCopter, coords, drone_id, Drone::randomDroneColor(), box_id.toStdString());
+
+        this->drones.push_back(drone);
+
+        this->ui->boxStatusValueLabel->setText(QString::fromStdString(this->boxes[box_index].get_box_status()));
+        this->ui->droneComboBox->addItem(QString::fromStdString(drone_id));
+        this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
+
+        auto box_status = this->boxes[box_index].get_box_status();
+        this->setBoxStateGraphics(box_status, 0.0f);
+
+        dronehive_interfaces::msg::GuiCommand command;
+        command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE;
+        gui_cmd_pub_->publish(command);
+    }
 }
 
 void MainWindow::on_request_box_status_pushButton_clicked()

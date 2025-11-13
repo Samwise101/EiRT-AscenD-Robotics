@@ -29,6 +29,7 @@ set(UI_FILES
   ui/update_system_dialog.ui
   ui/flight_plan_dialog.ui
   ui/flight_preset_or_create_dialog.ui
+  ui/ui_add_drone.ui
 )
 qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 
@@ -45,6 +46,7 @@ set(SOURCES
   src/ColorListWidget.cpp
   src/flight_plan_dialog.cpp
   src/flight_preset_create_dialog.cpp
+  src/add_drone_dialog.cpp
 )
 
 set(HEADERS
@@ -65,6 +67,8 @@ set(HEADERS
   include/ui_new_box.h
   include/ui_flight_preset_create_dialog.h
   include/flight_preset_create_dialog.h
+  include/ui_add_drone.h
+  include/add_drone_dialog.h
 )
 
 # Create the executable (only once!)

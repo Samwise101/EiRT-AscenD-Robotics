@@ -139,12 +139,6 @@ void App::onServiceTimer()
         auto req = std::make_shared<dronehive_interfaces::srv::RequestDroneLanding::Request>();
         this->drone_landing_client_->async_send_request(req, std::bind(&App::onDroneLandingRequestResponse, this, std::placeholders::_1));
     }
-
-    if(this->drone_home_return_client_->wait_for_service(std::chrono::seconds(0)) && this->drone_return_home_request_appeared)
-    {
-        auto req = std::make_shared<dronehive_interfaces::srv::RequestReturnHome::Request>();
-        this->drone_home_return_client_->async_send_request(req, std::bind(&App::onDroneReturnHomeRequestResponse, this, std::placeholders::_1));
-    }
 }
 
 void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedFuture f)

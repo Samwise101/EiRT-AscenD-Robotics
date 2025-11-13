@@ -917,7 +917,7 @@ Drone:</string>
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0,0,0,0,0">
                  <property name="spacing">
                   <number>10</number>
                  </property>
@@ -1129,26 +1129,27 @@ Drone:</string>
                   </widget>
                  </item>
                  <item>
+                  <widget class="QPushButton" name="resumeTrajectoryButton">
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Resume
+Trajectory</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="../resources/resources.qrc">
+                     <normaloff>:/resources/icons/resume.png</normaloff>:/resources/icons/resume.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="3" column="1">
-                    <widget class="QPushButton" name="pushButton_3">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Take-Off</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/resources/icons/drone_takeoff.png</normaloff>:/resources/icons/drone_takeoff.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
+                   <item row="1" column="0">
                     <widget class="QPushButton" name="pushButton_5">
                      <property name="font">
                       <font>
@@ -1166,66 +1167,7 @@ Drone:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="pushButton_4">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Start Trajectory
-Completion</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/resources/icons/resume.png</normaloff>:/resources/icons/resume.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QPushButton" name="pushButton_2">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Land</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/resources/icons/drone_land.png</normaloff>:/resources/icons/drone_land.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="1">
-                    <widget class="QPushButton" name="pushButton_6">
-                     <property name="font">
-                      <font>
-                       <pointsize>11</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="layoutDirection">
-                      <enum>Qt::LeftToRight</enum>
-                     </property>
-                     <property name="text">
-                      <string>Request Drone
-Status</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/resources.qrc">
-                       <normaloff>:/resources/icons/request_status.png</normaloff>:/resources/icons/request_status.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
                     <widget class="QPushButton" name="pushButton">
                      <property name="font">
                       <font>
@@ -1240,6 +1182,42 @@ Status</string>
                      <property name="icon">
                       <iconset resource="../resources/resources.qrc">
                        <normaloff>:/resources/icons/arm_drone.png</normaloff>:/resources/icons/arm_drone.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QPushButton" name="pushButton_3">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Take-Off</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/resources/icons/drone_takeoff.png</normaloff>:/resources/icons/drone_takeoff.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="pushButton_2">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Land</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/resources.qrc">
+                       <normaloff>:/resources/icons/drone_land.png</normaloff>:/resources/icons/drone_land.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -1662,8 +1640,8 @@ Status</string>
    <slot>on_path_upload_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>779</x>
-     <y>393</y>
+     <x>806</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -1695,7 +1673,7 @@ Status</string>
    <hints>
     <hint type="sourcelabel">
      <x>975</x>
-     <y>399</y>
+     <y>445</y>
     </hint>
     <hint type="destinationlabel">
      <x>865</x>
@@ -1710,8 +1688,8 @@ Status</string>
    <slot>on_removeDroneButton_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>778</x>
-     <y>237</y>
+     <x>805</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
@@ -1732,22 +1710,6 @@ Status</string>
     <hint type="destinationlabel">
      <x>868</x>
      <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_6</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_request_status_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>975</x>
-     <y>447</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>868</x>
-     <y>184</y>
     </hint>
    </hints>
   </connection>
@@ -1806,8 +1768,8 @@ Status</string>
    <slot>on_droneComboBox_currentIndexChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>910</x>
-     <y>154</y>
+     <x>924</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>41</x>
@@ -1828,22 +1790,6 @@ Status</string>
     <hint type="destinationlabel">
      <x>611</x>
      <y>616</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_6</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_request_drone_status_pushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>975</x>
-     <y>447</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>966</x>
-     <y>114</y>
     </hint>
    </hints>
   </connection>
@@ -1895,6 +1841,22 @@ Status</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>resumeTrajectoryButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_resumeTrajectoryButton_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>969</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>992</x>
+     <y>54</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_add_box_pushButton_clicked()</slot>
@@ -1929,5 +1891,6 @@ Status</string>
   <slot>slot1()</slot>
   <slot>on_restartButton_pushButton_clicked()</slot>
   <slot>on_visualizationButton_pushButton_clicked()</slot>
+  <slot>on_resumeTrajectoryButton_pushButton_clicked()</slot>
  </slots>
 </ui>

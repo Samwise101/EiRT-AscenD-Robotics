@@ -38,6 +38,7 @@
 #include "flight_plan_dialog.h"
 #include "flight_preset_create_dialog.h"
 #include "helper.h"
+#include "add_drone_dialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -77,7 +78,6 @@ private slots:
     void on_takeoff_pushButton_clicked();
     void on_return_home_pushButton_clicked();
     void on_land_pushButton_clicked();
-    void on_request_drone_status_pushButton_clicked();
     void on_upload_path_pushButton_clicked();
 
     void on_remove_box_pushButton_clicked();
@@ -93,6 +93,7 @@ private slots:
     void on_addDroneButton_pushButton_clicked();
     void on_restartButton_pushButton_clicked();
     void on_visualizationButton_pushButton_clicked();
+    void on_resumeTrajectoryButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
     void on_droneComboBox_currentIndexChanged(int index);
@@ -137,6 +138,8 @@ private:
     QLabel* batteryImageLabel_box;
     QLabel* batteryTextLabel_box;
     QListWidget* list_widget;
+
+    bool resume_trajectory_status;
 
     QtDataVisualization::Q3DScatter *scatter3D = nullptr;
     QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
