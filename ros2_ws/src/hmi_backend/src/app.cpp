@@ -47,8 +47,8 @@ App::App() : Node("app_node")
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
     drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("/dronehive/gui_drone_id_service");
-    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneLanding>("/dronehive/request_landing");
-    drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("/dronehive/request_return_home");
+    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::DroneLandingService>("/dronehive/drone_land_request");
+    drone_add_client_ = this->create_client<dronehive_interfaces::srv::AddRemoveDroneService>("/dronehive/drone_land_request");
     system_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxIDsService>("/dronehive/gui_boxes_id_service");
 
     heartbeat_timer_ = this->create_wall_timer(
@@ -276,11 +276,6 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
         case dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING:
         {
             this->drone_landing_request_appeared = true;
-            break;
-        }
-        case dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME:
-        {
-            this->drone_return_home_request_appeared = true;
             break;
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS:
