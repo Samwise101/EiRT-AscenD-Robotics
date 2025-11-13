@@ -198,35 +198,8 @@ class SlaveBoxNode(Node):
 			self.get_logger().error("Motor controller not initialised.")
 			return response
 
-		drone_client = self.temp_node.create_client(
-			DroneTrajectoryWaypointsService,
-			dh.DRONEHIVE_DRONE_SEND_TRAJECTORY_SERVICE + f"{request.drone_id}"
-		)
-
-		if not drone_client.wait_for_service(timeout_sec=2.0):
-			self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
-			response.ack = False
-			return response
-
-		self.get_logger().info(f"Processing drone_id {request.drone_id} waypoints: '{request.waypoints}'")
-		drone_future = drone_client.call_async(request)
 		response.ack = self.motor.open_box()
-
-		self.get_logger().info("Box opened for waypoint transfer.")
-
-		exec = SingleThreadedExecutor()
-		exec.add_node(self.temp_node)
-		exec.spin_until_future_complete(drone_future)
-		exec.shutdown()
-
-		if not drone_future or not drone_future.result():
-			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{self.config.box_id}'.")
-			response.ack = False
-			return response
-
-		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{self.config.box_id}'")
-		result = drone_future.result() or DroneTrajectoryWaypointsService.Response(ack=False)
-		response.ack = response.ack and result.ack
+		self.get_logger().info("Box opened.")
 
 		return response
 
