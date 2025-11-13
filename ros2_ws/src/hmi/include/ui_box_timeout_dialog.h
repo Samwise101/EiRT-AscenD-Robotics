@@ -10,6 +10,7 @@
 #define UI_BOX_TIMEOUT_DIALOG_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
@@ -57,6 +58,9 @@ public:
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         cancle = new QPushButton(verticalLayoutWidget);
         cancle->setObjectName(QString::fromUtf8("cancle"));
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/resources/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
+        cancle->setIcon(icon);
 
         horizontalLayout->addWidget(cancle);
 
@@ -66,6 +70,9 @@ public:
 
         ok = new QPushButton(verticalLayoutWidget);
         ok->setObjectName(QString::fromUtf8("ok"));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/resources/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
+        ok->setIcon(icon1);
 
         horizontalLayout->addWidget(ok);
 

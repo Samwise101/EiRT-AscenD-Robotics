@@ -52,6 +52,9 @@ class Box
         void set_box_type(int);
         void set_box_status(std::string status);
 
+        void set_assigned_drone_id(std::string drone_id);
+        std::string get_assigned_drone_id();
+
         float get_box_landing_lat(void);
         float get_box_landing_lon(void);
         float get_box_landing_alt(void);
@@ -60,6 +63,10 @@ class Box
         std::string get_box_status(void);
 
         int get_box_number(void);
+
+        void set_box_landing_lat(float value);
+        void set_box_landing_lon(float value);
+        void set_box_landing_alt(float value);
 
     private:
         int box_type;
@@ -71,7 +78,7 @@ class Box
         std::string status;
         int number;
         Coordinates coord;
-
+        std::string assigned_drone_id;
 };
 
 #endif

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
+from rclpy.utilities import ok as rclpy_ok
 from rclpy.node import Node
 from rclpy.logging import get_logger
 import time
@@ -110,7 +111,7 @@ class XL430Controller:
 
 
 	# --- Control methods ---
-	def move_extended(self, position_ticks, profile_velocity=200, profile_accel=50):
+	def move_extended(self, position_ticks, profile_velocity=200, profile_accel=50) -> bool:
 		"""Move >360° using Extended Position Mode."""
 		self.set_mode(OperatingMode.MODE_EXTENDED_POSITION)
 		self.write4(ControlCommand.ADDR_PROFILE_VELOCITY, profile_velocity)
@@ -118,20 +119,26 @@ class XL430Controller:
 		self.write4(ControlCommand.ADDR_GOAL_POSITION, position_ticks)
 		get_logger(f"motor_{self.dxl_id}").info(f"Moving to {position_ticks} ticks...")
 
-		while rclpy.ok():
+		while rclpy_ok():
 			pos = self.read4(ControlCommand.ADDR_PRESENT_POSITION)
 			cur = self.read2(ControlCommand.ADDR_PRESENT_CURRENT)
 			get_logger(f"motor_{self.dxl_id}").info(f"REQUESETED: {position_ticks:10f} Pos: {pos}, Current: {cur}")
 
 			if abs(pos - position_ticks) < 20:
 				get_logger(f"motor_{self.dxl_id}").info("Target reached.")
-				break
-			# if abs(cur) > MAX_CURRENT:
-			# 	get_logger(f"motor_{self.dxl_id}").warn("High current detected! Stopping.")
-			# 	break
+				self.stop()
+				return True
+
+			if abs(cur) > MAX_CURRENT:
+				# If the current is too high, the motor is likely stalled or obstructed
+				# and the target position is not reached.
+				get_logger(f"motor_{self.dxl_id}").warn("High current detected! Stopping.")
+				return False
+
 			time.sleep(0.1)
 
 		self.stop()
+		return True
 
 
 	def move_velocity(self, velocity_ticks):
@@ -167,26 +174,48 @@ class XL430Controller:
 		get_logger(f"motor_{self.dxl_id}").info("Port closed")
 
 
+	def open_box(self) -> bool:
+		get_logger(f"motor_{self.dxl_id}").info("Opening box...")
+		return self.move_extended(4096 * 5 - 900, profile_velocity=150, profile_accel=100)
+
+
+	def close_box(self) -> bool:
+		get_logger(f"motor_{self.dxl_id}").info("Closing box...")
+		return self.move_extended(-4500, profile_velocity=150, profile_accel=100)
+
+
+
 
 def main(args=None):
 	rclpy.init(args=args)
 	node = Node('dynamixel_controller_node')
-	motor1 = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=0)
+	# motor1 = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=0)
 	motor2 = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=1)
+	velocity = 150
 
 	try:
 		# Example 1: Multi-turn move
 		# 4096 ticks per revolution → 5 turns = 20480 ticks
-		motor1.move_extended(0, profile_velocity=500, profile_accel=100)
-		motor2.move_extended(4096 * 5, profile_velocity=500, profile_accel=100)
+		# motor1.move_extended(0, profile_velocity=500, profile_accel=100)
+		motor2.move_extended(-4500, profile_velocity=velocity, profile_accel=100)
 
-		motor1.move_extended(4096 * 5, profile_velocity=500, profile_accel=100)
-		motor2.move_extended(0, profile_velocity=500, profile_accel=100)
+		input("Press Enter to move back...")
+
+		# motor1.move_extended(4096 * 5, profile_velocity=500, profile_accel=100)
+		# 20336
+		motor2.move_extended(4096 * 5 - 900, profile_velocity=velocity, profile_accel=100)
 
 		# Example 2: Velocity move
 		# motor1.move_velocity(200)  # units ≈ 0.229 RPM per tick (depends on model)
+	except Exception as e:
+		node.get_logger().error(f"Error during motor operation: {e}")
+		motor2.stop()
+		motor2.destroy()
+		node.destroy_node()
+		rclpy.shutdown()
+
 	finally:
-		motor1.destroy()
+		# motor1.destroy()
 		motor2.destroy()
 		node.destroy_node()
 		rclpy.shutdown()

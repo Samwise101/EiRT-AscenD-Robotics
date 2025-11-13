@@ -2,7 +2,7 @@
 #include "box.h"
 
 Box::Box(int type, Coordinates coord, std::string id, std::string status, int number) : 
-box_type(type), coord(coord), id(id), number(number), status(status)
+box_type(type), coord(coord), id(id), number(number), status(status), assigned_drone_id("")
 {
 
 }
@@ -52,4 +52,29 @@ void Box::set_box_status(std::string status)
 std::string Box::get_box_status()
 {
     return this->status;
+}
+
+void Box::set_assigned_drone_id(std::string drone_id)
+{
+    this->assigned_drone_id = drone_id;
+}
+
+std::string Box::get_assigned_drone_id()
+{
+    return this->assigned_drone_id;
+}
+
+void Box::set_box_landing_lat(float value)
+{
+    this->coord.lat = value;
+}
+
+void Box::set_box_landing_lon(float value)
+{
+    this->coord.lon = value;
+}
+
+void Box::set_box_landing_alt(float value)
+{
+    this->coord.alt = value;
 }

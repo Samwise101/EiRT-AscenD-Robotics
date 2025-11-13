@@ -81,7 +81,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="boxIdLineEdit"/>
+       <widget class="QLineEdit" name="boxIdLineEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -97,7 +101,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="boxLatLineEdit"/>
+         <widget class="QLineEdit" name="boxLatLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -111,7 +119,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="boxLonLineEdit"/>
+         <widget class="QLineEdit" name="boxLonLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -125,7 +137,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="boxAltLineEdit"/>
+         <widget class="QLineEdit" name="boxAltLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -138,12 +154,33 @@
         <property name="text">
          <string>Cancle</string>
         </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/resources/icons/cancle.png</normaloff>:/resources/icons/cancle.png</iconset>
+        </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_2">
         <property name="text">
          <string>Add</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/resources/icons/tick_mark.png</normaloff>:/resources/icons/tick_mark.png</iconset>
         </property>
        </widget>
       </item>
@@ -152,7 +189,9 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>pushButton</sender>

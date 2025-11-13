@@ -10,6 +10,7 @@
 #define UI_NEW_BOX_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
@@ -17,6 +18,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -46,6 +48,7 @@ public:
     QLineEdit *boxAltLineEdit;
     QHBoxLayout *horizontalLayout_4;
     QPushButton *pushButton;
+    QSpacerItem *horizontalSpacer;
     QPushButton *pushButton_2;
 
     void setupUi(QDialog *NewBoxDialog)
@@ -100,6 +103,7 @@ public:
 
         boxIdLineEdit = new QLineEdit(verticalLayoutWidget);
         boxIdLineEdit->setObjectName(QString::fromUtf8("boxIdLineEdit"));
+        boxIdLineEdit->setReadOnly(true);
 
         horizontalLayout_2->addWidget(boxIdLineEdit);
 
@@ -117,6 +121,7 @@ public:
 
         boxLatLineEdit = new QLineEdit(verticalLayoutWidget);
         boxLatLineEdit->setObjectName(QString::fromUtf8("boxLatLineEdit"));
+        boxLatLineEdit->setReadOnly(true);
 
         horizontalLayout_3->addWidget(boxLatLineEdit);
 
@@ -132,6 +137,7 @@ public:
 
         boxLonLineEdit = new QLineEdit(verticalLayoutWidget);
         boxLonLineEdit->setObjectName(QString::fromUtf8("boxLonLineEdit"));
+        boxLonLineEdit->setReadOnly(true);
 
         horizontalLayout_7->addWidget(boxLonLineEdit);
 
@@ -147,6 +153,7 @@ public:
 
         boxAltLineEdit = new QLineEdit(verticalLayoutWidget);
         boxAltLineEdit->setObjectName(QString::fromUtf8("boxAltLineEdit"));
+        boxAltLineEdit->setReadOnly(true);
 
         horizontalLayout_6->addWidget(boxAltLineEdit);
 
@@ -160,11 +167,21 @@ public:
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         pushButton = new QPushButton(verticalLayoutWidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/resources/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton->setIcon(icon);
 
         horizontalLayout_4->addWidget(pushButton);
 
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer);
+
         pushButton_2 = new QPushButton(verticalLayoutWidget);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/resources/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_2->setIcon(icon1);
 
         horizontalLayout_4->addWidget(pushButton_2);
 

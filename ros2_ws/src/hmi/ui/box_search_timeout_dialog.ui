@@ -46,6 +46,10 @@
         <property name="text">
          <string>Cancle</string>
         </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/resources/icons/cancle.png</normaloff>:/resources/icons/cancle.png</iconset>
+        </property>
        </widget>
       </item>
       <item>
@@ -66,6 +70,10 @@
         <property name="text">
          <string>Ok</string>
         </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/resources/icons/tick_mark.png</normaloff>:/resources/icons/tick_mark.png</iconset>
+        </property>
        </widget>
       </item>
      </layout>
@@ -73,7 +81,9 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>ok</sender>
