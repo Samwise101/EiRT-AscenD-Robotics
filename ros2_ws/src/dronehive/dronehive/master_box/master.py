@@ -671,7 +671,6 @@ class MasterBoxNode(Node):
 
 			if not drone_client.wait_for_service(timeout_sec=2.0):
 				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
-				# self.temp_node.destroy_node()
 				response.ack = False
 				return response
 
@@ -793,8 +792,6 @@ class MasterBoxNode(Node):
 		exec.spin_until_future_complete(drone_future)
 		exec.shutdown()
 
-		self.temp_node.destroy_node()
-
 		if not drone_future:
 			self.get_logger().error(f"{operation} trajectory for drone: '{request.drone_id}' was not successful.")
 			response.ack = False
@@ -822,6 +819,14 @@ class MasterBoxNode(Node):
 			return response
 
 		self.linked_slave_boxes[request.box_id].drone_id = request.drone_id
+		self.linked_slave_boxes[request.box_id].status = BoxStatusEnum.OCCUPIED if request.drone_id != "" else BoxStatusEnum.EMPTY
+
+		if request.box_id == self.config.box_id:
+			self.get_logger().info(f"Adding/removing drone ID: '{request.drone_id}' to/from master box ID: '{request.box_id}'")
+			self.config.drone_id = request.drone_id
+			dh.dronehive_update_config(self.config)
+			response.ack = True
+			return response
 
 		box_client = self.temp_node.create_client(
 			AddRemoveDroneService,
