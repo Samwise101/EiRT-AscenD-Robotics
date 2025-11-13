@@ -287,6 +287,9 @@ class MasterBoxNode(Node):
 
 			return
 
+		for box in self.linked_slave_boxes.values():
+			self.deinitialise_slave_box_pub.publish(String(data=box.box_id))
+
 		# The message is for this box, deinitialise it.
 		self.get_logger().warn("Deinitialising box as requested...")
 		dh.dronehive_deinitialise(self.config)
