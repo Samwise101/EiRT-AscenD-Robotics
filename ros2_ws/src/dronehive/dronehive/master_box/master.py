@@ -172,11 +172,12 @@ class MasterBoxNode(Node):
 
 
 	def _add_remove_drone(self, drone_id: str, add: bool) -> bool:
+		self.get_logger().info(f"{'Adding' if add else 'Removing'} drone ID: '{drone_id}' to/from known drones: {self.known_drones}")
 		if not add:
 			self.known_drones.discard(drone_id)
 			return True
 
-		if drone_id not in self.known_drones:
+		if drone_id in self.known_drones:
 			return False
 
 		self.known_drones.add(drone_id)
@@ -277,8 +278,11 @@ class MasterBoxNode(Node):
 		# If the message is intended for a different box, forward it to the respective slave box.
 		if msg.data != self.config.box_id:
 			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
-			self.
 			self.deinitialise_slave_box_pub.publish(msg)
+
+			drone_id = self.linked_slave_boxes.get(msg.data, BoxStatus("", "", PositionMessage(), BoxStatusEnum.UNKNOWN)).drone_id
+			self._add_remove_drone(drone_id, add=False)
+
 			self.linked_slave_boxes.pop(msg.data, None)
 
 			if msg.data in self.config.linked_box_ids:
