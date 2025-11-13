@@ -797,7 +797,7 @@ class MasterBoxNode(Node):
 			response.ack = False
 			return response
 
-		drone_response: AddRemoveDroneService.Response | None= drone_future.result()
+		drone_response: ToggleTrajectoryExecutionService.Response | None= drone_future.result()
 		if not drone_response:
 			self.get_logger().error(f"{operation} trajectory for drone: '{request.drone_id}' was not successful on drone side.")
 			response.ack = False
