@@ -274,6 +274,10 @@ class LandingControl(Node):
                 self._begin_loiter_and_request(now)
                 self.get_logger().info("Operator set OFFBOARD. Waiting for waypoints.")
                 self.state = FlightState.WAIT_AND_PLAN_TRAJ
+            # If taken out of armed, return to WAIT_ARM
+            if not self._is_armed():
+                self.get_logger().info("Disarmed, returning to WAIT_ARM.")
+                self.state = FlightState.WAIT_ARM
 
         elif self.state == FlightState.TAKEOFF:
             #Simulation or real mode takeoff
