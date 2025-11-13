@@ -32,6 +32,7 @@ from dronehive_interfaces.srv import (
 	DroneLandingService,
 	DroneTrajectoryWaypointsService,
 	OccupancyService,
+	RequestBoxOpenService,
 	RequestDroneLanding,
 	RequestReturnHome,
 	SlaveBoxIDsService,
@@ -493,6 +494,16 @@ class MasterBoxNode(Node):
 			self.config.drone_id = request.drone_id
 			dh.dronehive_update_config(self.config)
 			landing_pos = self.config.landing_position
+		else:
+			req = RequestBoxOpenService.Request()
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_OPEN_SERVICE + f"_{closest_box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Requested box open for box ID: {closest_box_id}, Result: {future.result().ack}"
+				),
+			)
 
 		# Update the localy kept status of the box.
 		self.linked_slave_boxes[closest_box_id].drone_id = request.drone_id

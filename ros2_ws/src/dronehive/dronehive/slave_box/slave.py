@@ -17,6 +17,7 @@ from dronehive_interfaces.srv import (
 	BoxStatusService,
 	BoxStatusSlaveUpdateService,
 	DroneTrajectoryWaypointsService,
+	RequestBoxOpenService,
 )
 
 qos_profile = QoSProfile(
@@ -153,6 +154,12 @@ class SlaveBoxNode(Node):
 			self.handle_trajectory_waypoints_request
 		)
 
+		self.create_service(
+			RequestBoxOpenService,
+			dh.DRONEHIVE_REQUEST_BOX_OPEN_SERVICE + f"_{self.config.box_id}",
+			self.handle_box_open_request
+		)
+
 
 	def create_actions(self) -> None:
 		pass
@@ -214,6 +221,23 @@ class SlaveBoxNode(Node):
 		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{self.config.box_id}'")
 		result = drone_future.result() or DroneTrajectoryWaypointsService.Response(ack=False)
 		response.ack = response.ack and result.ack
+
+		return response
+
+
+	def handle_box_open_request(self, request: RequestBoxOpenService.Request,
+								response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
+
+		if not self.motor:
+			response.ack = False
+			self.get_logger().error("Motor controller not initialised.")
+			return response
+
+		response.ack = self.motor.open_box()
+		if response.ack:
+			self.get_logger().info(f"Box ID: {self.config.box_id} opened successfully.")
+		else:
+			self.get_logger().error(f"Failed to open box ID: {self.config.box_id}.")
 
 		return response
 
