@@ -87,10 +87,10 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
         if (xml.isStartElement() && xml.name() == "point" && insideDrone)
         {
             auto attrs = xml.attributes();
-            Point p;
-            p.x = attrs.value("x").toDouble();
-            p.y = attrs.value("y").toDouble();
-            p.z = attrs.value("z").toDouble();
+            QVector3D p;
+            p.setX(attrs.value("x").toDouble());
+            p.setY(attrs.value("y").toDouble());
+            p.setZ(attrs.value("z").toDouble());
             current.drone_waypoints.push_back(p);
         }
 
@@ -183,12 +183,12 @@ void WarehouseFrame::paintEvent(QPaintEvent *event)
         {
             p.setPen(QPen(drone.drone_color, 2*this->scale_factor));
             for (size_t i = 0; i < drone.drone_waypoints.size() - 1; i++)
-                p.drawLine(drone.drone_waypoints[i].x* this->scale_factor + offsetX, drone.drone_waypoints[i].y* this->scale_factor + offsetY,
-                            drone.drone_waypoints[i+1].x* this->scale_factor + offsetX, drone.drone_waypoints[i+1].y* this->scale_factor + offsetY);
+                p.drawLine(drone.drone_waypoints[i].x()* this->scale_factor + offsetX, drone.drone_waypoints[i].y()* this->scale_factor + offsetY,
+                            drone.drone_waypoints[i+1].x()* this->scale_factor + offsetX, drone.drone_waypoints[i+1].y()* this->scale_factor + offsetY);
 
             p.setBrush(drone.drone_color);
             for (auto &pt : drone.drone_waypoints)
-                p.drawEllipse(QPointF(pt.x* this->scale_factor + offsetX, pt.y* this->scale_factor + offsetY), 3, 3);
+                p.drawEllipse(QPointF(pt.x()* this->scale_factor + offsetX, pt.y()* this->scale_factor + offsetY), 3, 3);
         }
     }
 }

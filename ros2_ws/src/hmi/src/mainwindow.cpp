@@ -201,8 +201,7 @@ void MainWindow::update3DTrajectories(std::vector<DroneVis> drones)
         for (int i = 0; i < drone.drone_waypoints.size(); ++i)
         {
             const auto &wp = drone.drone_waypoints[i];
-            float z = i * 0.2f;  // artificial altitude or index
-            (*dataArray)[i].setPosition(QVector3D(wp.x, z, wp.y));
+            (*dataArray)[i].setPosition(QVector3D(wp.x(), wp.z(), wp.y()));
         }
 
         series->dataProxy()->resetArray(dataArray);

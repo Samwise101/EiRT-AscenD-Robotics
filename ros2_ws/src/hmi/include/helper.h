@@ -8,6 +8,13 @@
 #include <vector>
 #include <QtMath>
 
+#include <QtDataVisualization/Q3DScatter>
+#include <QtDataVisualization/QScatter3DSeries>
+#include <QtDataVisualization/QScatterDataProxy>
+#include <QtDataVisualization/QCustom3DItem>
+#include <QtDataVisualization/Q3DCamera>
+#include <QtDataVisualization/QValue3DAxis>
+
 struct Line { float x1, y1, x2, y2; };
 struct Point { float x, y, z;};
 
@@ -22,7 +29,7 @@ struct DroneVis
 {
     std::string drone_id;
     QColor drone_color;
-    std::vector<Point> drone_waypoints;
+    std::vector<QVector3D> drone_waypoints;
     bool display;
 };
 
