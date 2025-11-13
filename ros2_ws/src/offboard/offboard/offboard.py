@@ -29,6 +29,7 @@ from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
 from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
 from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
+from sensor_msgs.msg import BatteryState
 
 
 
