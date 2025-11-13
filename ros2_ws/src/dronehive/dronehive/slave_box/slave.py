@@ -14,6 +14,7 @@ from dronehive_interfaces.msg import (
 )
 
 from dronehive_interfaces.srv import (
+	AddRemoveDroneService,
 	BoxStatusService,
 	BoxStatusSlaveUpdateService,
 	DroneTrajectoryWaypointsService,
@@ -160,6 +161,12 @@ class SlaveBoxNode(Node):
 			self.handle_box_open_request
 		)
 
+		self.create_service(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE + f"_{self.config.box_id}",
+			self.handle_add_remove_drone_request
+		)
+
 
 	def create_actions(self) -> None:
 		pass
@@ -238,6 +245,18 @@ class SlaveBoxNode(Node):
 			self.get_logger().info(f"Box ID: {self.config.box_id} opened successfully.")
 		else:
 			self.get_logger().error(f"Failed to open box ID: {self.config.box_id}.")
+
+		return response
+
+
+	def handle_add_remove_drone_request(self,
+										request: AddRemoveDroneService.Request,
+										response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
+
+		self.config.drone_id = request.drone_id
+		self.config.save()
+
+		response.ack = True
 
 		return response
 
