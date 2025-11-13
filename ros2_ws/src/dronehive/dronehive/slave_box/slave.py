@@ -253,6 +253,7 @@ class SlaveBoxNode(Node):
 										request: AddRemoveDroneService.Request,
 										response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
 
+		self.get_logger().info(f"Received add/remove drone request for box ID: {self.config.box_id} with drone ID: {request.drone_id}")
 		self.config.drone_id = request.drone_id
 		self.config.save()
 
