@@ -205,7 +205,6 @@ class SlaveBoxNode(Node):
 
 		if not drone_client.wait_for_service(timeout_sec=2.0):
 			self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
-			self.temp_node.destroy_node()
 			response.ack = False
 			return response
 
