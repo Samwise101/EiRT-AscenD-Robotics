@@ -353,7 +353,7 @@ class LandingControl(Node):
             # Keep publishing hold here while requesting landing target
             self._publish_hold_here()
             self.get_logger().info("Requesting landing target...")
-            if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=2.0):
+            if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=0.1):
                 self._call_landing_service(now)
                 self.get_logger().info("Requesting landing target...")
             # Check for landing response
