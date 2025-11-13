@@ -26,16 +26,19 @@ from dronehive_interfaces.msg import (
 )
 
 from dronehive_interfaces.srv import (
+	AddRemoveDroneService,
 	BoxStatusSlaveUpdateService,
 	BoxBroadcastService,
 	BoxStatusService,
 	DroneLandingService,
 	DroneTrajectoryWaypointsService,
 	OccupancyService,
+	RequestBoxOpenService,
 	RequestDroneLanding,
 	RequestReturnHome,
 	SlaveBoxIDsService,
 	SlaveBoxInformationService,
+	ToggleTrajectoryExecutionService,
 )
 import dronehive.utils as dh
 from dronehive.utils import BoxStatus, BoxStatusEnum
@@ -422,6 +425,22 @@ class MasterBoxNode(Node):
 			callback_group=ReentrantCallbackGroup()
 		)
 
+		# Toggle Trajectory Execution
+		self.create_service(
+			ToggleTrajectoryExecutionService,
+			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION,
+			self.handle_toggle_trajectory_execution_request,
+			callback_group=MutuallyExclusiveCallbackGroup()
+		)
+
+		# Add/remvoe drone
+		self.create_service(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE,
+			self.handle_add_remove_drone_request,
+			callback_group=MutuallyExclusiveCallbackGroup()
+		)
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
@@ -466,11 +485,13 @@ class MasterBoxNode(Node):
 		print(f"Linked boxes: {list(info)}")
 		print(f"Drone position: {request.drone_pos}")
 
+		# Go through all the boxes (including the master box) and find the closest empty box.
 		for box_id, box_status in self.linked_slave_boxes.items():
 			if box_status.status != BoxStatusEnum.EMPTY:
 				print(f"Box ID: {box_id} is not empty (status: {box_status.status}). Skipping...")
 				continue
 
+			# Evaluate the best box by the proximity defined by Euclidean distance.
 			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
 			print(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
@@ -479,22 +500,48 @@ class MasterBoxNode(Node):
 				landing_pos = box_status.position
 				self.get_logger().info(f"Found empty slave box ID: {box_id} for drone ID: {request.drone_id}. Assigning landing position: {box_status.position}")
 
+		# If no empty box is found, return an empty position.
 		if closest_box_id == None:
 			self.get_logger().warn(f"No empty slave box found for drone ID: {request.drone_id}. Cannot assign landing position.")
 			response.landing_pos = PositionMessage()
 			return response
 
+		# Assign the drone to the closest box.
 		if closest_box_id == self.config.box_id:
 			self.get_logger().info(f"Assigning landing position of master box ID: {self.config.box_id} to drone ID: {request.drone_id}")
 			self.config.drone_id = request.drone_id
 			dh.dronehive_update_config(self.config)
 			landing_pos = self.config.landing_position
+		else:
+			req = RequestBoxOpenService.Request()
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_OPEN_SERVICE + f"_{closest_box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Requested box open for box ID: {closest_box_id}, Result: {future.result().ack}"
+				),
+			)
 
+		# Update the localy kept status of the box.
 		self.linked_slave_boxes[closest_box_id].drone_id = request.drone_id
 		self.linked_slave_boxes[closest_box_id].status = BoxStatusEnum.OCCUPIED
+
+		# Let the slave box know a drone is incoming.
 		if closest_box_id != self.config.box_id:
 			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
+
+		else:
+			# If the closest box is the master box, open the box.
+			self.get_logger().info(f"Assigning landing position of master box ID: {self.config.box_id} to drone ID: {request.drone_id}")
+
+			if self.motor:
+				self.get_logger().info("Opening master box for incoming drone...")
+				self.motor.open_box()
+			else:
+				self.get_logger().error("Motor controller not initialised. Cannot open box.")
+
 
 		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
@@ -624,7 +671,7 @@ class MasterBoxNode(Node):
 
 			if not drone_client.wait_for_service(timeout_sec=2.0):
 				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
-				self.temp_node.destroy_node()
+				# self.temp_node.destroy_node()
 				response.ack = False
 				return response
 
@@ -657,7 +704,6 @@ class MasterBoxNode(Node):
 		# wait for service
 		if not box_client.wait_for_service(timeout_sec=5.0):
 			self.temp_node.get_logger().error("Target service not available")
-			self.temp_node.destroy_node()
 			response.ack = False
 			return response
 
@@ -665,7 +711,6 @@ class MasterBoxNode(Node):
 
 		if not drone_client.wait_for_service(timeout_sec=2.0):
 			self.temp_node.get_logger().error(f"Target service for box ID: '{box_id}' not available")
-			self.temp_node.destroy_node()
 			response.ack = False
 			return response
 
@@ -726,6 +771,29 @@ class MasterBoxNode(Node):
 			10
 		 )
 
+		return response
+
+
+	def handle_toggle_trajectory_execution_request(self,
+												   request: ToggleTrajectoryExecutionService.Request,
+												   response: ToggleTrajectoryExecutionService.Response) -> ToggleTrajectoryExecutionService.Response:
+
+		# box_id = self.find_box_id_from_drone_id(request.drone_id)
+		drone_client = self.temp_node.create_client(
+			ToggleTrajectoryExecutionService,
+			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION + f"_{request.drone_id}"
+		)
+
+		exec = SingleThreadedExecutor()
+		exec.spin_until_future_complete(drone_future)
+		exec.shutdown()
+
+		return response
+
+
+	def handle_add_remove_drone_request(self,
+									 request: AddRemoveDroneService.Request,
+									 response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
 		return response
 
 	##################
