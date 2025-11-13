@@ -146,6 +146,7 @@ class MasterBoxNode(Node):
 					position=response.landing_pos,
 					status=BoxStatusEnum.EMPTY if response.drone_id == "" else BoxStatusEnum.OCCUPIED
 				)
+				self._add_remove_drone(response.drone_id, add=True)
 
 			else:
 				self.get_logger().error("Failed to get box status. Setting status to UNKNOWN.")
@@ -505,6 +506,10 @@ class MasterBoxNode(Node):
 			position=request.status.landing_pos,
 			status=BoxStatusEnum(request.status.status)
 		)
+		result = self._add_remove_drone(request.status.drone_id, add=True)
+		if not result:
+			self.get_logger().warn(f"Drone ID: '{request.status.drone_id}' is already known. Not adding again.")
+
 		self.get_logger().info(f"Updated linked slave boxes: {self.linked_slave_boxes}")
 
 		response.ack = True
