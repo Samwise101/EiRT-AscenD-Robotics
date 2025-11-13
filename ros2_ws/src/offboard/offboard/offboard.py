@@ -28,7 +28,7 @@ from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
 from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
-from dronehive_interfaces.msg import PositionMessage
+from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
 
 
 # ---------------------- helpers ---------------------------------
@@ -201,6 +201,7 @@ class LandingControl(Node):
         return response
 
     def _drone_status_cb(self, msg: DroneStatusMessage):
+        pass
 
     # -------------------- Main Timer --------------------
 
@@ -512,6 +513,11 @@ class LandingControl(Node):
         return self.waypoints_ready
 
 
+    def _get_battery_level(self) -> float:
+        # Placeholder for actual battery level retrieval logic
+        return 69.42
+
+
     # -------------------- Trajectory planning & execution --------------------
 
     def _plan_landing_traj(self):
@@ -608,9 +614,9 @@ class LandingControl(Node):
         if self.home_xy is None:
             self.home_xy = self.curr_xyz[:2].copy()
         self._publish_xyz(self.home_xy[0], self.home_xy[1], self.takeoff_alt)
-    
-    def _publish_takeoff_re(self)
-    """Publish a setpoint at current XY and takeoff_alt Z (real takeoff)."""
+
+    def _publish_takeoff_re(self):
+        """Publish a setpoint at current XY and takeoff_alt Z (real takeoff)."""
         self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.takeoff_alt)
 
     def _publish_circle_loiter(self):

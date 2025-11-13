@@ -49,6 +49,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BoxSetupConfirmationMessage.msg"
   "msg/BoxStatusMessage.msg"
   "msg/DroneForceLandingMessage.msg"
+  "msg/DroneStatusMessage.msg"
   "msg/ExecutePathMessage.msg"
   "msg/GuiCommand.msg"
   "msg/OccupancyMessage.msg"
