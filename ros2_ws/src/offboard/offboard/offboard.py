@@ -391,7 +391,7 @@ class LandingControl(Node):
                 else:
                     if self.curr_xyz[2] < self.landing_target.copy()[2] + 0.1:
                         self.state = FlightState.DONE
-                        self.get_logger().info("Landing trajectory complete.")   
+                        self.get_logger().info("Landing trajectory complete.")
                 return
 
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
@@ -674,6 +674,7 @@ class LandingControl(Node):
         pos_msg.elv = float(self.curr_xyz[2])
         msg.current_position = pos_msg
         msg.reached_first_waypoint = self.reached_first_waypoint
+        self.reached_first_waypoint = False
         self.pub_status.publish(msg)
 
 
