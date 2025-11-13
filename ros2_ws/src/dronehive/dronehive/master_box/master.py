@@ -784,10 +784,29 @@ class MasterBoxNode(Node):
 			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION + f"_{request.drone_id}"
 		)
 
+		operation = "Resuming" if request.start else "Pausing"
+		drone_future = drone_client.call_async(request)
+
+		# Spin a temporary executor that only has the temp node
 		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
 		exec.spin_until_future_complete(drone_future)
 		exec.shutdown()
 
+		self.temp_node.destroy_node()
+
+		if not drone_future:
+			self.get_logger().error(f"{operation} trajectory for drone: '{request.drone_id}' was not successful.")
+			response.ack = False
+			return response
+
+		drone_response: AddRemoveDroneService.Response | None= drone_future.result()
+		if not drone_response:
+			self.get_logger().error(f"{operation} trajectory for drone: '{request.drone_id}' was not successful on drone side.")
+			response.ack = False
+			return response
+
+		response.ack = True
 		return response
 
 
@@ -797,7 +816,36 @@ class MasterBoxNode(Node):
 
 		self.get_logger().info(f"Received add/remove drone request for drone ID: '{request.drone_id}' to box ID: '{request.box_id}'")
 
-		self.linked_slave_boxes[request.box_id].drone_id = request.drone_id if request.add else ""
+		if request.box_id not in self.linked_slave_boxes:
+			self.get_logger().warn(f"Add/remove drone request received for unknown box ID: '{request.box_id}'. Cannot add/remove drone.")
+			response.ack = False
+			return response
+
+		self.linked_slave_boxes[request.box_id].drone_id = request.drone_id
+
+		box_client = self.temp_node.create_client(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE + f"_{request.box_id}"
+		)
+
+		box_future = box_client.call_async(request)
+
+		# Spin a temporary executor that only has the temp node
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(box_future)
+		exec.shutdown()
+
+		if not box_future:
+			self.get_logger().error(f"Failed to add/remove drone ID: '{request.drone_id}' to/from box ID: '{request.box_id}'.")
+			response.ack = False
+			return response
+
+		box_response: AddRemoveDroneService.Response | None= box_future.result()
+		if not box_response:
+			self.get_logger().error(f"Failed to add/remove drone ID: '{request.drone_id}' to/from box ID: '{request.box_id}'. No response received.")
+			response.ack = False
+			return response
 
 		response.ack = True
 		return response
