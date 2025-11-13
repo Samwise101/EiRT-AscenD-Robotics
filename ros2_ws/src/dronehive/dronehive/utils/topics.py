@@ -28,6 +28,8 @@ DRONEHIVE_DRONE_LAND_REQUEST = "/dronehive/drone_land_request"
 # Topic that receives a request for a drone to lend at a specific position.
 DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
 
+DRONEHIVE_DRONE_STATUS_MESSAGE = "/dronehive/drone_status_"
+
 ############
 # Services #
 ############

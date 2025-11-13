@@ -22,6 +22,7 @@ from dronehive_interfaces.msg import (
 	BoxBroadcastMessage,
 	BoxSetupConfirmationMessage,
 	DroneForceLandingMessage,
+	DroneStatusMessage,
 	PositionMessage
 )
 
@@ -61,6 +62,7 @@ class MasterBoxNode(Node):
 		self.config: dh.Config = dh.dronehive_initialise()
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
+		self.known_drones: set[str] = set()
 		self.motor: dh.XL430Controller | None = None
 		self.temp_node = Node('temp_waypoint_client_node')
 
@@ -169,6 +171,18 @@ class MasterBoxNode(Node):
 		self.get_logger().info(f"Gathered states of linked slave boxes: {self.linked_slave_boxes}")
 
 
+	def _add_remove_drone(self, drone_id: str, add: bool) -> bool:
+		if not add:
+			self.known_drones.discard(drone_id)
+			return True
+
+		if drone_id not in self.known_drones:
+			return False
+
+		self.known_drones.add(drone_id)
+		return True
+
+
 	def create_messages(self) -> None:
 		# Subscribers
 		# In the code of the method the subscriber is already saved in internal variable.
@@ -197,6 +211,15 @@ class MasterBoxNode(Node):
 			self._confirm_box_initialisation,
 			qos_profile
 		)
+
+		for drone in self.known_drones:
+			self.create_subscription(
+				DroneStatusMessage,
+				dh.DRONEHIVE_DRONE_STATUS_MESSAGE + drone,
+				self._republish_drone_status,
+				qos_profile,
+				callback_group=ReentrantCallbackGroup()
+			)
 
 		# Publishers
 		# Topic used to forward the initialisation confirmation of a slave box from the GUI to the slave box.
@@ -232,6 +255,12 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.drone_state_republisher = self.create_publisher(
+			DroneStatusMessage,
+			dh.DRONEHIVE_DRONE_STATUS_MESSAGE,
+			qos_profile
+		)
+
 	#####################
 	# Message callbacks #
 	#####################
@@ -248,6 +277,7 @@ class MasterBoxNode(Node):
 		# If the message is intended for a different box, forward it to the respective slave box.
 		if msg.data != self.config.box_id:
 			self.get_logger().info(f"Deinitialise request for different box ID: {msg.data}. Forwarding...")
+			self.
 			self.deinitialise_slave_box_pub.publish(msg)
 			self.linked_slave_boxes.pop(msg.data, None)
 
@@ -334,6 +364,18 @@ class MasterBoxNode(Node):
 			response.box_id = self.config.box_id
 			response.landing_pos = self.config.landing_position
 			self._pub_box_broadcast.publish(response)
+
+
+	def _republish_drone_status(self, msg: DroneStatusMessage) -> None:
+		"""
+		Callback for the DroneStatusMessage topic. This callback is used to republish the drone status
+		messages received from the drones to a common topic.
+
+		Args:
+			msg: DroneStatusMessage - The message containing the drone status.
+		"""
+		self.get_logger().info(f"Republishing drone status message for drone ID: '{msg.drone_id}'")
+		self.drone_state_republisher.publish(msg)
 
 
 	#################
@@ -812,6 +854,21 @@ class MasterBoxNode(Node):
 									 response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
 
 		self.get_logger().info(f"Received add/remove drone request for drone ID: '{request.drone_id}' to box ID: '{request.box_id}'")
+
+		if request.drone_id != "":
+			success = self._add_remove_drone(request.drone_id, add=True)
+			if not success:
+				self.get_logger().warn(f"Drone ID: '{request.drone_id}' is already known in the system. Cannot add drone to box ID: '{request.box_id}'.")
+				response.ack = False
+				return response
+
+		else:
+			current_drone = self.linked_slave_boxes.get(request.box_id, None)
+			current_drone_id: str = ""
+			if current_drone and current_drone.drone_id != "":
+				current_drone_id = current_drone.drone_id
+
+			self._add_remove_drone(current_drone_id, add=False)
 
 		if request.box_id not in self.linked_slave_boxes:
 			self.get_logger().warn(f"Add/remove drone request received for unknown box ID: '{request.box_id}'. Cannot add/remove drone.")
