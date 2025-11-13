@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", qos_profiles::master_qos);
     gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos);
     response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", qos_profiles::master_qos);
+    gui_add_remove_drone_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiAddNewDrone>("/gui/add_remove_drone", qos_profiles::master_qos);
+    gui_trajectory_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>("/gui/drone_trajectory", qos_profiles::master_qos);
+
 
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",qos_profiles::master_qos, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
@@ -487,12 +490,12 @@ void MainWindow::on_path_upload_pushButton_clicked()
     else
     {
         int state = dialog.getState();
+        int current_drone_index = this->ui->droneComboBox->currentIndex();
 
         if(state == PathPlanStates::CREATE_PLAN)
         {
             std::cout << "Crating plan" << std::endl;
-            int current_drone_index = this->ui->droneComboBox->currentIndex();
-
+            
             if(drones.empty())
                 FlightDialog flightPlanDialog(this);
             else
@@ -502,7 +505,29 @@ void MainWindow::on_path_upload_pushButton_clicked()
                 else 
                 {
                     std::cout << "Accepted" << std::endl;
+                    // TO-DO add publisher sending the selected preset path plan
+                    auto waypoints = flightPlanDialog.getWaypoints();
 
+                    std::cout << "Number of waypoints: " << waypoints.size() << std::endl;
+
+                    if(waypoints.empty()) return;
+
+                    std::vector<dronehive_interfaces::msg::PositionMessage> pos_messages;
+
+                    for(auto waypoint : waypoints)
+                    {
+                        dronehive_interfaces::msg::PositionMessage pos_msg;
+                        pos_msg.elv = waypoint.z();
+                        pos_msg.lat = waypoint.x();
+                        pos_msg.lon = waypoint.y();
+                        pos_messages.push_back(pos_msg);
+                    }
+
+                    dronehive_interfaces::msg::GuiDroneTrajectoryUpload msg;
+                    msg.drone_id =  drones[current_drone_index].get_drone_id();
+                    msg.waypoints = pos_messages;
+
+                    this->gui_trajectory_pub_->publish(msg);
                 }
             }
             
@@ -511,6 +536,28 @@ void MainWindow::on_path_upload_pushButton_clicked()
         {
             std::cout << "Accepted" << std::endl;
             // TO-DO add publisher sending the selected preset path plan
+            auto waypoints = dialog.getWaypoints();
+
+            std::cout << "Waypoint size: " << waypoints.size() << std::endl;
+
+            if(waypoints.empty()) return;
+
+            std::vector<dronehive_interfaces::msg::PositionMessage> pos_messages;
+
+            for(auto waypoint : waypoints)
+            {
+                dronehive_interfaces::msg::PositionMessage pos_msg;
+                pos_msg.elv = waypoint.z();
+                pos_msg.lat = waypoint.x();
+                pos_msg.lon = waypoint.y();
+                pos_messages.push_back(pos_msg);
+            }
+
+            dronehive_interfaces::msg::GuiDroneTrajectoryUpload msg;
+            msg.drone_id =  drones[current_drone_index].get_drone_id();
+            msg.waypoints = pos_messages;
+
+            this->gui_trajectory_pub_->publish(msg);
         }
     }
 }
@@ -634,6 +681,13 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
     {
         QString current_data = this->ui->droneComboBox->currentText();
         int current_index = this->ui->droneComboBox->currentIndex();
+
+        auto box_id = this->drones[current_index].get_parent_box_id();
+
+        dronehive_interfaces::msg::GuiAddNewDrone msg;
+        msg.drone_id = "";
+        msg.box_id = box_id;
+        this->gui_add_remove_drone_pub_->publish(msg);
 
         this->ui->droneComboBox->removeItem(current_index);
 
@@ -1080,9 +1134,10 @@ void MainWindow::on_addDroneButton_pushButton_clicked()
         auto box_status = this->boxes[box_index].get_box_status();
         this->setBoxStateGraphics(box_status, 0.0f);
 
-        dronehive_interfaces::msg::GuiCommand command;
-        command.command = dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE;
-        gui_cmd_pub_->publish(command);
+        dronehive_interfaces::msg::GuiAddNewDrone msg;
+        msg.drone_id = drone_id;
+        msg.box_id = box_id.toStdString();
+        this->gui_add_remove_drone_pub_->publish(msg);
     }
 }
 

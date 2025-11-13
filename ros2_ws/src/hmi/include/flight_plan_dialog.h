@@ -33,6 +33,8 @@ class FlightDialog : public QDialog
         explicit FlightDialog(QWidget* parent = nullptr, QColor drone_color = Qt::white, std::string drone_id = "");
         ~FlightDialog();
 
+        std::vector<QVector3D> getWaypoints();
+
 
     private slots:
         void on_cancleButton_pushButton_clicked();

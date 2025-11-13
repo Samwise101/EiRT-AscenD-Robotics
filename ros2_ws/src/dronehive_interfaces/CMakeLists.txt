@@ -59,6 +59,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PositionMessage.msg"
   "msg/SetConfigMessage.msg"
   "msg/SetPathMessage.msg"
+  "msg/GuiDroneLandingRequest.msg"
+  "msg/GuiDroneTrajectoryUpload.msg"
+  "msg/GuiAddNewDrone.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

@@ -23,6 +23,8 @@ App::App() : Node("app_node")
     this->get_drone_status_request_appeared = false;
     this->drone_return_home_request_appeared = false;
     this->drone_landing_request_appeared = false;
+    this->gui_add_remove_request_appeared = false;
+    this->gui_trajectory_request_appeared = false;
 
     this->pending_box_responses_ = 0;
 
@@ -43,6 +45,14 @@ App::App() : Node("app_node")
 
     gui_box_confirm_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>(
         "/gui/newbox_response", qos_profiles::master_qos, std::bind(&App::onNewBoxGuiConfirmation, this, std::placeholders::_1)
+    );
+
+    gui_add_remove_drone_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiAddNewDrone>(
+        "/gui/add_remove_drone", qos_profiles::master_qos, std::bind(&App::onGuiAddRemoveDrone, this, std::placeholders::_1)
+    );
+
+    gui_drone_trajectory_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>(
+        "/gui/drone_trajectory", qos_profiles::master_qos, std::bind(&App::onGuiTrajectoryRecieved, this, std::placeholders::_1)
     );
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
@@ -118,6 +128,32 @@ void App::onServiceTimer()
         this->system_status_client_->async_send_request(req, std::bind(&App::onSystemStatusRequestResponse, this, std::placeholders::_1));
     }
 
+    if(this->drone_add_client_->wait_for_service(std::chrono::seconds(0)) && this->gui_add_remove_request_appeared)
+    {
+        auto req = std::make_shared<dronehive_interfaces::srv::AddRemoveDroneService::Request>();
+        req->box_id = this->box_id;
+        req->drone_id = this->drone_id;
+        this->drone_add_client_->async_send_request(req, std::bind(&App::onAddRemoveDroneRequestResponse, this, std::placeholders::_1));
+
+        this->gui_add_remove_request_appeared = false;
+
+        this->drone_id.clear();
+        this->box_id.clear();
+    }
+
+    if(this->drone_upload_trajectory_client_->wait_for_service(std::chrono::seconds(0)) && this->gui_trajectory_request_appeared)
+    {
+        auto req = std::make_shared<dronehive_interfaces::srv::DroneTrajectoryWaypointsService::Request>();
+        req->drone_id = this->drone_id;
+        req->waypoints = this->waypoints;
+        this->drone_upload_trajectory_client_->async_send_request(req, std::bind(&App::onTrajectoryRequestResponse, this, std::placeholders::_1));
+
+        this->gui_trajectory_request_appeared = false;
+        
+        this->drone_id.clear();
+        this->waypoints.clear();
+    }
+
     if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared)
     {
         if(box_id.empty()) return;
@@ -134,6 +170,44 @@ void App::onServiceTimer()
         auto req = std::make_shared<dronehive_interfaces::srv::DroneLandingService::Request>();
         this->drone_landing_client_->async_send_request(req, std::bind(&App::onDroneLandingRequestResponse, this, std::placeholders::_1));
     }
+}
+
+void App::onAddRemoveDroneRequestResponse(rclcpp::Client<dronehive_interfaces::srv::AddRemoveDroneService>::SharedFuture f)
+{
+    auto response = f.get();
+
+    this->gui_add_remove_request_appeared = false;
+}
+
+void App::onTrajectoryRequestResponse(rclcpp::Client<dronehive_interfaces::srv::DroneTrajectoryWaypointsService>::SharedFuture f)
+{
+    auto response = f.get();
+
+    this->gui_trajectory_request_appeared = false;
+}
+
+void App::onGuiTrajectoryRecieved(const dronehive_interfaces::msg::GuiDroneTrajectoryUpload::SharedPtr msg)
+{
+    auto msg2 = std_msgs::msg::String();
+    msg2.data = "Confirming, got TRAJECTORY response";
+    to_gui_msg_pub_->publish(msg2);
+
+    this->gui_trajectory_request_appeared = true;
+
+    this->waypoints = msg->waypoints;
+    this->drone_id = msg->drone_id;
+}
+
+void App::onGuiAddRemoveDrone(const dronehive_interfaces::msg::GuiAddNewDrone::SharedPtr msg)
+{
+    auto msg2 = std_msgs::msg::String();
+    msg2.data = "Confirming, got ADD/REMOVE response";
+    to_gui_msg_pub_->publish(msg2);
+
+    this->gui_add_remove_request_appeared = true;
+
+    this->drone_id = msg->drone_id;
+    this->box_id = msg->box_id;
 }
 
 void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedFuture f)

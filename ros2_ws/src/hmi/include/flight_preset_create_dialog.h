@@ -37,6 +37,8 @@ class FlightCreationDialog : public QDialog
 
         int getSelectedItemIndex();
         int getState();
+
+        std::vector<QVector3D> getWaypoints();
     
     private slots:
         void on_cancleButton_pushButton_clicked();
