@@ -68,6 +68,11 @@ FlightCreationDialog::~FlightCreationDialog()
     delete this->scatterContainer;
 }
 
+std::vector<QVector3D> FlightCreationDialog::getWaypoints()
+{
+    return this->waypoints;
+}
+
 void FlightCreationDialog::on_cancleButton_pushButton_clicked()
 {
     std::cout << "Hello from cancle button" << std::endl;

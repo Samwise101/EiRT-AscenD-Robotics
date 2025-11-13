@@ -63,6 +63,10 @@ FlightDialog::~FlightDialog()
     delete this->scatterContainer;
 }
 
+std::vector<QVector3D> FlightDialog::getWaypoints()
+{
+    return this->waypoints;
+}
 
 void FlightDialog::on_cancleButton_pushButton_clicked()
 {

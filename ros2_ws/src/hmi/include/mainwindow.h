@@ -27,6 +27,9 @@
 #include <dronehive_interfaces/msg/backend_command.hpp>
 #include <dronehive_interfaces/msg/box_full_status.hpp>
 #include <dronehive_interfaces/msg/occupancy_message.hpp>
+#include <dronehive_interfaces/msg/gui_drone_landing_request.hpp>
+#include <dronehive_interfaces/msg/gui_drone_trajectory_upload.hpp>
+#include <dronehive_interfaces/msg/gui_add_new_drone.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -113,6 +116,8 @@ private:
     rclcpp::Publisher<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_cmd_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr response_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::GuiAddNewDrone>::SharedPtr gui_add_remove_drone_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>::SharedPtr gui_trajectory_pub_;
 
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
