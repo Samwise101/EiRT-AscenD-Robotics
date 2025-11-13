@@ -47,9 +47,10 @@ App::App() : Node("app_node")
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
     drone_status_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneStatus>("/dronehive/gui_drone_id_service");
-    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::RequestDroneLanding>("/dronehive/request_landing");
-    drone_home_return_client_ = this->create_client<dronehive_interfaces::srv::RequestReturnHome>("/dronehive/request_return_home");
+    drone_landing_client_ = this->create_client<dronehive_interfaces::srv::DroneLandingService>("/dronehive/gui_request_drone_land_service");
+    drone_add_client_ = this->create_client<dronehive_interfaces::srv::AddRemoveDroneService>("/dronehive/gui_add_remove_drone_service");
     system_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxIDsService>("/dronehive/gui_boxes_id_service");
+    drone_upload_trajectory_client_ = this->create_client<dronehive_interfaces::srv::DroneTrajectoryWaypointsService>("/dronehive/gui_request_waypoint_trajectory");
 
     heartbeat_timer_ = this->create_wall_timer(
     std::chrono::seconds(1),
@@ -128,22 +129,10 @@ void App::onServiceTimer()
         box_id = "";
     }
 
-    if(this->drone_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_drone_status_request_appeared)
-    {
-        auto req = std::make_shared<dronehive_interfaces::srv::RequestDroneStatus::Request>();
-        this->drone_status_client_->async_send_request(req, std::bind(&App::onDroneStatusRequestResponse, this, std::placeholders::_1));
-    }
-
     if(this->drone_landing_client_->wait_for_service(std::chrono::seconds(0)) && this->drone_landing_request_appeared)
     {
-        auto req = std::make_shared<dronehive_interfaces::srv::RequestDroneLanding::Request>();
+        auto req = std::make_shared<dronehive_interfaces::srv::DroneLandingService::Request>();
         this->drone_landing_client_->async_send_request(req, std::bind(&App::onDroneLandingRequestResponse, this, std::placeholders::_1));
-    }
-
-    if(this->drone_home_return_client_->wait_for_service(std::chrono::seconds(0)) && this->drone_return_home_request_appeared)
-    {
-        auto req = std::make_shared<dronehive_interfaces::srv::RequestReturnHome::Request>();
-        this->drone_home_return_client_->async_send_request(req, std::bind(&App::onDroneReturnHomeRequestResponse, this, std::placeholders::_1));
     }
 }
 
@@ -210,22 +199,10 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     box_status_pub_->publish(msg);;
 }
 
-void App::onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f)
-{
-    auto response = f.get();
-    this->get_drone_status_request_appeared = false;
-}
-
-void App::onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedFuture f)
+void App::onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::DroneLandingService>::SharedFuture f)
 {
     auto response = f.get();
     this->drone_landing_request_appeared = false;
-}
-
-void App::onDroneReturnHomeRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedFuture f)
-{
-    auto response = f.get();
-    this->drone_return_home_request_appeared = false;
 }
 
 void App::onNewBoxGuiConfirmation(const dronehive_interfaces::msg::BoxSetupConfirmationMessage::SharedPtr msg)
@@ -279,33 +256,11 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
             box_id = command->box_id;
             break;   
         }
-        case dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING:
-        {
-            this->drone_landing_request_appeared = true;
-            break;
-        }
-        case dronehive_interfaces::msg::GuiCommand::REQUEST_RETURN_HOME:
-        {
-            this->drone_return_home_request_appeared = true;
-            break;
-        }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS:
         {
             this->get_system_status_request_appeared = true;
             break;
         }
-        case dronehive_interfaces::msg::GuiCommand::REQUEST_DRONE_STATUS:
-        {
-            this->get_drone_status_request_appeared = true;
-            break;   
-        }
-
-        case dronehive_interfaces::msg::GuiCommand::REQUEST_EXECUTE_PATH:
-        {
-            // add flag to enable a timer to recieve the path
-            break;
-        }
-
         case dronehive_interfaces::msg::GuiCommand::SEARCH_FOR_NEW_DRONE:
         {
             break;

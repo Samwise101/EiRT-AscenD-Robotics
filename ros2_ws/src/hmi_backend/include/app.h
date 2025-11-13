@@ -28,6 +28,10 @@
 #include <dronehive_interfaces/srv/get_flightlog.hpp>
 #include <dronehive_interfaces/srv/slave_box_information_service.hpp>
 #include <dronehive_interfaces/srv/slave_box_i_ds_service.hpp>
+#include <dronehive_interfaces/srv/drone_landing_service.hpp>
+#include <dronehive_interfaces/srv/drone_status_service.hpp>
+#include <dronehive_interfaces/srv/drone_trajectory_waypoints_service.hpp>
+#include <dronehive_interfaces/srv/add_remove_drone_service.hpp>
 
 #include <thread>
 #include <mutex>
@@ -51,9 +55,8 @@ class App : public rclcpp::Node
 
         void onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedFuture f);
         void onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f);
-        void onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f);
-        void onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedFuture f);
-        void onDroneReturnHomeRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedFuture f);
+
+        void onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::DroneLandingService>::SharedFuture f);
 
         void onRemoveBoxGuiCommand(const std::string& box_id);
 
@@ -86,7 +89,10 @@ class App : public rclcpp::Node
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr box_deinit_pub_;
         rclcpp::Publisher<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr notify_gui_on_ccupancy_change_pub_;
 
-        rclcpp::Client<dronehive_interfaces::srv::RequestDroneLanding>::SharedPtr drone_landing_client_;
+        rclcpp::Client<dronehive_interfaces::srv::DroneLandingService>::SharedPtr drone_landing_client_;
+        rclcpp::Client<dronehive_interfaces::srv::AddRemoveDroneService>::SharedPtr drone_add_client_;
+        rclcpp::Client<dronehive_interfaces::srv::DroneTrajectoryWaypointsService>::SharedPtr drone_upload_trajectory_client_;
+
         rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedPtr drone_home_return_client_;
         rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedPtr system_status_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedPtr drone_status_client_;
