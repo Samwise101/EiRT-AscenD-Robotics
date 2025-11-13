@@ -111,7 +111,7 @@ class XL430Controller:
 
 
 	# --- Control methods ---
-	def move_extended(self, position_ticks, profile_velocity=200, profile_accel=50):
+	def move_extended(self, position_ticks, profile_velocity=200, profile_accel=50) -> bool:
 		"""Move >360° using Extended Position Mode."""
 		self.set_mode(OperatingMode.MODE_EXTENDED_POSITION)
 		self.write4(ControlCommand.ADDR_PROFILE_VELOCITY, profile_velocity)
@@ -126,13 +126,19 @@ class XL430Controller:
 
 			if abs(pos - position_ticks) < 20:
 				get_logger(f"motor_{self.dxl_id}").info("Target reached.")
-				break
-			# if abs(cur) > MAX_CURRENT:
-			# 	get_logger(f"motor_{self.dxl_id}").warn("High current detected! Stopping.")
-			# 	break
+				self.stop()
+				return True
+
+			if abs(cur) > MAX_CURRENT:
+				# If the current is too high, the motor is likely stalled or obstructed
+				# and the target position is not reached.
+				get_logger(f"motor_{self.dxl_id}").warn("High current detected! Stopping.")
+				return False
+
 			time.sleep(0.1)
 
 		self.stop()
+		return True
 
 
 	def move_velocity(self, velocity_ticks):
@@ -166,6 +172,17 @@ class XL430Controller:
 		self.stop()
 		self.port_handler.closePort()
 		get_logger(f"motor_{self.dxl_id}").info("Port closed")
+
+
+	def open_box(self) -> bool:
+		get_logger(f"motor_{self.dxl_id}").info("Opening box...")
+		return self.move_extended(4096 * 5 - 900, profile_velocity=150, profile_accel=100)
+
+
+	def close_box(self) -> bool:
+		get_logger(f"motor_{self.dxl_id}").info("Closing box...")
+		return self.move_extended(-4500, profile_velocity=150, profile_accel=100)
+
 
 
 

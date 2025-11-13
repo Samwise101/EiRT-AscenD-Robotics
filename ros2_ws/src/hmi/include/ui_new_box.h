@@ -18,6 +18,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -47,6 +48,7 @@ public:
     QLineEdit *boxAltLineEdit;
     QHBoxLayout *horizontalLayout_4;
     QPushButton *pushButton;
+    QSpacerItem *horizontalSpacer;
     QPushButton *pushButton_2;
 
     void setupUi(QDialog *NewBoxDialog)
@@ -166,15 +168,19 @@ public:
         pushButton = new QPushButton(verticalLayoutWidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/resources/icons/cancle.png"), QSize(), QIcon::Normal, QIcon::Off);
         pushButton->setIcon(icon);
 
         horizontalLayout_4->addWidget(pushButton);
 
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer);
+
         pushButton_2 = new QPushButton(verticalLayoutWidget);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/resources/icons/tick_mark.png"), QSize(), QIcon::Normal, QIcon::Off);
         pushButton_2->setIcon(icon1);
 
         horizontalLayout_4->addWidget(pushButton_2);

@@ -98,7 +98,7 @@ class App : public rclcpp::Node
         rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;   
         rclcpp::TimerBase::SharedPtr service_timer_;
         
-        int test;
+        std::string box_id;
 };
 
 #endif

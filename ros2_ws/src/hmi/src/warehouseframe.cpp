@@ -1,6 +1,9 @@
 #include "warehouseframe.h"
 #include <algorithm>
 
+#include <QHBoxLayout>
+#include <QVector3D>
+
 #define MAX(x,y) ((x > y) ? x : y)
 #define MIN(x,y) ((x < y) ? x : y)
 
@@ -10,6 +13,7 @@ WarehouseFrame::WarehouseFrame(QWidget *parent) : QFrame(parent)
 }
 
 WarehouseFrame::~WarehouseFrame(){}
+
 
 void WarehouseFrame::loadWarehouseJson(QString filename)
 {
@@ -55,6 +59,9 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
+    if(!drones.empty())
+        drones.clear();
+
     QXmlStreamReader xml(&file);
 
     DroneVis current;
@@ -83,6 +90,7 @@ void WarehouseFrame::loadTrajectoryXml(QString filename)
             Point p;
             p.x = attrs.value("x").toDouble();
             p.y = attrs.value("y").toDouble();
+            p.z = attrs.value("z").toDouble();
             current.drone_waypoints.push_back(p);
         }
 
