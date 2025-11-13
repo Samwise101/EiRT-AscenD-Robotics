@@ -63,3 +63,18 @@ std::string Box::get_assigned_drone_id()
 {
     return this->assigned_drone_id;
 }
+
+void Box::set_box_landing_lat(float value)
+{
+    this->coord.lat = value;
+}
+
+void Box::set_box_landing_lon(float value)
+{
+    this->coord.lon = value;
+}
+
+void Box::set_box_landing_alt(float value)
+{
+    this->coord.alt = value;
+}

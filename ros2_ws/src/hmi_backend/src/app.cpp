@@ -35,7 +35,7 @@ App::App() : Node("app_node")
     this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
     this->notify_gui_on_ccupancy_change_pub_ = this->create_publisher<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos);
 
-    gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
+    this->gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
     new_box_sub_ = this->create_subscription<dronehive_interfaces::msg::BoxBroadcastMessage>(
         "/dronehive/new_box", qos_profiles::master_qos, std::bind(&App::onBoxMessage, this, std::placeholders::_1)
@@ -119,8 +119,13 @@ void App::onServiceTimer()
 
     if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared)
     {
+        if(box_id.empty()) return;
+        
         auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
+        req->box_id = box_id;
+        
         this->box_status_client_->async_send_request(req, std::bind(&App::onBoxStatusRequestResponse, this, std::placeholders::_1));
+        box_id = "";
     }
 
     if(this->drone_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_drone_status_request_appeared)
@@ -158,18 +163,23 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
     for (int i = 0; i < box_ids_size; i++)
     {
+
         auto msg2 = std_msgs::msg::String();
-        msg2.data = "Starting status request for box id " + response->box_ids[i];
+        msg2.data = "Sending request for" + box_ids[i];
         to_gui_msg_pub_->publish(msg2);
+
+        auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
+        req->box_id = box_ids[i];
+        std::string current_box_id = box_ids[i];  // Capture for lambda
 
         if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
         {
-            auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
-            req->box_id = box_ids[i];
-
             this->box_status_client_->async_send_request(
                 req,
-                std::bind(&App::onBoxStatusRequestResponse, this, std::placeholders::_1)
+                [this, current_box_id](rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
+                {
+                    this->onBoxStatusRequestResponse(f);
+                }
             );
         }
         else
@@ -185,12 +195,11 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     this->get_box_status_request_appeared = false;
 
     auto msg2 = std_msgs::msg::String();
-    msg2.data = "Got box status request";
+    msg2.data = "Got box status for ";
     to_gui_msg_pub_->publish(msg2);
-    
 
-    if(this->pending_box_responses_ != 0)
-        this->pending_box_responses_--; 
+    if (this->pending_box_responses_ != 0)
+        this->pending_box_responses_--;
 
     auto msg = dronehive_interfaces::msg::BoxFullStatus();
     msg.box_id = response->status.box_id;
@@ -198,7 +207,7 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     msg.landing_pos = response->status.landing_pos;
     msg.box_status = response->status.status;
 
-    box_status_pub_->publish(msg);
+    box_status_pub_->publish(msg);;
 }
 
 void App::onDroneStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedFuture f)
@@ -247,7 +256,7 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command)
 {
     auto msg = std_msgs::msg::String();
-    msg.data = "Got command: " + std::to_string(command->command);
+    msg.data = "Got command " + std::to_string(command->command) + "with box id " + command->box_id + "\n";
     to_gui_msg_pub_->publish(msg);
 
     switch(command->command)
@@ -267,6 +276,7 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
         case dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS:
         {
             this->get_box_status_request_appeared = true;
+            box_id = command->box_id;
             break;   
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_LANDING:

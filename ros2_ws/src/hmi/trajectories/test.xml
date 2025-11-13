@@ -1,16 +1,16 @@
 <drones>
   <drone id="Drone1" color="blue">
     <trajectory>
-      <point x="10" y="10"/>
-      <point x="50" y="30"/>
+      <point x="10" y="10" z="10"/>
+      <point x="50" y="30" z="10"/>
     </trajectory>
   </drone>
 
   <drone id="Drone2" color="red">
     <trajectory>
-      <point x="20" y="40"/>
-      <point x="60" y="100"/>
-      <point x="20" y="60"/>
+      <point x="20" y="40" z="10"/>
+      <point x="60" y="100" z="10"/>
+      <point x="20" y="60" z="10"/>
     </trajectory>
   </drone>
 </drones>

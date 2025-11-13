@@ -22,6 +22,7 @@
                 "/usr/include/x86_64-linux-gnu/qt5/QtXml",
                 "/usr/include/x86_64-linux-gnu/qt5/QtNetwork",
                 "/usr/include/x86_64-linux-gnu/qt5/QtOpenGL",
+                "/usr/include/x86_64-linux-gnu/qt5/QtDataVisualization",
                 "${workspaceFolder}/**",
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore/**",
                 "/opt/ros/humble/include",
