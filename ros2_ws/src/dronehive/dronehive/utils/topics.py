@@ -45,6 +45,8 @@ DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE = "/dronehive/gui_request_drone_land_se
 DRONEHIVE_GUI_REQUEST_DRONE_RETURN_HOME_SERVICE = "/dronehive/gui_request_drone_return_home_service"
 
 DRONEHIVE_REQUEST_BOX_OPEN_SERVICE = "/dronehive/request_box_open_service"
+DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE = "/dronehive/gui_add_remove_drone_service"
+DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION = "/dronehive/gui_toggle_trajectory_execution_service"
 
 ###########
 # Actions #

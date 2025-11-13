@@ -25,6 +25,7 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/AddRemoveDroneService.srv"
   "srv/BoxBroadcastService.srv"
   "srv/BoxStatusService.srv"
   "srv/BoxStatusSlaveUpdateService.srv"
@@ -43,6 +44,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/RequestStatus.srv"
   "srv/SlaveBoxIDsService.srv"
   "srv/SlaveBoxInformationService.srv"
+  "srv/ToggleTrajectoryExecutionService.srv"
 
   "msg/BackendCommand.msg"
   "msg/BoxBroadcastMessage.msg"
