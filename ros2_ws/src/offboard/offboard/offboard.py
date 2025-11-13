@@ -344,6 +344,7 @@ class LandingControl(Node):
         elif self.state == FlightState.REQUEST_LANDING:
             # Keep publishing hold here while requesting landing target
             self._publish_hold_here()
+            self.get_logger().info("Requesting landing target...")
             if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=2.0):
                 self._call_landing_service(now)
                 self.get_logger().info("Requesting landing target...")
@@ -368,17 +369,14 @@ class LandingControl(Node):
                     self.get_logger().info("Landing trajectory complete.")
                 return
                 """
+                self.get_logger().info("All trajectory segments completed, holding last position.")
                 self._publish_xyz(self.last_requested_pose[0], self.last_requested_pose[1], self.last_requested_pose[2])
-                if self.curr_xyz[2] < 0.1:
-                    self.waypoints_ready = False
-                    self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
-                    self.state = FlightState.REQUEST_LANDING
-                    self._publish_hold_here()
-                elif self.isLanding is True:
-                    self._publish_xyz(self.landing_target[0], self.landing_target[1], 0.0)
-                    if self.curr_xyz[2] < 0.1:
-                        self.state = FlightState.DONE
-                        self.get_logger().info("Landing trajectory complete.")
+
+                self.waypoints_ready = False
+                self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
+                self.state = FlightState.REQUEST_LANDING
+                self._publish_hold_here()
+
                 return
 
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
@@ -574,7 +572,9 @@ class LandingControl(Node):
 
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints for test trajectory.")
         p0 = self.curr_xyz.copy()
-        waypoints = [p0]
+        p1 = p0 + np.array([0.0, 0.0, 1.0])  # 1 m up
+        waypoints = [p0, p1]
+
         for wp in self.r_waypoints:
             wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
             #self.get_logger().info(f"Planning to waypoint: x={wp_array[0]:.2f}, y={wp_array[1]:.2f}, z={wp_array[2]:.2f}")
