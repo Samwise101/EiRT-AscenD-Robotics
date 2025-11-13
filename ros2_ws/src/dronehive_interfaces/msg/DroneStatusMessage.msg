@@ -3,4 +3,5 @@
 string drone_id
 float64 battery_level
 string fligt_state
+bool reached_first_waypoint
 PositionMessage current_position

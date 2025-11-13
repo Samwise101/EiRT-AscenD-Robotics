@@ -153,6 +153,7 @@ class LandingControl(Node):
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
         self.r_waypoints = []
+        self.reached_first_waypoint = False
 
         # Waypoint readiness
         self.waypoints_ready = False
@@ -423,6 +424,9 @@ class LandingControl(Node):
                     self.seg_t0_wall = time.time()
                     self.now = time.time()
                     self.get_logger().info(f"Segment {self.current_segment_idx} reached, moving to next.")
+                    if not self.reached_first_waypoint:
+                        self.reached_first_waypoint = True
+                        self.get_logger().info("Reached first waypoint...")
 
 
         elif self.state == FlightState.LANDING_HOME:
@@ -659,6 +663,7 @@ class LandingControl(Node):
         pos_msg.lon = float(self.curr_xyz[1])
         pos_msg.elv = float(self.curr_xyz[2])
         msg.current_position = pos_msg
+        msg.reached_first_waypoint = self.reached_first_waypoint
         self.pub_status.publish(msg)
 
 
