@@ -26,6 +26,7 @@ from dronehive_interfaces.msg import (
 )
 
 from dronehive_interfaces.srv import (
+	AddRemoveDroneService,
 	BoxStatusSlaveUpdateService,
 	BoxBroadcastService,
 	BoxStatusService,
@@ -37,6 +38,7 @@ from dronehive_interfaces.srv import (
 	RequestReturnHome,
 	SlaveBoxIDsService,
 	SlaveBoxInformationService,
+	ToggleTrajectoryExecutionService,
 )
 import dronehive.utils as dh
 from dronehive.utils import BoxStatus, BoxStatusEnum
@@ -423,6 +425,22 @@ class MasterBoxNode(Node):
 			callback_group=ReentrantCallbackGroup()
 		)
 
+		# Toggle Trajectory Execution
+		self.create_service(
+			ToggleTrajectoryExecutionService,
+			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION,
+			self.handle_toggle_trajectory_execution_request,
+			callback_group=MutuallyExclusiveCallbackGroup()
+		)
+
+		# Add/remvoe drone
+		self.create_service(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE,
+			self.handle_add_remove_drone_request,
+			callback_group=MutuallyExclusiveCallbackGroup()
+		)
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
@@ -653,7 +671,7 @@ class MasterBoxNode(Node):
 
 			if not drone_client.wait_for_service(timeout_sec=2.0):
 				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
-				self.temp_node.destroy_node()
+				# self.temp_node.destroy_node()
 				response.ack = False
 				return response
 
@@ -686,7 +704,6 @@ class MasterBoxNode(Node):
 		# wait for service
 		if not box_client.wait_for_service(timeout_sec=5.0):
 			self.temp_node.get_logger().error("Target service not available")
-			self.temp_node.destroy_node()
 			response.ack = False
 			return response
 
@@ -694,7 +711,6 @@ class MasterBoxNode(Node):
 
 		if not drone_client.wait_for_service(timeout_sec=2.0):
 			self.temp_node.get_logger().error(f"Target service for box ID: '{box_id}' not available")
-			self.temp_node.destroy_node()
 			response.ack = False
 			return response
 
@@ -755,6 +771,29 @@ class MasterBoxNode(Node):
 			10
 		 )
 
+		return response
+
+
+	def handle_toggle_trajectory_execution_request(self,
+												   request: ToggleTrajectoryExecutionService.Request,
+												   response: ToggleTrajectoryExecutionService.Response) -> ToggleTrajectoryExecutionService.Response:
+
+		# box_id = self.find_box_id_from_drone_id(request.drone_id)
+		drone_client = self.temp_node.create_client(
+			ToggleTrajectoryExecutionService,
+			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION + f"_{request.drone_id}"
+		)
+
+		exec = SingleThreadedExecutor()
+		exec.spin_until_future_complete(drone_future)
+		exec.shutdown()
+
+		return response
+
+
+	def handle_add_remove_drone_request(self,
+									 request: AddRemoveDroneService.Request,
+									 response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
 		return response
 
 	##################
