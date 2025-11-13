@@ -216,9 +216,9 @@ class MasterBoxNode(Node):
 		for drone in self.known_drones:
 			self.create_subscription(
 				DroneStatusMessage,
-				dh.DRONEHIVE_DRONE_STATUS_MESSAGE + drone,
+				dh.DRONEHIVE_DRONE_STATUS_MESSAGE + f"_{drone}",
 				self._republish_drone_status,
-				qos_profile,
+				10,
 				callback_group=ReentrantCallbackGroup()
 			)
 
