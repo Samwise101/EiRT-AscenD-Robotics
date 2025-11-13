@@ -828,6 +828,15 @@ class MasterBoxNode(Node):
 			response.ack = True
 			return response
 
+		# If the request is for the master box, handle it directly.
+		if request.box_id == self.config.box_id:
+			self.get_logger().info(f"Adding/removing drone ID: '{request.drone_id}' to/from master box ID: '{request.box_id}'")
+			self.config.drone_id = request.drone_id
+			dh.dronehive_update_config(self.config)
+			response.ack = True
+			return response
+
+		# If the request is for a slave box, forward it to the respective box.
 		box_client = self.temp_node.create_client(
 			AddRemoveDroneService,
 			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE + f"_{request.box_id}"
