@@ -451,8 +451,9 @@ class LandingControl(Node):
         elif self.state == FlightState.DONE:
             # Keep publishing last SP for a short while to avoid offboard drops
             #self._publish_hold_here()
-            self.get_logger().info("Mission complete. Disarming.")
+            self.get_logger().info("Mission complete. Disarming and resetting.")
             self.state = FlightState.WAIT_ARM
+            self._reset_all()
             self._disarm()
 
 
@@ -699,7 +700,22 @@ class LandingControl(Node):
             self.request_sent = False
             self.request_start_wall = now_wall
 
-
+    def _reset_all(self):
+        """Reset all internal states for a new mission."""
+        self.request_sent = False
+        self.request_start_wall = None
+        self.landing_received = False
+        self.landing_target = None
+        self.isLanding = False
+        self.traj_segments.clear()
+        self.segment_times.clear()
+        self.traj_total_T = 0.0
+        self.traj_t0_wall = None
+        self.r_waypoints = []
+        self.reached_first_waypoint = False
+        self.waypoints_ready = False
+        self.current_segment_idx = 0
+        self.position_tolerance = 0.3
 # ------------------------- Main ---------------------------------------
 
 def main():
