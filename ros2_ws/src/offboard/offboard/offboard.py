@@ -223,7 +223,7 @@ class LandingControl(Node):
         self._publish_status()
 
         # Check for pause command
-        if
+        
 
         if self.state == FlightState.INIT:
             # Need valid pose before proceeding
