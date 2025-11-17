@@ -27,6 +27,7 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
+from sensor_msgs.msg import BatteryState
 from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
 from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
 
@@ -110,6 +111,7 @@ class LandingControl(Node):
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
+        self.create_subscription(BatteryState, '/mavros/battery', self._battery_cb, 10)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
@@ -137,6 +139,10 @@ class LandingControl(Node):
         self.takeoff_reached = False
         self.last_requested_pose = np.zeros(3)
         self.latest_xyz = np.zeros(3)
+
+        # Battery
+        self.battery_level = 0.0  # percentage
+
         # Loiter
         self._circle_angle_deg = 0.0
 
@@ -203,9 +209,8 @@ class LandingControl(Node):
             self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
         return response
 
-    def _drone_status_cb(self, msg: DroneStatusMessage):
-        pass
-
+    def _battery_cb(self, msg: BatteryState):
+        self.battery_level = msg.percentage * 100.0  # convert to percentage
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
@@ -213,8 +218,12 @@ class LandingControl(Node):
         Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
         """
         now = time.time()
-
+        
+        # Publish drone status
         self._publish_status()
+
+        # Check for pause command
+        if
 
         if self.state == FlightState.INIT:
             # Need valid pose before proceeding
@@ -442,7 +451,10 @@ class LandingControl(Node):
         elif self.state == FlightState.DONE:
             # Keep publishing last SP for a short while to avoid offboard drops
             #self._publish_hold_here()
+            self.get_logger().info("Mission complete. Disarming.")
+            self.state = FlightState.WAIT_ARM
             self._disarm()
+
 
     # -------------------- Simulation helper --------------------
 
@@ -519,8 +531,7 @@ class LandingControl(Node):
 
 
     def _get_battery_level(self) -> float:
-        # Placeholder for actual battery level retrieval logic
-        return 69.42
+        return self.battery_level
 
 
     # -------------------- Trajectory planning & execution --------------------
