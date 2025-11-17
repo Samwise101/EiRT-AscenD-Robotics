@@ -136,7 +136,7 @@ class LandingControl(Node):
         self.home_alt0 = None
         self.takeoff_reached = False
         self.last_requested_pose = np.zeros(3)
-
+        self.latest_xyz = np.zeros(3)
         # Loiter
         self._circle_angle_deg = 0.0
 
@@ -615,7 +615,10 @@ class LandingControl(Node):
         """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
         if not self.have_pose:
             return
-        self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.curr_xyz[2])
+        # set the latest_xyz to current position and publish that unless the drone has moved more than 0.1m
+        if np.linalg.norm(self.curr_xyz - self.latest_xyz) > 0.1:
+            self.latest_xyz = self.curr_xyz.copy()
+        self._publish_xyz(self.latest_xyz[0], self.latest_xyz[1], self.latest_xyz[2])
 
     def _publish_takeoff_sp(self):
         """Publish a setpoint at home XY and takeoff_alt Z (simulation takeoff)."""
