@@ -386,6 +386,7 @@ class LandingControl(Node):
                 if self.isLanding:
                     self.get_logger().info("Landing trajectory complete, drone is landing.")
                     self.state = FlightState.DONE
+                    self._publish_hold_here()
                     return
                 self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
                 self.state = FlightState.REQUEST_LANDING
