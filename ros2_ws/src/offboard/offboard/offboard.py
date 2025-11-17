@@ -28,7 +28,7 @@ from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
 from sensor_msgs.msg import BatteryState
-from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
+from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService, DroneStartStopService
 from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
 
 
@@ -119,6 +119,7 @@ class LandingControl(Node):
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
+        self.srv = self.create_service(DroneStartStopService, f"/dronehive/drone_start_stop_{self.drone_id}", self.start_stop_service_cb)
 
         self.pub_status = self.create_publisher(DroneStatusMessage, f"/dronehive/drone_status_{self.drone_id}", 10)
 
@@ -211,6 +212,22 @@ class LandingControl(Node):
 
     def _battery_cb(self, msg: BatteryState):
         self.battery_level = msg.percentage * 100.0  # convert to percentage
+
+    def start_stop_service_cb(self, request, response):
+        if request.control_var == 1:  # pause
+            self.get_logger().info("Pausing trajectory execution.")
+            self.state = FlightState.WAIT
+        elif request.control_var == 0:  # resume
+            self.get_logger().info("Resuming trajectory execution.")
+            if self.traj_segments:
+                self.state = FlightState.EXECUTE_TRAJ
+            else:
+                self.get_logger().info("No trajectory to execute, remaining in current state.")
+        elif request.control_var == 2:  # stop
+            self.get_logger().info("Stopping trajectory execution and landing home.")
+            self.state = FlightState.LANDING_HOME
+        response.ack = True
+        return response
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
@@ -221,8 +238,6 @@ class LandingControl(Node):
         
         # Publish drone status
         self._publish_status()
-
-        # Check for pause command
         
 
         if self.state == FlightState.INIT:
@@ -326,6 +341,10 @@ class LandingControl(Node):
                 self.get_logger().info("Test trajectory complete.")
             else:
                 self._publish_traj_at_time(t)
+
+        elif self.state == FlightState.WAIT:
+            # Keep publishing hold here while waiting
+            self._publish_hold_here()
 
         elif self.state == FlightState.LOITER_WAIT_SERVICE:
             # Circle while waiting. Publish continuously.
@@ -444,14 +463,16 @@ class LandingControl(Node):
 
 
         elif self.state == FlightState.LANDING_HOME:
-            # Go to home XY and descend to z=0 (or initial ground ref)
-            self._publish_xyz(self.home_xy[0], self.home_xy[1], 0.0)
+            # Go to home XY and descend to initial home altitude)
+            self._publish_xyz(self.home_xy[0], self.home_xy[1], self.takeoff_alt)
             self.get_logger().info("Landing back at home position.")
             print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}")
-            # Once close to ground, consider done (you can add disarm / mode change if you want)
-            if self.curr_xyz[2] < 0.15:
-                self.state = FlightState.DONE
-                self.get_logger().info("Landed at home. Done.")
+            # Once close to home Z, consider done
+            if linalg.norm(self.curr_xyz[:2] - self.home_xy) < 0.1:
+                self._publish_xyz(self.home_xy[0], self.home_xy[1], self.home_alt0)
+                if self.curr_xyz[2] < self.home_alt0 + 0.1:
+                    self.state = FlightState.DONE
+                    self.get_logger().info("Landed at home. Done.")
 
         elif self.state == FlightState.DONE:
             # Keep publishing last SP for a short while to avoid offboard drops
