@@ -193,6 +193,9 @@ class SlaveBoxNode(Node):
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
 		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
 
+		self.config.drone_id = ""
+		self.config.save()
+
 		if not self.motor:
 			response.ack = False
 			self.get_logger().error("Motor controller not initialised.")
