@@ -143,6 +143,7 @@ class LandingControl(Node):
         self.takeoff_reached = False
         self.last_requested_pose = np.zeros(3)
         self.latest_xyz = np.zeros(3)
+        self.hold_position = None
 
         # Battery
         self.battery_level = 0.0  # percentage
@@ -211,6 +212,8 @@ class LandingControl(Node):
         if request.waypoints is not None:
             self.r_waypoints = request.waypoints
             self.waypoints_ready = True
+            self.hold_position = None  # reset hold position
+
             response.ack = True
             self.current_segment_idx = 0
             self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service: {self.r_waypoints}")
@@ -242,10 +245,10 @@ class LandingControl(Node):
         Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
         """
         now = time.time()
-        
+
         # Publish drone status
         self._publish_status()
-        
+
 
         if self.state == FlightState.INIT:
             # Need valid pose before proceeding
@@ -294,14 +297,22 @@ class LandingControl(Node):
         elif self.state == FlightState.WAIT_OFFBOARD:
             # Keep feeding setpoints so offboard won't drop if operator switches
             self._publish_hold_here()
-            if self.mav_state.mode == "OFFBOARD":
-                self._begin_loiter_and_request(now)
-                self.get_logger().info("Operator set OFFBOARD. Waiting for waypoints.")
-                self.state = FlightState.WAIT_AND_PLAN_TRAJ
+            # if self.mav_state.mode == "OFFBOARD":
+            #     self._begin_loiter_and_request(now)
+            #     self.get_logger().info("Operator set OFFBOARD. Waiting for waypoints.")
+            #     self.state = FlightState.WAIT_AND_PLAN_TRAJ
             # If taken out of armed, return to WAIT_ARM
             if not self._is_armed():
                 self.get_logger().info("Disarmed, returning to WAIT_ARM.")
                 self.state = FlightState.WAIT_ARM
+
+            if self.waypoints_ready:
+                self.get_logger().info("Waypoints ready. Planning and executing trajectory.")
+                self._plan_test_trajectory()
+                self.traj_t0_wall = now
+                self.position_tolerance = 0.3
+                self.hold_position = None  # reset hold position
+                self.state = FlightState.EXECUTE_TRAJ
 
         elif self.state == FlightState.TAKEOFF:
             #Simulation or real mode takeoff
@@ -331,6 +342,7 @@ class LandingControl(Node):
                 self._plan_test_trajectory()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.3
+                self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
             else:
                 #self._publish_hold_here()
@@ -371,6 +383,7 @@ class LandingControl(Node):
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.3
+                self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
                 return
@@ -394,6 +407,7 @@ class LandingControl(Node):
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.1
+                self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
                 return
@@ -491,7 +505,6 @@ class LandingControl(Node):
             self.get_logger().info("Mission complete. Resetting.")
             self.state = FlightState.WAIT_ARM
             self._reset_all()
-            
 
 
     # -------------------- Simulation helper --------------------
@@ -516,6 +529,7 @@ class LandingControl(Node):
             req = CommandBool.Request()
             req.value = False
             self.cli_arm.call_async(req)
+            self.hold_position = None
             self.get_logger().info("SIM: requesting DISARM...")
 
     # -------------------- Landing Service --------------------
@@ -561,6 +575,7 @@ class LandingControl(Node):
         lp = resp.landing_pos
         self.landing_target = np.array([float(lp.lat), float(lp.lon), float(lp.elv)], dtype=float)
         self.landing_received = True
+        self.hold_position = None  # reset hold position
         self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
 
     # -------------------- Waypoint readiness check --------------------
@@ -589,7 +604,11 @@ class LandingControl(Node):
         above = self.landing_target.copy()
         above[2] += 1.0  # 1 m above
 
-        waypoints = [p0, above, self.landing_target]
+        if np.linalg.norm(above - p0) < 0.1:
+            waypoints = [p0, self.landing_target]
+        else:
+            waypoints = [p0, above, self.landing_target]
+
         self.traj_segments.clear()
         self.segment_times.clear()
         total_T = 0.0
@@ -665,10 +684,13 @@ class LandingControl(Node):
         """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
         if not self.have_pose:
             return
+        if self.hold_position is None:
+            self.hold_position = self.curr_xyz.copy()
+
         # set the latest_xyz to current position and publish that unless the drone has moved more than 0.1m
-        if np.linalg.norm(self.curr_xyz - self.latest_xyz) > 0.1:
-            self.latest_xyz = self.curr_xyz.copy()
-        self._publish_xyz(self.latest_xyz[0], self.latest_xyz[1], self.latest_xyz[2])
+        # if np.linalg.norm(self.curr_xyz - self.latest_xyz) > 0.1:
+        #     self.latest_xyz = self.curr_xyz.copy()
+        self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2])
 
     def _publish_takeoff_sp(self):
         """Publish a setpoint at home XY and takeoff_alt Z (simulation takeoff)."""
