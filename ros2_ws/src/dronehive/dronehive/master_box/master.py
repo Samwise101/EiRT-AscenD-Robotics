@@ -627,8 +627,6 @@ class MasterBoxNode(Node):
 
 		else:
 			# If the closest box is the master box, open the box.
-			self.get_logger().info(f"Assigning landing position of master box ID: {self.config.box_id} to drone ID: {request.drone_id}")
-
 			if self.motor:
 				self.get_logger().info("Opening master box for incoming drone...")
 				self.motor.open_box()
@@ -754,6 +752,7 @@ class MasterBoxNode(Node):
 		)
 
 		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
+		self.linked_slave_boxes[box_id].drone_id = ""
 
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Executing trajectory on master box ID: '{box_id}' for drone ID: '{request.drone_id}'")
@@ -772,6 +771,9 @@ class MasterBoxNode(Node):
 			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			drone_future = drone_client.call_async(request)
 
+			self.config.drone_id = ""
+			self.config.save()
+
 			exec = SingleThreadedExecutor()
 			exec.add_node(self.temp_node)
 			exec.spin_until_future_complete(drone_future)
@@ -783,12 +785,10 @@ class MasterBoxNode(Node):
 				response.ack = False
 				return response
 
-			self._add_remove_drone(request.drone_id, add=False)
 			self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
 			response.ack = response.ack and drone_result.ack
 
 			# After the trajecotry is sent to the drone and the box is opened, set the box status to EMPTY
-			self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
 			return response
 
 
@@ -797,9 +797,6 @@ class MasterBoxNode(Node):
 			DroneTrajectoryWaypointsService,
 			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
 		)
-
-		self.config.drone_id = ""
-		self.config.save()
 
 		# wait for service
 		if not box_client.wait_for_service(timeout_sec=5.0):
