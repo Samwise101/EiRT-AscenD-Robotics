@@ -99,7 +99,7 @@ class SlaveBoxNode(Node):
 				box_battery_level=100.0,
 				box_id=self.config.box_id,
 				drone_id=self.config.drone_id,
-				status=dh.BoxStatusEnum.EMPTY.value
+				status=dh.BoxStatusEnum.OCCUPIED.value if self.config.drone_id != "" else dh.BoxStatusEnum.EMPTY.value
 			)
 		)
 
