@@ -110,6 +110,13 @@ class MasterBoxNode(Node):
 		# Drop the initialiser to free memory
 		self.initialiser = None
 
+		self.linked_slave_boxes[self.config.box_id] = BoxStatus(
+			box_id=self.config.box_id,
+			drone_id=self.config.drone_id,
+			position=self.config.landing_position,
+			status=BoxStatusEnum.INITIALISING,
+		)
+
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 
@@ -373,6 +380,13 @@ class MasterBoxNode(Node):
 			response = BoxBroadcastMessage()
 			response.box_id = self.config.box_id
 			response.landing_pos = self.config.landing_position
+			self.linked_slave_boxes[self.config.box_id] = BoxStatus(
+				box_id=self.config.box_id,
+				drone_id=self.config.drone_id,
+				position=self.config.landing_position,
+				status=BoxStatusEnum.EMPTY
+			)
+
 			self._pub_box_broadcast.publish(response)
 
 
