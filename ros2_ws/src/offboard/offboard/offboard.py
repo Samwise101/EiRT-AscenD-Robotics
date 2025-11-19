@@ -89,6 +89,7 @@ class FlightState(Enum):
     WAIT_AND_PLAN_TRAJ = 9
     EXECUTE_TEST_TRAJ = 10
     REQUEST_LANDING = 11
+    WAIT = 12
 
 class LandingControl(Node):
     def __init__(self,
@@ -300,7 +301,7 @@ class LandingControl(Node):
             else:
                 self._publish_takeoff_re()
             # Consider takeoff completed when close in altitude
-            if abs(self.curr_xyz[2] - self.takeoff_alt) < 0.3:
+            if abs(self.takeoff_alt - self.curr_xyz[2]) < 0.2:
                 self.takeoff_reached = True
                 self.get_logger().info("Takeoff altitude reached. Executing trajectory.")
                 self.state = FlightState.WAIT_AND_PLAN_TRAJ
@@ -374,7 +375,7 @@ class LandingControl(Node):
             # Keep publishing hold here while requesting landing target
             self._publish_hold_here()
             self.get_logger().info("Requesting landing target...")
-            if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=2.0):
+            if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=0.01):
                 self._call_landing_service(now)
                 self.get_logger().info("Requesting landing target...")
             # Check for landing response
@@ -478,9 +479,11 @@ class LandingControl(Node):
             # Keep publishing last SP for a short while to avoid offboard drops
             #self._publish_hold_here()
             self.get_logger().info("Mission complete. Disarming and resetting.")
-            self.state = FlightState.WAIT_ARM
-            self._reset_all()
             self._disarm()
+            if not self._is_armed():
+                self.state = FlightState.WAIT_ARM
+                self._reset_all()
+            
 
 
     # -------------------- Simulation helper --------------------
@@ -573,6 +576,7 @@ class LandingControl(Node):
         if self.landing_target is None or not self.have_pose:
             return
 
+        self.current_segment_idx = 0
         p0 = self.curr_xyz.copy()
         above = self.landing_target.copy()
         above[2] += 1.0  # 1 m above
