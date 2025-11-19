@@ -384,7 +384,7 @@ class MasterBoxNode(Node):
 		Args:
 			msg: DroneStatusMessage - The message containing the drone status.
 		"""
-		self.get_logger().info(f"Republishing drone status message for drone ID: '{msg.drone_id}'")
+		# self.get_logger().info(f"Republishing drone status message for drone ID: '{msg.drone_id}'")
 		self.drone_state_republisher.publish(msg)
 
 
