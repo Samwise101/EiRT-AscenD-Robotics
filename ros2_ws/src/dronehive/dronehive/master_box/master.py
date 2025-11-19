@@ -114,7 +114,7 @@ class MasterBoxNode(Node):
 			box_id=self.config.box_id,
 			drone_id=self.config.drone_id,
 			position=self.config.landing_position,
-			status=BoxStatusEnum.INITIALISING,
+			status=BoxStatusEnum.EMPTY if self.config.drone_id == "" else BoxStatusEnum.OCCUPIED,
 		)
 
 		self.get_logger().info(f"Initialised with config : {self.config}")
@@ -361,6 +361,13 @@ class MasterBoxNode(Node):
 			# Remove from uninitialised list.
 			self.get_logger().info(f"Removing slave box ID: '{msg.box_id}' from uninitialised list {self.uninitialised_slave_boxes}")
 			self.uninitialised_slave_boxes.pop(msg.box_id, None)
+
+			self.linked_slave_boxes[self.config.box_id] = BoxStatus(
+				box_id=msg.box_id,
+				drone_id="",
+				position=msg.landing_pos,
+				status=BoxStatusEnum.EMPTY,
+			)
 
 			# Update config.
 			self.config.linked_box_ids.add(msg.box_id)
