@@ -180,6 +180,9 @@ class MasterBoxNode(Node):
 
 
 	def _add_remove_drone(self, drone_id: str, add: bool) -> bool:
+		if drone_id == "":
+			return True
+
 		self.get_logger().info(f"{'Adding' if add else 'Removing'} drone ID: '{drone_id}' to/from known drones: {self.known_drones}")
 		if not add:
 			self.known_drones.discard(drone_id)
@@ -686,7 +689,7 @@ class MasterBoxNode(Node):
 		"""
 		response.box_ids = self.linked_slave_boxes.keys()
 		response.size = len(self.linked_slave_boxes.keys())
-		self.get_logger().info(f"Slave box IDs request received. Responding with: {response.box_ids}")
+		self.get_logger().info(f"Slave box IDs request received. Responding with: {response.box_ids} of size: {response.size}")
 		return response
 
 
@@ -745,6 +748,8 @@ class MasterBoxNode(Node):
 			dh.DRONEHIVE_DRONE_SEND_TRAJECTORY_SERVICE + f"{request.drone_id}"
 		)
 
+		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
+
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Executing trajectory on master box ID: '{box_id}' for drone ID: '{request.drone_id}'")
 			if not self.motor:
@@ -779,11 +784,15 @@ class MasterBoxNode(Node):
 			self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
 			return response
 
+
 		# Create a transient node to make the client call
 		box_client = self.temp_node.create_client(
 			DroneTrajectoryWaypointsService,
 			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
 		)
+
+		self.config.drone_id = ""
+		self.config.save()
 
 		# wait for service
 		if not box_client.wait_for_service(timeout_sec=5.0):
@@ -836,6 +845,8 @@ class MasterBoxNode(Node):
 
 		# After the trajecotry is sent to the drone and the box is opened, set the box status to EMPTY
 		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
+		self.config.drone_id = ""
+		self.config.save()
 
 		return response
 
@@ -906,10 +917,10 @@ class MasterBoxNode(Node):
 				return response
 
 		else:
-			current_drone = self.linked_slave_boxes.get(request.box_id, None)
+			requestd_box_status = self.linked_slave_boxes.get(request.box_id, None)
 			current_drone_id: str = ""
-			if current_drone and current_drone.drone_id != "":
-				current_drone_id = current_drone.drone_id
+			if requestd_box_status and requestd_box_status.drone_id != "":
+				current_drone_id = requestd_box_status.drone_id
 
 			self._add_remove_drone(current_drone_id, add=False)
 
@@ -920,13 +931,6 @@ class MasterBoxNode(Node):
 
 		self.linked_slave_boxes[request.box_id].drone_id = request.drone_id
 		self.linked_slave_boxes[request.box_id].status = BoxStatusEnum.OCCUPIED if request.drone_id != "" else BoxStatusEnum.EMPTY
-
-		if request.box_id == self.config.box_id:
-			self.get_logger().info(f"Adding/removing drone ID: '{request.drone_id}' to/from master box ID: '{request.box_id}'")
-			self.config.drone_id = request.drone_id
-			dh.dronehive_update_config(self.config)
-			response.ack = True
-			return response
 
 		# If the request is for the master box, handle it directly.
 		if request.box_id == self.config.box_id:
