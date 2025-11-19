@@ -488,11 +488,9 @@ class LandingControl(Node):
         elif self.state == FlightState.DONE:
             # Keep publishing last SP for a short while to avoid offboard drops
             #self._publish_hold_here()
-            self.get_logger().info("Mission complete. Disarming and resetting.")
-            self._disarm()
-            if not self._is_armed():
-                self.state = FlightState.WAIT_ARM
-                self._reset_all()
+            self.get_logger().info("Mission complete. Resetting.")
+            self.state = FlightState.WAIT_ARM
+            self._reset_all()
             
 
 
