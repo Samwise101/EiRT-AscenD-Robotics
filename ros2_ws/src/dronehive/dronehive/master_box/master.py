@@ -155,6 +155,15 @@ class MasterBoxNode(Node):
 				)
 				self._add_remove_drone(response.drone_id, add=True)
 
+				if response.drone_id != "":
+					self.create_subscription(
+						DroneStatusMessage,
+						dh.DRONEHIVE_DRONE_STATUS_MESSAGE + f"_{response.drone_id}",
+						self._republish_drone_status,
+						10,
+						callback_group=ReentrantCallbackGroup()
+					)
+
 			else:
 				self.get_logger().error("Failed to get box status. Setting status to UNKNOWN.")
 				self.linked_slave_boxes[box_id] = BoxStatus(
