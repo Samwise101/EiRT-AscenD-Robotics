@@ -27,7 +27,8 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
-from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService
+from sensor_msgs.msg import BatteryState
+from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService, DroneStartStopService
 from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
 from sensor_msgs.msg import BatteryState
 
@@ -112,7 +113,7 @@ class LandingControl(Node):
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
-        self.create_subscription(BatteryState, 'mavros/battery', self._drone_status_cb, 10)
+        self.create_subscription(BatteryState, '/mavros/battery', self._battery_cb, 10)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
@@ -120,6 +121,7 @@ class LandingControl(Node):
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
+        self.srv = self.create_service(DroneStartStopService, f"/dronehive/drone_start_stop_{self.drone_id}", self.start_stop_service_cb)
 
         self.pub_status = self.create_publisher(DroneStatusMessage, f"/dronehive/drone_status_{self.drone_id}", 10)
 
@@ -139,6 +141,10 @@ class LandingControl(Node):
         self.home_alt0 = None
         self.takeoff_reached = False
         self.last_requested_pose = np.zeros(3)
+        self.latest_xyz = np.zeros(3)
+
+        # Battery
+        self.battery_level = 0.0  # percentage
 
         # Status
         self.battery_percentage = 0.0  # percent
@@ -210,10 +216,24 @@ class LandingControl(Node):
             self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
         return response
 
-    def _drone_status_cb(self, msg: BatteryState):
-        self.battery_percentage = msg.percentage * 100
-        self.battery_voltage = msg.voltage
+    def _battery_cb(self, msg: BatteryState):
+        self.battery_level = msg.percentage * 100.0  # convert to percentage
 
+    def start_stop_service_cb(self, request, response):
+        if request.control_var == 1:  # pause
+            self.get_logger().info("Pausing trajectory execution.")
+            self.state = FlightState.WAIT
+        elif request.control_var == 0:  # resume
+            self.get_logger().info("Resuming trajectory execution.")
+            if self.traj_segments:
+                self.state = FlightState.EXECUTE_TRAJ
+            else:
+                self.get_logger().info("No trajectory to execute, remaining in current state.")
+        elif request.control_var == 2:  # stop
+            self.get_logger().info("Stopping trajectory execution and landing home.")
+            self.state = FlightState.LANDING_HOME
+        response.ack = True
+        return response
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
@@ -221,8 +241,10 @@ class LandingControl(Node):
         Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
         """
         now = time.time()
-
+        
+        # Publish drone status
         self._publish_status()
+        
 
         if self.state == FlightState.INIT:
             # Need valid pose before proceeding
@@ -330,6 +352,10 @@ class LandingControl(Node):
             else:
                 self._publish_traj_at_time(t)
 
+        elif self.state == FlightState.WAIT:
+            # Keep publishing hold here while waiting
+            self._publish_hold_here()
+
         elif self.state == FlightState.LOITER_WAIT_SERVICE:
             # Circle while waiting. Publish continuously.
             self._publish_circle_loiter()
@@ -384,14 +410,17 @@ class LandingControl(Node):
                 """
                 self.get_logger().info("All trajectory segments completed, holding last position.")
                 self._publish_xyz(self.last_requested_pose[0], self.last_requested_pose[1], self.last_requested_pose[2])
-                if not self.isLanding:
-                    self.waypoints_ready = False
-                    self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
-                    self.state = FlightState.REQUEST_LANDING
-                else:
-                    if self.curr_xyz[2] < self.landing_target.copy()[2] + 0.1:
-                        self.state = FlightState.DONE
-                        self.get_logger().info("Landing trajectory complete.")
+
+                self.waypoints_ready = False
+                if self.isLanding:
+                    self.get_logger().info("Landing trajectory complete, drone is landing.")
+                    self.state = FlightState.DONE
+                    self._publish_hold_here()
+                    return
+                self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
+                self.state = FlightState.REQUEST_LANDING
+                self._publish_hold_here()
+
                 return
 
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
@@ -444,19 +473,25 @@ class LandingControl(Node):
 
 
         elif self.state == FlightState.LANDING_HOME:
-            # Go to home XY and descend to z=0 (or initial ground ref)
-            self._publish_xyz(self.home_xy[0], self.home_xy[1], 0.0)
+            # Go to home XY and descend to initial home altitude)
+            self._publish_xyz(self.home_xy[0], self.home_xy[1], self.takeoff_alt)
             self.get_logger().info("Landing back at home position.")
             print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}")
-            # Once close to ground, consider done (you can add disarm / mode change if you want)
-            if self.curr_xyz[2] < 0.15:
-                self.state = FlightState.DONE
-                self.get_logger().info("Landed at home. Done.")
+            # Once close to home Z, consider done
+            if linalg.norm(self.curr_xyz[:2] - self.home_xy) < 0.1:
+                self._publish_xyz(self.home_xy[0], self.home_xy[1], self.home_alt0)
+                if self.curr_xyz[2] < self.home_alt0 + 0.1:
+                    self.state = FlightState.DONE
+                    self.get_logger().info("Landed at home. Done.")
 
         elif self.state == FlightState.DONE:
             # Keep publishing last SP for a short while to avoid offboard drops
             #self._publish_hold_here()
+            self.get_logger().info("Mission complete. Disarming and resetting.")
+            self.state = FlightState.WAIT_ARM
+            self._reset_all()
             self._disarm()
+
 
     # -------------------- Simulation helper --------------------
 
@@ -530,6 +565,10 @@ class LandingControl(Node):
     # -------------------- Waypoint readiness check --------------------
     def _are_waypoints_ready(self) -> bool:
         return self.waypoints_ready
+
+
+    def _get_battery_level(self) -> float:
+        return self.battery_level
 
 
     # -------------------- Trajectory planning & execution --------------------
@@ -624,7 +663,10 @@ class LandingControl(Node):
         """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
         if not self.have_pose:
             return
-        self._publish_xyz(self.curr_xyz[0], self.curr_xyz[1], self.curr_xyz[2])
+        # set the latest_xyz to current position and publish that unless the drone has moved more than 0.1m
+        if np.linalg.norm(self.curr_xyz - self.latest_xyz) > 0.1:
+            self.latest_xyz = self.curr_xyz.copy()
+        self._publish_xyz(self.latest_xyz[0], self.latest_xyz[1], self.latest_xyz[2])
 
     def _publish_takeoff_sp(self):
         """Publish a setpoint at home XY and takeoff_alt Z (simulation takeoff)."""
@@ -696,7 +738,22 @@ class LandingControl(Node):
             self.request_sent = False
             self.request_start_wall = now_wall
 
-
+    def _reset_all(self):
+        """Reset all internal states for a new mission."""
+        self.request_sent = False
+        self.request_start_wall = None
+        self.landing_received = False
+        self.landing_target = None
+        self.isLanding = False
+        self.traj_segments.clear()
+        self.segment_times.clear()
+        self.traj_total_T = 0.0
+        self.traj_t0_wall = None
+        self.r_waypoints = []
+        self.reached_first_waypoint = False
+        self.waypoints_ready = False
+        self.current_segment_idx = 0
+        self.position_tolerance = 0.3
 # ------------------------- Main ---------------------------------------
 
 def main():
