@@ -770,6 +770,7 @@ class MasterBoxNode(Node):
 			drone_future = drone_client.call_async(request)
 
 			exec = SingleThreadedExecutor()
+			exec.add_node(self.temp_node)
 			exec.spin_until_future_complete(drone_future)
 			exec.shutdown()
 
