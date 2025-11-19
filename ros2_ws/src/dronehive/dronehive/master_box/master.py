@@ -777,6 +777,7 @@ class MasterBoxNode(Node):
 				response.ack = False
 				return response
 
+			self._add_remove_drone(request.drone_id, add=False)
 			self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{box_id}'")
 			response.ack = response.ack and drone_result.ack
 
