@@ -239,6 +239,10 @@ void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::Occupa
 
     if(box_index >= 0 && drone_index >= 0)
     {
+		// TODO: Update box and drone status accordingly
+		// - Reset odl box's assigned drone ID
+		// - Remove drone from the old box
+		// - Chagne the new box status to occupied
         this->boxes[box_index].set_assigned_drone_id(drone_id);
         this->drones[drone_index].set_parent_box_id(box_id);
 
