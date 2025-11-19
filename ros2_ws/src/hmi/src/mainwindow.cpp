@@ -16,7 +16,7 @@ namespace qos_profiles
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0), master_found(false)
+    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0), master_found(true)
 {
     this->ui->setupUi(this);
 
@@ -1046,12 +1046,13 @@ void MainWindow::on_restartButton_pushButton_clicked()
 
 bool MainWindow::isMaster()
 {
-    if(!this->master_found)
+    if(this->master_found) 
     {
-        this->master_found = true;
+        this->master_found = false;
         return true;
     }
-    return false;
+    
+    return this->master_found;
 }
 
 void MainWindow::on_arm_pushButton_clicked()
