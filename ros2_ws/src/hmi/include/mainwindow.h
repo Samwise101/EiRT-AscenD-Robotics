@@ -68,7 +68,7 @@ public:
 
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
-    
+
 
 private slots:
 
@@ -137,7 +137,7 @@ private:
     bool master_found;
     int currentBoxIndex;
     bool box_update_happened;
-    QLabel* imageLabel_drone; 
+    QLabel* imageLabel_drone;
     QLabel* imageLabel_box;
     QLabel* batteryImageLabel_drone;
     QLabel* batteryTextLabel_drone;
@@ -150,6 +150,7 @@ private:
     QtDataVisualization::Q3DScatter *scatter3D = nullptr;
     QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
     QWidget *scatterContainer = nullptr;
+	rclcpp::SubscriptionOptions subscription_options_reentrant_;
 
     bool visuals2dOn;
 };

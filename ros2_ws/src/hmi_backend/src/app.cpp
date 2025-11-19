@@ -1,5 +1,6 @@
 #include <iostream>
 #include <app.h>
+#include <rclcpp/logging.hpp>
 
 namespace qos_profiles
 {
@@ -11,7 +12,7 @@ namespace qos_profiles
     }();
 }
 
-App::App() : Node("app_node") 
+App::App() : Node("app_node")
 {
     this->count = 0;
     this->box_timeout_timer = 0;
@@ -28,9 +29,12 @@ App::App() : Node("app_node")
 
     this->pending_box_responses_ = 0;
 
+	// Set Reentrant publisher options
+	options_base.callback_group = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+
     this->to_gui_heart_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/heartbeat", qos_profiles::master_qos);
     this->to_gui_msg_pub_ = this->create_publisher<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos);
-    this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos);
+    this->to_gui_command_pub_ = this->create_publisher<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos, options_base);
     this->to_box_new_box_confirmation_pub = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/dronehive/new_box_confirmed",qos_profiles::master_qos);
     this->box_status_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos);
     this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos);
@@ -68,7 +72,7 @@ App::App() : Node("app_node")
         std_msgs::msg::String msg;
         msg.data = "heartbeat";
         to_gui_heart_pub_->publish(msg);
-    }); 
+    });
 
     newbox_timeout_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(200),
@@ -84,7 +88,7 @@ App::App() : Node("app_node")
             this->new_box_message_arrived = false;
         }
         else if(this->new_search_retry)
-        { 
+        {
             this->box_timeout_timer++;
         }
     });
@@ -149,7 +153,7 @@ void App::onServiceTimer()
         this->drone_upload_trajectory_client_->async_send_request(req, std::bind(&App::onTrajectoryRequestResponse, this, std::placeholders::_1));
 
         this->gui_trajectory_request_appeared = false;
-        
+
         this->drone_id.clear();
         this->waypoints.clear();
     }
@@ -157,10 +161,10 @@ void App::onServiceTimer()
     if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared)
     {
         if(box_id.empty()) return;
-        
+
         auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
         req->box_id = box_id;
-        
+
         this->box_status_client_->async_send_request(req, std::bind(&App::onBoxStatusRequestResponse, this, std::placeholders::_1));
         box_id = "";
     }
@@ -219,6 +223,11 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
     msg2.data = "Confirming, got SYSTEM status response";
     to_gui_msg_pub_->publish(msg2);
 
+	RCLCPP_WARN(this->get_logger(), "Number of boxes received: %d", response->size);
+	for (const auto& box_id : response->box_ids) {
+		RCLCPP_WARN(this->get_logger(), "Box ID: %s", box_id.c_str());
+	}
+
     std::vector<std::string> box_ids = response->box_ids;
     int box_ids_size = response->size;
 
@@ -226,9 +235,9 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
     for (int i = 0; i < box_ids_size; i++)
     {
-
         auto msg2 = std_msgs::msg::String();
-        msg2.data = "Sending request for" + box_ids[i];
+        msg2.data = "Sending request for " + box_ids[i];
+		RCLCPP_WARN(this->get_logger(), "%s", msg2.data.c_str());
         to_gui_msg_pub_->publish(msg2);
 
         auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
@@ -247,6 +256,7 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
         }
         else
         {
+			RCLCPP_ERROR(this->get_logger(), "Service not available for box ID: %s", current_box_id.c_str());
             pending_box_responses_--;
         }
     }
@@ -258,7 +268,8 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     this->get_box_status_request_appeared = false;
 
     auto msg2 = std_msgs::msg::String();
-    msg2.data = "Got box status for ";
+    msg2.data = "Got box status for " + response->status.box_id;
+	RCLCPP_INFO(this->get_logger(), "%s", msg2.data.c_str());
     to_gui_msg_pub_->publish(msg2);
 
     if (this->pending_box_responses_ != 0)
@@ -269,6 +280,8 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     msg.drone_id = response->status.drone_id;
     msg.landing_pos = response->status.landing_pos;
     msg.box_status = response->status.status;
+
+	RCLCPP_INFO(this->get_logger(), "Box ID: %s, Drone ID: %s, Status: %s", msg.box_id.c_str(), msg.drone_id.c_str(), msg.box_status.c_str());
 
     box_status_pub_->publish(msg);;
 }
@@ -307,7 +320,7 @@ void App::onBoxMessage(const dronehive_interfaces::msg::BoxBroadcastMessage::Sha
 void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr command)
 {
     auto msg = std_msgs::msg::String();
-    msg.data = "Got command " + std::to_string(command->command) + "with box id " + command->box_id + "\n";
+    msg.data = "Got command " + std::to_string(command->command) + " with box id " + command->box_id + "\n";
     to_gui_msg_pub_->publish(msg);
 
     switch(command->command)
@@ -320,7 +333,7 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
             break;
         }
         case dronehive_interfaces::msg::GuiCommand::REMOVE_BOX:
-        {   
+        {
             this->onRemoveBoxGuiCommand(command->box_id);
             break;
         }
@@ -328,7 +341,7 @@ void App::onGuiCommand(const dronehive_interfaces::msg::GuiCommand::SharedPtr co
         {
             this->get_box_status_request_appeared = true;
             box_id = command->box_id;
-            break;   
+            break;
         }
         case dronehive_interfaces::msg::GuiCommand::REQUEST_FULL_SYSTEM_STATUS:
         {
@@ -346,6 +359,6 @@ void App::onRemoveBoxGuiCommand(const std::string& box_id)
 {
     auto deinit_msg = std_msgs::msg::String();
     deinit_msg.data = box_id;
-    
+
     this->box_deinit_pub_->publish(deinit_msg);
 }

@@ -36,6 +36,9 @@
 #include <dronehive_interfaces/srv/drone_trajectory_waypoints_service.hpp>
 #include <dronehive_interfaces/srv/add_remove_drone_service.hpp>
 
+#include <rclcpp/publisher_factory.hpp>
+#include <rclcpp/publisher_options.hpp>
+
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -116,12 +119,14 @@ class App : public rclcpp::Node
         rclcpp::Service<dronehive_interfaces::srv::OccupancyService>::SharedPtr notify_gui_srv_;
 
         rclcpp::TimerBase::SharedPtr heartbeat_timer_;
-        rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;   
+        rclcpp::TimerBase::SharedPtr newbox_timeout_timer_;
         rclcpp::TimerBase::SharedPtr service_timer_;
-        
+
         std::string box_id;
         std::string drone_id;
         std::vector<dronehive_interfaces::msg::PositionMessage> waypoints;
+
+		rclcpp::PublisherOptions options_base;
 };
 
 #endif
