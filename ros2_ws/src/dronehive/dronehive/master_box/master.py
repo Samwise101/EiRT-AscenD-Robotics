@@ -233,17 +233,6 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
-		self.get_logger().info(f"Creating drone status subscribers for known drones: {self.known_drones}")
-		for drone in self.known_drones:
-			self.get_logger().info(f"Creating subscriber for drone status messages for drone ID: '{drone}'")
-			self.create_subscription(
-				DroneStatusMessage,
-				dh.DRONEHIVE_DRONE_STATUS_MESSAGE + f"_{drone}",
-				self._republish_drone_status,
-				10,
-				callback_group=ReentrantCallbackGroup()
-			)
-
 		# Publishers
 		# Topic used to forward the initialisation confirmation of a slave box from the GUI to the slave box.
 		self.slave_box_confirm_init_pub = self.create_publisher(
