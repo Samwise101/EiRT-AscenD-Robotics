@@ -237,13 +237,27 @@ void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::Occupa
     int box_index = this->ui->boxComboBox->findText(QString::fromStdString(box_id));
     int drone_index = this->ui->droneComboBox->findText(QString::fromStdString(drone_id));
 
+    int old_box_index = -1;
+
     if(box_index >= 0 && drone_index >= 0)
     {
-		// TODO: Update box and drone status accordingly
-		// - Reset odl box's assigned drone ID
-		// - Remove drone from the old box
-		// - Chagne the new box status to occupied
+        for(int i = 0; i < this->boxes.size(); i++)
+        {
+            if(this->boxes[i].get_assigned_drone_id() == drone_id)
+            {
+                old_box_index = i;
+                break;
+            }
+        }
+
+        if(old_box_index >= 0)
+        {
+            this->boxes[old_box_index].set_assigned_drone_id("None");
+            this->boxes[old_box_index].set_box_status(boxStatusToString(BoxState::EMPTY));
+        }
+
         this->boxes[box_index].set_assigned_drone_id(drone_id);
+        this->boxes[box_index].set_box_status(boxStatusToString(BoxState::OCCUPIED));
         this->drones[drone_index].set_parent_box_id(box_id);
 
         this->ui->drone_altitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_alt(), 'f', 4));
@@ -251,9 +265,9 @@ void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::Occupa
         this->ui->drone_longitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_lon(), 'f', 4));
 
         if(occupancy)
-            this->ui->boxStatusValueLabel->setText("OCCUPIED");
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(boxStatusToString(BoxState::OCCUPIED)));
         else
-            this->ui->boxStatusValueLabel->setText("EMPTY");
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(boxStatusToString(BoxState::EMPTY)));
     }
 }
 
