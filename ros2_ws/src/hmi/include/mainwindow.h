@@ -30,6 +30,7 @@
 #include <dronehive_interfaces/msg/gui_drone_landing_request.hpp>
 #include <dronehive_interfaces/msg/gui_drone_trajectory_upload.hpp>
 #include <dronehive_interfaces/msg/gui_add_new_drone.hpp>
+#include <dronehive_interfaces/msg/toggle_trajectory.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -57,7 +58,7 @@ public:
     void update_box_comboBox(int& new_box_number);
     void cleanup();
 
-    bool isMasterId(std::string box_id);
+    bool isMaster();
 
     void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
@@ -68,7 +69,7 @@ public:
 
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
-    
+
 
 private slots:
 
@@ -134,9 +135,10 @@ private:
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
     bool new_box_request;
+    bool master_found;
     int currentBoxIndex;
     bool box_update_happened;
-    QLabel* imageLabel_drone; 
+    QLabel* imageLabel_drone;
     QLabel* imageLabel_box;
     QLabel* batteryImageLabel_drone;
     QLabel* batteryTextLabel_drone;
@@ -149,6 +151,7 @@ private:
     QtDataVisualization::Q3DScatter *scatter3D = nullptr;
     QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
     QWidget *scatterContainer = nullptr;
+	rclcpp::SubscriptionOptions subscription_options_reentrant_;
 
     bool visuals2dOn;
 };

@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include <QDebug>
 #include <chrono>
+#include <sstream>
 #include <thread>
 #include <QStringList>
 
@@ -16,7 +17,7 @@ namespace qos_profiles
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0)
+    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0), master_found(true)
 {
     this->ui->setupUi(this);
 
@@ -31,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->batteryImageLabel_box = new QLabel(ui->frame_box);
     this->batteryTextLabel_box = new QLabel(ui->frame_box);
-    
+
     this->batteryImageLabel_drone = new QLabel(ui->frame_drone);
     this->batteryTextLabel_drone = new QLabel(ui->frame_drone);
 
@@ -43,9 +44,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *layout = new QHBoxLayout(this);
     layout->addWidget(scatterContainer, 1);
-    
+
     // Create ROS2 node
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
+
+	subscription_options_reentrant_.callback_group = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
     // Create publishers
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", qos_profiles::master_qos);
@@ -59,8 +62,22 @@ MainWindow::MainWindow(QWidget *parent)
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",qos_profiles::master_qos, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
-    backend_command_sub_ = node_->create_subscription<dronehive_interfaces::msg::BackendCommand>("/backend/command", qos_profiles::master_qos, std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1));
-    backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>("/backend/box_status", qos_profiles::master_qos, std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1));
+
+    node_->create_subscription<dronehive_interfaces::msg::BackendCommand>(
+		"/backend/command",
+		qos_profiles::master_qos,
+		std::bind(&MainWindow::onBackendCommand, this, std::placeholders::_1),
+		subscription_options_reentrant_
+	);
+
+    backend_box_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxFullStatus>(
+		"/backend/box_status",
+		qos_profiles::master_qos,
+		std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1),
+		subscription_options_reentrant_
+
+	);
+
     drone_box_status_change_sub_ = node_->create_subscription<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos, std::bind(&MainWindow::onDroneChangedBoxStatus, this, std::placeholders::_1));
 
     backEndManager = new BackEndManager(this);
@@ -87,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     gui_cmd_pub_->publish(command);
 
     this->visuals2dOn = false;
-    
+
     scatter3D = new QtDataVisualization::Q3DScatter();
     scatterContainer = QWidget::createWindowContainer(scatter3D);
 
@@ -105,7 +122,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     scatter3D->scene()->activeCamera()->setZoomLevel(100.0f);    // zoom
     scatter3D->scene()->activeCamera()->setCameraPreset(QtDataVisualization::Q3DCamera::CameraPresetFront);
-    
+
     // You can show this container in your UI (e.g. side-by-side)
     scatterContainer = QWidget::createWindowContainer(scatter3D, this);
     scatterContainer->setMinimumSize(100, 100);
@@ -201,8 +218,7 @@ void MainWindow::update3DTrajectories(std::vector<DroneVis> drones)
         for (int i = 0; i < drone.drone_waypoints.size(); ++i)
         {
             const auto &wp = drone.drone_waypoints[i];
-            float z = i * 0.2f;  // artificial altitude or index
-            (*dataArray)[i].setPosition(QVector3D(wp.x, z, wp.y));
+            (*dataArray)[i].setPosition(QVector3D(wp.x(), wp.z(), wp.y()));
         }
 
         series->dataProxy()->resetArray(dataArray);
@@ -221,34 +237,59 @@ void MainWindow::onDroneChangedBoxStatus(const dronehive_interfaces::msg::Occupa
     int box_index = this->ui->boxComboBox->findText(QString::fromStdString(box_id));
     int drone_index = this->ui->droneComboBox->findText(QString::fromStdString(drone_id));
 
+    int old_box_index = -1;
+
     if(box_index >= 0 && drone_index >= 0)
     {
+        for(int i = 0; i < this->boxes.size(); i++)
+        {
+            if(this->boxes[i].get_assigned_drone_id() == drone_id)
+            {
+                old_box_index = i;
+                break;
+            }
+        }
+
+        if(old_box_index >= 0)
+        {
+            this->boxes[old_box_index].set_assigned_drone_id("None");
+            this->boxes[old_box_index].set_box_status(boxStatusToString(BoxState::EMPTY));
+        }
+
         this->boxes[box_index].set_assigned_drone_id(drone_id);
+        this->boxes[box_index].set_box_status(boxStatusToString(BoxState::OCCUPIED));
         this->drones[drone_index].set_parent_box_id(box_id);
 
         this->ui->drone_altitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_alt(), 'f', 4));
         this->ui->drone_latitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_lat(), 'f', 4));
         this->ui->drone_longitude_value_label->setText(QString::number(this->boxes[box_index].get_box_landing_lon(), 'f', 4));
-    
+
         if(occupancy)
-            this->ui->boxStatusValueLabel->setText("OCCUPIED");
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(boxStatusToString(BoxState::OCCUPIED)));
         else
-            this->ui->boxStatusValueLabel->setText("EMPTY");
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(boxStatusToString(BoxState::EMPTY)));
     }
 }
 
 void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg)
 {
-    std::cout << "Got box id : " << msg->box_id << std::endl;
+	std::stringstream ss;
+    ss << "Got box id : " << msg->box_id << std::endl;
+	RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "%s:%d => %s", __FILE__, __LINE__, ss.str().c_str());
+	ss.clear();
 
     if(msg->box_id.empty()) return;
 
-    std::cout << msg->box_id << ", " << msg->box_status << std::endl;
+    ss << msg->box_id << ", " << msg->box_status << std::endl;
+	RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "%s:%d => %s", __FILE__, __LINE__, ss.str().c_str());
+	ss.clear();
     std::string box_id = msg->box_id;
     std::string drone_id = msg->drone_id;
     std::string box_status =  msg->box_status;
 
-    std::cout << "Box ID = " << box_id << ", drone_id = " << drone_id << ", box_status = " << box_status << std::endl;
+    ss << "Box ID = " << box_id << ", drone_id = " << drone_id << ", box_status = " << box_status << std::endl;
+	RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "%s:%d => %s", __FILE__, __LINE__, ss.str().c_str());
+	ss.clear();
 
     float box_lat = msg->landing_pos.lat;
     float box_lon = msg->landing_pos.lon;
@@ -276,7 +317,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             ui->boxComboBox->addItem(id);
         }
         Coordinates coord{box_lat, box_lon, box_elv};
-        if(isMasterId(box_id))
+        if(isMaster())
         {
             Box box(BoxType::MASTER, coord, box_id, box_status, this->boxes.size() + 1);
             this->boxes.push_back(box);
@@ -317,7 +358,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             Drone drone(DroneType::HexaCopter, coord, drone_id, Drone::randomDroneColor(), box_id);
             drones.push_back(drone);
             this->ui->droneComboBox->addItem(QString::fromStdString(drone_id));
-            
+
             this->boxes[this->boxes.size() - 1].set_assigned_drone_id(drone_id);
         }
         else
@@ -341,7 +382,7 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 
         this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
 
-        if(isMasterId(box_id))
+        if(isMaster())
             this->ui->boxTypeValueLabel->setText("Master");
         else
             this->ui->boxTypeValueLabel->setText("Slave");
@@ -422,7 +463,7 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
         Coordinates coord{dialog.get_box_lat(),dialog.get_box_lon(),dialog.get_box_alt()};
         std::cout << "Coord" << coord.alt << std::endl;
 
-        if(isMasterId(msg->box_id))
+        if(isMaster())
         {
             std::cout << "Adding a MASTER box\n";
             Box box(BoxType::MASTER, coord, return_msg.box_id, boxStatusToString(BoxState::EMPTY) ,this->boxes.size() + 1);
@@ -439,8 +480,8 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
         auto command = dronehive_interfaces::msg::GuiCommand();
         command.command = dronehive_interfaces::msg::GuiCommand::REQUEST_BOX_STATUS;
         gui_cmd_pub_->publish(command);
-    } 
-    else 
+    }
+    else
     {
         std::cout << "Rejected\n";
         dronehive_interfaces::msg::BoxSetupConfirmationMessage return_msg;
@@ -495,14 +536,14 @@ void MainWindow::on_path_upload_pushButton_clicked()
         if(state == PathPlanStates::CREATE_PLAN)
         {
             std::cout << "Crating plan" << std::endl;
-            
+
             if(drones.empty())
                 FlightDialog flightPlanDialog(this);
             else
             {
                 FlightDialog flightPlanDialog(this, drones[current_drone_index].get_drone_color(), drones[current_drone_index].get_drone_id());
                 if(flightPlanDialog.exec() == QDialog::Rejected) return;
-                else 
+                else
                 {
                     std::cout << "Accepted" << std::endl;
                     // TO-DO add publisher sending the selected preset path plan
@@ -530,7 +571,7 @@ void MainWindow::on_path_upload_pushButton_clicked()
                     this->gui_trajectory_pub_->publish(msg);
                 }
             }
-            
+
         }
         else if(state == PathPlanStates::ACCEPTED)
         {
@@ -583,7 +624,7 @@ void MainWindow::on_remove_box_pushButton_clicked()
     {
         std::cout << "Removing drone\n";
         QString child_drone_id = QString::fromStdString(this->boxes[current_index].get_assigned_drone_id());
-        
+
         int drone_index = this->ui->droneComboBox->findText(child_drone_id);
 
         this->ui->droneComboBox->removeItem(drone_index);
@@ -596,7 +637,7 @@ void MainWindow::on_remove_box_pushButton_clicked()
             this->ui->drone_longitude_value_label->setText("Unknown");;
 
             this->ui->droneIdLabel->setText("Unknown");
-            
+
             QPalette palette = this->ui->droneColorCodeLabel->palette();
             palette.setColor(QPalette::Window, Qt::white);
             this->ui->droneColorCodeLabel->setPalette(palette);
@@ -632,7 +673,7 @@ void MainWindow::on_remove_box_pushButton_clicked()
     command.box_id = current_data.toStdString();
     gui_cmd_pub_->publish(command);
 
-    std::cout << "Current index = " << current_index << std::endl; 
+    std::cout << "Current index = " << current_index << std::endl;
     if (current_index >= 0) {
         this->ui->boxComboBox->removeItem(current_index);
 
@@ -683,6 +724,27 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
         int current_index = this->ui->droneComboBox->currentIndex();
 
         auto box_id = this->drones[current_index].get_parent_box_id();
+        int box_index = 0;
+
+        for(int i = 0; i < this->boxes.size(); i++)
+        {
+            if(boxes[i].get_box_id() == box_id)
+            {
+                box_index = i;
+                std::cout << "Box index = " << box_index << std::endl;
+                break;
+            }
+        }
+
+        bool parent_box_selected = false;
+        if(this->ui->boxComboBox->currentText().toStdString() == box_id)
+        {
+            std::cout << "Drone has selected box" << std::endl;
+            parent_box_selected = true;
+        }
+
+        this->boxes[box_index].set_assigned_drone_id("");
+        this->boxes[box_index].set_box_status(boxStatusToString(BoxState::EMPTY));
 
         dronehive_interfaces::msg::GuiAddNewDrone msg;
         msg.drone_id = "";
@@ -714,20 +776,26 @@ void MainWindow::on_removeDroneButton_pushButton_clicked()
         {
             QString current_data = this->ui->droneComboBox->currentText();
             int current_index = this->ui->droneComboBox->currentIndex();
-
             this->ui->drone_altitude_value_label->setText(QString::number(this->drones[current_index].get_drone_alt(), 'f', 4));;
             this->ui->drone_latitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lat(), 'f', 4));;
             this->ui->drone_longitude_value_label->setText(QString::number(this->drones[current_index].get_drone_lon(), 'f', 4));;
-
             this->ui->droneIdLabel->setText(QString::fromStdString(this->drones[current_index].get_drone_id()));
-
             QPalette palette = this->ui->droneColorCodeLabel->palette();
             palette.setColor(QPalette::Window, this->drones[current_index].get_drone_color());
             this->ui->droneColorCodeLabel->setPalette(palette);
-
             this->ui->parentBoxLabel->setText(QString::fromStdString(this->drones[current_index].get_parent_box_id()));
-
             this->setDroneGraphics(0.0f);
+        }
+
+        if(parent_box_selected)
+        {
+            std::cout << "Resetting visualization" << std::endl;
+            this->ui->assignedDroneLabel->setText("None");
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(this->boxes[box_index].get_box_status()));
+            auto box_status = this->boxes[box_index].get_box_status();
+            this->setBoxStateGraphics(box_status, 0.0f);
+
+            std::cout << "Box id = " << boxes[box_index].get_assigned_drone_id()  << ", box status = " << boxes[box_index].get_box_status() << std::endl;
         }
     }
 }
@@ -826,7 +894,7 @@ void MainWindow::setBoxStateGraphics(std::string& box_status, float box_battery_
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     else if(box_battery_level >= 40.0f && box_battery_level < 60.0f)
-    { 
+    {
         QPixmap pixmap((":/resources/icons/battery_60.png"));
         this->batteryImageLabel_box->setPixmap(pixmap.scaled(QSize(50,50), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
@@ -960,14 +1028,14 @@ void MainWindow::on_loadTrajectoryButton_pushButton_clicked()
     }
 
     this->list_widget->clear();
-    
+
     auto drone_data = this->warehouseFrame->getDroneVisData();
 
     for(auto drone : drone_data)
     {
         QColor drone_color = drone.drone_color;
         QString drone_id = QString::fromStdString(drone.drone_id);
-        
+
         QListWidgetItem* item = new QListWidgetItem(this->list_widget);
 
         ColorListWidget* widget = new ColorListWidget(this->list_widget, drone_id, drone_color);
@@ -1018,19 +1086,15 @@ void MainWindow::on_restartButton_pushButton_clicked()
     }
 }
 
-bool MainWindow::isMasterId(std::string box_id)
+bool MainWindow::isMaster()
 {
-    std::string box_id_cmp = "master";
-
-    if (box_id.length() != box_id_cmp.length())
-        return false;
-
-    for (int i = 0; i < box_id.length(); ++i) {
-        if (tolower(box_id[i]) != tolower(box_id_cmp[i]))
-            return false;
+    if(this->master_found)
+    {
+        this->master_found = false;
+        return true;
     }
 
-    return true;
+    return this->master_found;
 }
 
 void MainWindow::on_arm_pushButton_clicked()
@@ -1122,7 +1186,7 @@ void MainWindow::on_addDroneButton_pushButton_clicked()
 
 
         Coordinates coords{this->boxes[box_index].get_box_landing_lat(),this->boxes[box_index].get_box_landing_lon(),this->boxes[box_index].get_box_landing_alt()};
-     
+
         Drone drone(DroneType::HexaCopter, coords, drone_id, Drone::randomDroneColor(), box_id.toStdString());
 
         this->drones.push_back(drone);
@@ -1162,7 +1226,7 @@ void MainWindow::on_zoomPlusButton_pushButton_clicked()
     else
     {
         auto scale_factor = this->warehouseFrame->getScaleFactor();
-        auto zoom = scatter3D->scene()->activeCamera()->zoomLevel(); 
+        auto zoom = scatter3D->scene()->activeCamera()->zoomLevel();
         scatter3D->scene()->activeCamera()->setZoomLevel(zoom + 10*scale_factor);    // zoom
     }
 }
@@ -1175,7 +1239,7 @@ void MainWindow::on_zoomOutButton_pushButton_clicked()
     else
     {
         auto scale_factor = this->warehouseFrame->getScaleFactor();
-        auto zoom = scatter3D->scene()->activeCamera()->zoomLevel(); 
+        auto zoom = scatter3D->scene()->activeCamera()->zoomLevel();
         scatter3D->scene()->activeCamera()->setZoomLevel(zoom - 10*scale_factor);    // zoom
     }
 }
@@ -1192,7 +1256,7 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
         float zoomFactor = float(value) / 10.0f;
         float minZoom = 10.0f;
         float maxZoom = 500.0f;
-        
+
         float zoomLevel = minZoom + (maxZoom - minZoom) * (zoomFactor / 10.0f);
         scatter3D->scene()->activeCamera()->setZoomLevel(zoomLevel);
     }
@@ -1231,4 +1295,4 @@ void MainWindow::on_zoom_in_out_slider_valueChanged(int value)
     }
  }
 
- 
+

@@ -32,6 +32,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DroneLandingService.srv"
   "srv/DroneStatusService.srv"
   "srv/DroneTrajectoryWaypointsService.srv"
+  "srv/DroneStartStopService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
   "srv/OccupancyService.srv"
@@ -62,6 +63,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GuiDroneLandingRequest.msg"
   "msg/GuiDroneTrajectoryUpload.msg"
   "msg/GuiAddNewDrone.msg"
+  "msg/ToggleTrajectory.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

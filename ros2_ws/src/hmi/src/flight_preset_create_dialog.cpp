@@ -140,10 +140,10 @@ void FlightCreationDialog::loadTrajectoryFromXmlFile(QString& filename)
         if (xml.isStartElement() && xml.name() == "point" && insideDrone)
         {
             auto attrs = xml.attributes();
-            Point p;
-            p.x = attrs.value("x").toDouble();
-            p.y = attrs.value("y").toDouble();
-            p.z = attrs.value("z").toDouble();
+            QVector3D p;
+            p.setX(attrs.value("x").toDouble());
+            p.setY(attrs.value("y").toDouble());
+            p.setZ(attrs.value("z").toDouble());
             current.drone_waypoints.push_back(p);
         }
 
@@ -175,6 +175,8 @@ void FlightCreationDialog::onListItemDoubleClicked(QListWidgetItem* item)
     curr_list_widget_index = this->ui.listWidget->row(item);
     std::cout << "Item at index = " << curr_list_widget_index << "was selected" << std::endl;
 
+    this->waypoints = drones[curr_list_widget_index].drone_waypoints;
+
     ColorListWidget *cw_new = qobject_cast<ColorListWidget*>(this->ui.listWidget->itemWidget(item));
     if (cw_new)
     {
@@ -191,6 +193,8 @@ void FlightCreationDialog::onListItemClicked(QListWidgetItem* item)
 {
     curr_list_widget_index = this->ui.listWidget->row(item);
     std::cout << "Item at index = " << curr_list_widget_index << "was selected" << std::endl;
+
+    this->waypoints = drones[curr_list_widget_index].drone_waypoints;
 
     ColorListWidget *cw_new = qobject_cast<ColorListWidget*>(this->ui.listWidget->itemWidget(item));
     if (cw_new)
@@ -248,9 +252,9 @@ void FlightCreationDialog::update3DTrajectories()
     for (int i = 0; i < drone.drone_waypoints.size(); ++i)
     {
         QVector3D wp;
-        wp.setX(drone.drone_waypoints[i].x);
-        wp.setY(drone.drone_waypoints[i].y); // assuming z is height
-        wp.setZ(drone.drone_waypoints[i].z);
+        wp.setX(drone.drone_waypoints[i].x());
+        wp.setY(drone.drone_waypoints[i].y()); // assuming z is height
+        wp.setZ(drone.drone_waypoints[i].z());
 
         (*dataArray)[i].setPosition(wp);
         waypoints.append(wp);

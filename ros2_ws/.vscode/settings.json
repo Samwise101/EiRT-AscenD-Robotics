@@ -80,6 +80,22 @@
         "__nullptr": "cpp",
         "__bit_reference": "cpp",
         "__string": "cpp",
-        "ios": "cpp"
-    }
+        "ios": "cpp",
+        "qjsonarray": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "__tree": "cpp",
+        "qrandomgenerator": "cpp",
+        "qobject": "cpp",
+        "qhboxlayout": "cpp",
+        "regex": "cpp",
+        "__locale": "cpp",
+        "qframe": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "qfiledialog": "cpp",
+        "qxmlstreamreader": "cpp",
+        "qwidget": "cpp"
+    },
+    "cmake.sourceDirectory": "/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/dronehive_interfaces"
 }
