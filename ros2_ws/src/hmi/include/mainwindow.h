@@ -30,6 +30,7 @@
 #include <dronehive_interfaces/msg/gui_drone_landing_request.hpp>
 #include <dronehive_interfaces/msg/gui_drone_trajectory_upload.hpp>
 #include <dronehive_interfaces/msg/gui_add_new_drone.hpp>
+#include <dronehive_interfaces/msg/toggle_trajectory.hpp>
 
 #include "drone.h"
 #include "box.h"
