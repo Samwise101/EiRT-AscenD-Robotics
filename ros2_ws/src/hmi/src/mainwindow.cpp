@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
     response_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/newbox_response", qos_profiles::master_qos);
     gui_add_remove_drone_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiAddNewDrone>("/gui/add_remove_drone", qos_profiles::master_qos);
     gui_trajectory_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>("/gui/drone_trajectory", qos_profiles::master_qos);
-
+    gui_drone_stop_start_traj_pub_ = node_->create_publisher<dronehive_interfaces::msg::DroneStopResumeTrajectory>("/gui/drone_stop_resume_traj", qos_profiles::master_qos);
 
     // Create subscribers
     heart_beat_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/heartbeat",qos_profiles::master_qos, std::bind(&MainWindow::onHeartBeatMessage, this, std::placeholders::_1));
@@ -1172,6 +1172,12 @@ void MainWindow::on_resumeTrajectoryButton_pushButton_clicked()
 {
     std::cout << "Hello from resume trajectory button" << std::endl;
 
+    QString drone_id = (this->ui->droneComboBox->currentText());
+    std::cout << drone_id.toStdString() << std::endl;
+
+    dronehive_interfaces::msg::DroneStopResumeTrajectory msg;
+    msg.drone_id = drone_id.toStdString();
+
     if(this->resume_trajectory_status)
     {
         QIcon icon(":/resources/icons/pause.png");
@@ -1185,6 +1191,7 @@ void MainWindow::on_resumeTrajectoryButton_pushButton_clicked()
     }
 
     this->resume_trajectory_status = (!this->resume_trajectory_status);
+    this->gui_drone_stop_start_traj_pub_->publish(msg);
 }
 
 void MainWindow::on_upload_path_pushButton_clicked()

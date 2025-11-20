@@ -18,6 +18,7 @@
 #include <dronehive_interfaces/msg/gui_drone_landing_request.hpp>
 #include <dronehive_interfaces/msg/gui_drone_trajectory_upload.hpp>
 #include <dronehive_interfaces/msg/gui_add_new_drone.hpp>
+#include <dronehive_interfaces/msg/drone_stop_resume_trajectory.hpp>
 
 #include <dronehive_interfaces/srv/box_broadcast_service.hpp>
 #include <dronehive_interfaces/srv/occupancy_service.hpp>
@@ -70,6 +71,8 @@ class App : public rclcpp::Node
         void onGuiTrajectoryRecieved(const dronehive_interfaces::msg::GuiDroneTrajectoryUpload::SharedPtr msg);
         void onGuiAddRemoveDrone(const dronehive_interfaces::msg::GuiAddNewDrone::SharedPtr msg);
 
+        void onGuiDroneStopResumeTraj(const dronehive_interfaces::msg::DroneStopResumeTrajectory::SharedPtr msg);
+
         void onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedFuture f);
         void onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f);
         void onAddRemoveDroneRequestResponse(rclcpp::Client<dronehive_interfaces::srv::AddRemoveDroneService>::SharedFuture f);
@@ -103,6 +106,7 @@ class App : public rclcpp::Node
         rclcpp::Subscription<dronehive_interfaces::msg::BoxBroadcastMessage>::SharedPtr new_box_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::GuiAddNewDrone>::SharedPtr gui_add_remove_drone_sub_;
         rclcpp::Subscription<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>::SharedPtr gui_drone_trajectory_sub_;
+        rclcpp::Subscription<dronehive_interfaces::msg::DroneStopResumeTrajectory>::SharedPtr gui_drone_stop_resume_sub_;
 
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_heart_pub_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr to_gui_msg_pub_;
@@ -112,11 +116,11 @@ class App : public rclcpp::Node
         rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr box_msg_pub_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr box_deinit_pub_;
         rclcpp::Publisher<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr notify_gui_on_ccupancy_change_pub_;
+        rclcpp::Publisher<dronehive_interfaces::msg::DroneStopResumeTrajectory>::SharedPtr to_box_drone_stop_resume_pub_;
 
         rclcpp::Client<dronehive_interfaces::srv::DroneLandingService>::SharedPtr drone_landing_client_;
         rclcpp::Client<dronehive_interfaces::srv::AddRemoveDroneService>::SharedPtr drone_add_client_;
         rclcpp::Client<dronehive_interfaces::srv::DroneTrajectoryWaypointsService>::SharedPtr drone_upload_trajectory_client_;
-
         rclcpp::Client<dronehive_interfaces::srv::RequestReturnHome>::SharedPtr drone_home_return_client_;
         rclcpp::Client<dronehive_interfaces::srv::SlaveBoxIDsService>::SharedPtr system_status_client_;
         rclcpp::Client<dronehive_interfaces::srv::RequestDroneStatus>::SharedPtr drone_status_client_;
