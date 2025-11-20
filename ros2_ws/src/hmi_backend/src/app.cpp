@@ -1,6 +1,7 @@
 #include <iostream>
 #include <app.h>
 #include <rclcpp/logging.hpp>
+#include <fstream>
 
 namespace qos_profiles
 {
@@ -94,7 +95,7 @@ App::App() : Node("app_node")
     });
     this->notify_gui_srv_ = this->create_service<dronehive_interfaces::srv::OccupancyService>("/dronehive/drone_update_box_state",std::bind(&App::onNotifyGui, this, std::placeholders::_1, std::placeholders::_2));
      // One timer for all service requests
-    service_timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&App::onServiceTimer, this));
+    service_timer_ = this->create_wall_timer(std::chrono::seconds(5), std::bind(&App::onServiceTimer, this));
 }
 
 App::~App()
@@ -231,6 +232,10 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
     std::vector<std::string> box_ids = response->box_ids;
     int box_ids_size = response->size;
 
+    auto msg3 = std_msgs::msg::String();
+    msg3.data = "Confirming, got SYSTEM status response " + box_ids.size();
+    to_gui_msg_pub_->publish(msg3);
+
     this->pending_box_responses_ = box_ids_size;
 
     for (int i = 0; i < box_ids_size; i++)
@@ -240,12 +245,12 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 		RCLCPP_WARN(this->get_logger(), "%s", msg2.data.c_str());
         to_gui_msg_pub_->publish(msg2);
 
-        auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
-        req->box_id = box_ids[i];
-        std::string current_box_id = box_ids[i];  // Capture for lambda
-
-        if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
+        if (this->box_status_client_->wait_for_service(std::chrono::seconds(1)))
         {
+            auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
+            req->box_id = box_ids[i];
+            std::string current_box_id = box_ids[i];  // Capture for lambda
+
             this->box_status_client_->async_send_request(
                 req,
                 [this, current_box_id](rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
@@ -256,7 +261,7 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
         }
         else
         {
-			RCLCPP_ERROR(this->get_logger(), "Service not available for box ID: %s", current_box_id.c_str());
+			// RCLCPP_ERROR(this->get_logger(), "Service not available for box ID: %s", current_box_id.c_str());
             pending_box_responses_--;
         }
     }
@@ -264,26 +269,53 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
 void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
 {
-    auto response = f.get();
-    this->get_box_status_request_appeared = false;
+    auto resp = f.get();
+
+    dronehive_interfaces::msg::BoxFullStatus msg;
+    msg.box_id = std::string(resp->status.box_id.c_str());    // force deep copy
+    msg.drone_id = std::string(resp->status.drone_id.c_str());
+    msg.box_status = std::string(resp->status.status.c_str());
+    msg.landing_pos = resp->status.landing_pos;  // primitive fields are safe
+
+    box_status_pub_->publish(msg);
+    // this->get_box_status_request_appeared = false;
 
     auto msg2 = std_msgs::msg::String();
-    msg2.data = "Got box status for " + response->status.box_id;
+    msg2.data = "Got box status for " + resp->status.box_id;
 	RCLCPP_INFO(this->get_logger(), "%s", msg2.data.c_str());
     to_gui_msg_pub_->publish(msg2);
 
     if (this->pending_box_responses_ != 0)
+    {
         this->pending_box_responses_--;
 
-    auto msg = dronehive_interfaces::msg::BoxFullStatus();
-    msg.box_id = response->status.box_id;
-    msg.drone_id = response->status.drone_id;
-    msg.landing_pos = response->status.landing_pos;
-    msg.box_status = response->status.status;
+        BoxData box_data;
+        box_data.box_id = msg.box_id;
+        box_data.drone_id = msg.drone_id;
+        box_data.box_status = msg.box_status;
+        box_data.position = msg.landing_pos;
+        this->data.push_back(box_data);
+    }
+    if(this->pending_box_responses_ <= 0)
+    {
+        std::ofstream MyFile("box_data.txt");
 
+        // Write to the file
+        for(BoxData box_data : this->data)
+        {
+            MyFile << box_data.box_id << "," << box_data.drone_id << "," << box_data.box_status
+            << "," << std::to_string(box_data.position.elv)
+            << "," << std::to_string(box_data.position.lat) 
+            << "," << std::to_string(box_data.position.lon) 
+            << "\n"; 
+        }
+
+        // Close the file
+        MyFile.close();
+        this->data.clear();
+        box_status_pub_->publish(msg);;
+    }
 	RCLCPP_INFO(this->get_logger(), "Box ID: %s, Drone ID: %s, Status: %s", msg.box_id.c_str(), msg.drone_id.c_str(), msg.box_status.c_str());
-
-    box_status_pub_->publish(msg);;
 }
 
 void App::onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::DroneLandingService>::SharedFuture f)

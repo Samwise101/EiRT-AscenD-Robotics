@@ -5,6 +5,7 @@
 #include <sstream>
 #include <thread>
 #include <QStringList>
+#include <fstream>
 
 namespace qos_profiles
 {
@@ -20,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0)
 {
     this->ui->setupUi(this);
+
 
     this->ui->frame_box->setFrameShape(QFrame::Box);
     this->ui->frame_box->setStyleSheet("background-color:rgb(255,255,255)");
@@ -48,8 +50,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Create ROS2 node
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
 
-	subscription_options_reentrant_.callback_group = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-
+	subscription_options_reentrant_.callback_group = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+        
     // Create publishers
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", qos_profiles::master_qos);
     gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos);
@@ -75,7 +77,6 @@ MainWindow::MainWindow(QWidget *parent)
 		qos_profiles::master_qos,
 		std::bind(&MainWindow::onBackendBoxStatusMessage, this, std::placeholders::_1),
 		subscription_options_reentrant_
-
 	);
 
     drone_box_status_change_sub_ = node_->create_subscription<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos, std::bind(&MainWindow::onDroneChangedBoxStatus, this, std::placeholders::_1));
@@ -283,121 +284,141 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
     ss << msg->box_id << ", " << msg->box_status << std::endl;
 	RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "%s:%d => %s", __FILE__, __LINE__, ss.str().c_str());
 	ss.clear();
-    std::string box_id = msg->box_id;
-    std::string drone_id = msg->drone_id;
-    std::string box_status =  msg->box_status;
 
-    ss << "Box ID = " << box_id << ", drone_id = " << drone_id << ", box_status = " << box_status << std::endl;
+    // std::string box_id = msg->box_id;
+    // std::string drone_id = msg->drone_id;
+    // std::string box_status =  msg->box_status;
+
 	RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "%s:%d => %s", __FILE__, __LINE__, ss.str().c_str());
 	ss.clear();
 
-    float box_lat = msg->landing_pos.lat;
-    float box_lon = msg->landing_pos.lon;
-    float box_elv = msg->landing_pos.elv;
+    std::ifstream MyReadFile("box_data.txt");
+    std::string box_data;
+    std::vector<BoxData> box_entries;
 
-    bool box_exists = false;
-    int box_index = 0;
-
-    for(int i = 0; i < this->boxes.size(); i++)
-    {
-        if(boxes[i].get_box_id() == box_id)
-        {
-            std::cout << "Box exists\n";
-            box_exists = true;
-            box_index = i;
-            break;
-        }
+    while (std::getline(MyReadFile, box_data)) {
+        std::cout << "Data: " << box_data << std::endl;
+        std::stringstream line_ss(box_data);
+        BoxData data;
+        std::getline(line_ss, data.box_id, ',');
+        std::getline(line_ss, data.drone_id, ',');
+        std::getline(line_ss, data.box_status, ',');
+        std::getline(line_ss, (data.lat), ',');
+        std::getline(line_ss, (data.lon), ',');
+        std::getline(line_ss, (data.elv), ',');
+        box_entries.push_back(data);
     }
 
-    if(!box_exists)
+    for(BoxData data : box_entries)
     {
-        std::cout << "Creating a new box\n";
-        QString id = QString::fromStdString(msg->box_id);
-        if (ui->boxComboBox) {
-            ui->boxComboBox->addItem(id);
-        }
-        Coordinates coord{box_lat, box_lon, box_elv};
+        float box_lat = std::stof(data.lat);
+        float box_lon = std::stof(data.lon);
+        float box_elv = std::stof(data.elv);
+        std::cout << "Position: " << box_lat << ", " << box_lon << ", " << box_elv << std::endl;
+        bool box_exists = false;
+        int box_index = 0;
 
-        std::cout << "Master exists: " << this->master_exists << std::endl;
-
-        if(!this->master_exists)
+        for(int i = 0; i < this->boxes.size(); i++)
         {
-            this->master_exists = true;
-            Box box(BoxType::MASTER, coord, box_id, box_status, this->boxes.size() + 1);
-            this->boxes.push_back(box);
-        }
-        else{
-            Box box(BoxType::SLAVE, coord, box_id, box_status, this->boxes.size() + 1);
-            this->boxes.push_back(box);
-        }
-    }
-    else
-    {
-        boxes[box_index].set_assigned_drone_id(drone_id);
-        boxes[box_index].set_box_status(box_status);
-        boxes[box_index].set_box_landing_alt(box_elv);
-        boxes[box_index].set_box_landing_lat(box_lat);
-        boxes[box_index].set_box_landing_lon(box_lon);
-    }
-
-    if(!drone_id.empty())
-    {
-        bool drone_exists = false;
-        int drone_curr_id = 0;
-
-        for(int j = 0; j < drones.size(); j++)
-        {
-            if(drone_id == drones[j].get_drone_id())
+            if(boxes[i].get_box_id() == data.box_id)
             {
-                drone_exists = true;
-                drone_curr_id = j;
+                std::cout << "Box exists\n";
+                box_exists = true;
+                box_index = i;
                 break;
             }
         }
 
-        if(!drone_exists)
+        if(!box_exists)
         {
-            std::cout << "Creating drone\n";
+            std::cout << "Creating a new box\n";
+            QString id = QString::fromStdString(data.box_id);
+            if (ui->boxComboBox) {
+                ui->boxComboBox->addItem(id);
+            }
             Coordinates coord{box_lat, box_lon, box_elv};
-            Drone drone(DroneType::HexaCopter, coord, drone_id, Drone::randomDroneColor(), box_id);
-            drones.push_back(drone);
-            this->ui->droneComboBox->addItem(QString::fromStdString(drone_id));
 
-            this->boxes[this->boxes.size() - 1].set_assigned_drone_id(drone_id);
+            std::cout << "Master exists: " << this->master_exists << std::endl;
+
+            if(!this->master_exists)
+            {
+                this->master_exists = true;
+                Box box(BoxType::MASTER, coord, data.box_id, data.box_status, this->boxes.size() + 1);
+                this->boxes.push_back(box);
+            }
+            else{
+                Box box(BoxType::SLAVE, coord, data.box_id, data.box_status, this->boxes.size() + 1);
+                this->boxes.push_back(box);
+            }
         }
         else
         {
-            std::cout << "Drone exists\n";
-            drones[drone_curr_id].set_drone_alt(box_elv);
-            drones[drone_curr_id].set_drone_lat(box_lat);
-            drones[drone_curr_id].set_drone_lon(box_lon);
+            boxes[box_index].set_assigned_drone_id(data.drone_id);
+            boxes[box_index].set_box_status(data.box_status);
+            boxes[box_index].set_box_landing_alt(box_elv);
+            boxes[box_index].set_box_landing_lat(box_lat);
+            boxes[box_index].set_box_landing_lon(box_lon);
         }
-    }
 
-    std::cout << this->ui->boxComboBox->currentText().toStdString() << ", " << box_id << std::endl;
+        if(!data.drone_id.empty())
+        {
+            bool drone_exists = false;
+            int drone_curr_id = 0;
 
-    if(this->ui->boxComboBox->currentText().toStdString() == box_id)
-    {
-        std::cout << "updating visualizations for " << this->ui->boxComboBox->currentText().toStdString() << " based on id " << box_id << std::endl;
-        if(drone_id.empty())
-            this->ui->assignedDroneLabel->setText(QString::fromStdString("None"));
-        else
-            this->ui->assignedDroneLabel->setText(QString::fromStdString(drone_id));
+            for(int j = 0; j < drones.size(); j++)
+            {
+                if(data.drone_id == drones[j].get_drone_id())
+                {
+                    drone_exists = true;
+                    drone_curr_id = j;
+                    break;
+                }
+            }
 
-        this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
+            if(!drone_exists)
+            {
+                std::cout << "Creating drone\n";
+                Coordinates coord{box_lat, box_lon, box_elv};
+                Drone drone(DroneType::HexaCopter, coord, data.drone_id, Drone::randomDroneColor(), data.box_id);
+                drones.push_back(drone);
+                this->ui->droneComboBox->addItem(QString::fromStdString(data.drone_id));
 
-        int box_index = this->ui->boxComboBox->currentIndex();
-        this->ui->boxTypeValueLabel->setText(QString::fromStdString(boxTypeToString(boxes[box_index].get_box_type())));
+                this->boxes[this->boxes.size() - 1].set_assigned_drone_id(data.drone_id);
+            }
+            else
+            {
+                std::cout << "Drone exists\n";
+                drones[drone_curr_id].set_drone_alt(box_elv);
+                drones[drone_curr_id].set_drone_lat(box_lat);
+                drones[drone_curr_id].set_drone_lon(box_lon);
+            }
+        }
 
-        std::cout << "New  box status = " << box_status << std::endl;
+        std::cout << this->ui->boxComboBox->currentText().toStdString() << ", " << data.box_id << std::endl;
 
-        this->ui->boxNumberValueLabel->setText(QString::number(this->boxes.size()));
-        this->ui->boxStatusValueLabel->setText(QString::fromStdString(box_status));
-        this->ui->box_latitude_value_label->setText(QString::number(box_lat, 'f', 4));
-        this->ui->box_longitude_value_label->setText(QString::number(box_lon, 'f', 4));
-        this->ui->box_altitude_value_label->setText(QString::number(box_elv, 'f', 4));
+        if(this->ui->boxComboBox->currentText().toStdString() == data.box_id)
+        {
+            std::cout << "updating visualizations for " << this->ui->boxComboBox->currentText().toStdString() << " based on id " << data.box_id << std::endl;
+            if(data.drone_id.empty())
+                this->ui->assignedDroneLabel->setText(QString::fromStdString("None"));
+            else
+                this->ui->assignedDroneLabel->setText(QString::fromStdString(data.drone_id));
 
-        this->setBoxStateGraphics(box_status, 0.0f);
+            this->ui->boxIdValueLabel->setText(QString::fromStdString(data.box_id));
+
+            int box_index = this->ui->boxComboBox->currentIndex();
+            this->ui->boxTypeValueLabel->setText(QString::fromStdString(boxTypeToString(boxes[box_index].get_box_type())));
+
+            std::cout << "New  box status = " << data.box_status << std::endl;
+
+            this->ui->boxNumberValueLabel->setText(QString::number(this->boxes.size()));
+            this->ui->boxStatusValueLabel->setText(QString::fromStdString(data.box_status));
+            this->ui->box_latitude_value_label->setText(QString::number(box_lat, 'f', 4));
+            this->ui->box_longitude_value_label->setText(QString::number(box_lon, 'f', 4));
+            this->ui->box_altitude_value_label->setText(QString::number(box_elv, 'f', 4));
+
+            this->setBoxStateGraphics(data.box_status, 0.0f);
+        }
     }
 }
 

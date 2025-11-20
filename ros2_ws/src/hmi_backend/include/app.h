@@ -46,6 +46,13 @@
 #include <memory>
 #include <string>
 
+struct BoxData
+{
+    std::string box_id;
+    std::string drone_id;
+    std::string box_status;
+    dronehive_interfaces::msg::PositionMessage position;
+};
 
 class App : public rclcpp::Node
 {
@@ -127,6 +134,7 @@ class App : public rclcpp::Node
         std::vector<dronehive_interfaces::msg::PositionMessage> waypoints;
 
 		rclcpp::PublisherOptions options_base;
+        std::vector<BoxData> data;
 };
 
 #endif
