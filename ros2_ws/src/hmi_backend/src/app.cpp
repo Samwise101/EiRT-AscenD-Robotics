@@ -56,6 +56,7 @@ App::App() : Node("app_node")
     this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
     this->notify_gui_on_ccupancy_change_pub_ = this->create_publisher<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos);
     this->to_box_drone_stop_resume_pub_ = this->create_publisher<dronehive_interfaces::msg::DroneStopResumeTrajectory>("/dronehive/drone_stop_resume_traj", qos_profiles::master_qos);
+    this->to_gui_drone_status_pub_ = this->create_publisher<dronehive_interfaces::msg::DroneStatusMessage>("/backend/drone_status", qos_profiles::master_qos);
 
     this->gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
@@ -77,6 +78,10 @@ App::App() : Node("app_node")
 
     gui_drone_stop_resume_sub_ = this->create_subscription<dronehive_interfaces::msg::DroneStopResumeTrajectory>(
         "/gui/drone_stop_resume_traj", qos_profiles::master_qos, std::bind(&App::onGuiDroneStopResumeTraj, this, std::placeholders::_1)
+    );
+
+    box_drone_status_sub_ = this->create_subscription<dronehive_interfaces::msg::DroneStatusMessage>(
+        "/dronehive/drone_status", qos_profiles::master_qos, std::bind(&App::onBoxDroneStatusMessage, this, std::placeholders::_1)
     );
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
@@ -120,6 +125,21 @@ App::App() : Node("app_node")
 App::~App()
 {
     rclcpp::shutdown();
+}
+
+void App::onBoxDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg)
+{
+    std_msgs::msg::String msg2;
+    msg2.data = "Got Box Drone Status message for drone " + msg->drone_id;
+    to_gui_msg_pub_->publish(msg2);
+
+    dronehive_interfaces::msg::DroneStatusMessage msg_new;
+    msg_new.battery_percentage = msg->battery_percentage;
+    msg_new.drone_id = msg->drone_id;
+    msg_new.battery_voltage = msg->battery_voltage;
+    msg_new.fligt_state = msg->fligt_state;
+
+    this->to_gui_drone_status_pub_->publish(msg_new);
 }
 
 void App::onGuiDroneStopResumeTraj(const dronehive_interfaces::msg::DroneStopResumeTrajectory::SharedPtr msg)

@@ -78,6 +78,9 @@ class Box
         void set_box_landing_lon(float value);
         void set_box_landing_alt(float value);
 
+        void set_battery_level(float value);
+        float get_battery_level();
+
     private:
         BoxType box_type;
         float box_landing_position_lat;
@@ -89,6 +92,7 @@ class Box
         int number;
         Coordinates coord;
         std::string assigned_drone_id;
+        float battery_level;
 };
 
 #endif

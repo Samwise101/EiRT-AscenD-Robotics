@@ -34,6 +34,7 @@
 #include <dronehive_interfaces/msg/toggle_trajectory.hpp>
 #include <dronehive_interfaces/msg/drone_force_landing_message.hpp>
 #include <dronehive_interfaces/msg/drone_stop_resume_trajectory.hpp>
+#include <dronehive_interfaces/msg/drone_status_message.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -80,6 +81,7 @@ public:
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
     void onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg);
+    void onBackendDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg);
 
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
@@ -141,6 +143,7 @@ private:
     rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxFullStatus>::SharedPtr backend_box_status_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr drone_box_status_change_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::DroneStatusMessage>::SharedPtr backend_drone_status_sub_;
 
     std::mutex box_status_mutex_;
 

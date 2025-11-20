@@ -2,7 +2,10 @@
 #include "drone.h"
 
 Drone::Drone(int type, Coordinates coord, std::string id, QColor color, std::string parent_box_id) : 
-drone_type(type), drone_coord(coord), drone_id(id), drone_color(color), parentBoxID(parent_box_id){}
+drone_type(type), drone_coord(coord), drone_id(id), drone_color(color), parentBoxID(parent_box_id)
+{
+    this->battery_level = 100.0;
+}
 
 Drone::~Drone(){}
 
@@ -74,4 +77,14 @@ void Drone::set_parent_box_id(std::string box_id)
 std::string Drone::get_parent_box_id(void)
 {
     return this->parentBoxID;
+}
+
+void Drone::set_battery_level(float value)
+{   
+    this->battery_level = value;
+}
+
+float Drone::get_battery_level()
+{
+    return this->battery_level;
 }
