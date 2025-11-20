@@ -3,6 +3,7 @@ project(hmi)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_AUTOMOC ON)
 # set(CMAKE_AUTOUIC ON)    # let CMake run uic on .ui files
