@@ -236,7 +236,7 @@ class XL430Controller(Node):
 
 	def open_box(self) -> bool:
 		get_logger(f"motor_{self.dxl_id}").info("Opening box...")
-		return self.move_extended(4096 * 5 - 900, profile_velocity=150, profile_accel=100)
+		return self.move_extended(4096 * 6.1, profile_velocity=150, profile_accel=100)
 
 
 	def close_box(self) -> bool:
