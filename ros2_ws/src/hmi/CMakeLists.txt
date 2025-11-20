@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(hmi)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -18,6 +18,9 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(dronehive_interfaces REQUIRED)
+
+add_compile_definitions(DRONEHIVE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+
 
 # Qt dependencies
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui Charts Xml DataVisualization)

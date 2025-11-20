@@ -6,6 +6,19 @@
 #include <thread>
 #include <QStringList>
 #include <fstream>
+#include <filesystem>
+
+static std::string get_workspace_root(const std::string& path)
+{
+    std::filesystem::path p(path);
+
+    // Remove the last component (package folder)
+    if (!p.empty()) {
+        p = p.parent_path();
+    }
+
+    return p.string();
+}
 
 namespace qos_profiles
 {
@@ -292,7 +305,10 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 	RCLCPP_INFO(rclcpp::get_logger("MainWindow"), "%s:%d => %s", __FILE__, __LINE__, ss.str().c_str());
 	ss.clear();
 
-    std::ifstream MyReadFile("box_data.txt");
+    std::string raw = std::string(DRONEHIVE_SOURCE_DIR);
+    std::string real_path = get_workspace_root(raw);
+
+    std::ifstream MyReadFile(real_path + "/box_data.txt");
     std::string box_data;
     std::vector<BoxData> box_entries;
 
@@ -420,6 +436,8 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             this->setBoxStateGraphics(data.box_status, 0.0f);
         }
     }
+    MyReadFile.clear();
+    MyReadFile.close();
 }
 
 void MainWindow::onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg)

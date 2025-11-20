@@ -2,6 +2,20 @@
 #include <app.h>
 #include <rclcpp/logging.hpp>
 #include <fstream>
+#include <filesystem>
+
+static std::string get_workspace_root(const std::string& path)
+{
+    std::filesystem::path p(path);
+
+    // Remove the last component (package folder)
+    if (!p.empty()) {
+        p = p.parent_path();
+    }
+
+    return p.string();
+}
+
 
 namespace qos_profiles
 {
@@ -298,8 +312,11 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     }
     if(this->pending_box_responses_ <= 0)
     {
-        std::ofstream MyFile("box_data.txt");
+        
+        std::string raw = std::string(DRONEHIVE_SOURCE_DIR);
+        std::string real_path = get_workspace_root(raw);
 
+        std::ofstream MyFile(real_path + "/box_data.txt");
         // Write to the file
         for(BoxData box_data : this->data)
         {
