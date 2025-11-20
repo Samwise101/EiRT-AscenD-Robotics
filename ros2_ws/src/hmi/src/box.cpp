@@ -1,7 +1,7 @@
 #include <iostream>
 #include "box.h"
 
-Box::Box(int type, Coordinates coord, std::string id, std::string status, int number) : 
+Box::Box(BoxType type, Coordinates coord, std::string id, std::string status, int number) : 
 box_type(type), coord(coord), id(id), number(number), status(status), assigned_drone_id("")
 {
 
@@ -9,12 +9,12 @@ box_type(type), coord(coord), id(id), number(number), status(status), assigned_d
 
 Box::~Box(){}
 
-void Box::set_box_type(int type)
+void Box::set_box_type(BoxType type)
 {
     this->box_type = type;
 }
 
-int Box::get_box_type()
+BoxType Box::get_box_type()
 {
     return this->box_type;
 }

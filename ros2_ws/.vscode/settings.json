@@ -95,7 +95,9 @@
         "stack": "cpp",
         "qfiledialog": "cpp",
         "qxmlstreamreader": "cpp",
-        "qwidget": "cpp"
+        "qwidget": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp"
     },
     "cmake.sourceDirectory": "/home/samuel/EiRT-AscenD-Robotics/ros2_ws/src/dronehive_interfaces"
 }

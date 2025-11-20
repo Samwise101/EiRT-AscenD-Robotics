@@ -19,6 +19,16 @@ enum BoxType {
     UNKNOWN
 };
 
+inline std::string boxTypeToString(BoxType s)
+{
+    switch(s)
+    {
+        case BoxType::SLAVE: return "SLAVE";
+        case BoxType::MASTER: return "MASTER";
+        default: return "UNKNOWN";
+    }
+}
+
 
 enum class BoxState { UNKNOWN, EMPTY, OCCUPIED };
 
@@ -44,12 +54,12 @@ inline BoxState boxStateFromString(const std::string& str) {
 class Box
 {
     public:
-        explicit Box(int type, Coordinates coord, std::string id, std::string status, int number);
+        explicit Box(BoxType type, Coordinates coord, std::string id, std::string status, int number);
         ~Box();
 
     public:
-        int get_box_type(void);
-        void set_box_type(int);
+        BoxType get_box_type(void);
+        void set_box_type(BoxType);
         void set_box_status(std::string status);
 
         void set_assigned_drone_id(std::string drone_id);
@@ -69,7 +79,7 @@ class Box
         void set_box_landing_alt(float value);
 
     private:
-        int box_type;
+        BoxType box_type;
         float box_landing_position_lat;
         float box_landing_position_lon;
         float box_landing_position_alt;

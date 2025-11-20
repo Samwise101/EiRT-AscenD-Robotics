@@ -94,7 +94,7 @@ App::App() : Node("app_node")
     });
     this->notify_gui_srv_ = this->create_service<dronehive_interfaces::srv::OccupancyService>("/dronehive/drone_update_box_state",std::bind(&App::onNotifyGui, this, std::placeholders::_1, std::placeholders::_2));
      // One timer for all service requests
-    service_timer_ = this->create_wall_timer(std::chrono::seconds(5), std::bind(&App::onServiceTimer, this));
+    service_timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&App::onServiceTimer, this));
 }
 
 App::~App()
@@ -158,7 +158,7 @@ void App::onServiceTimer()
         this->waypoints.clear();
     }
 
-    if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared)
+    if(this->box_status_client_->wait_for_service(std::chrono::seconds(5)) && this->get_box_status_request_appeared)
     {
         if(box_id.empty()) return;
 

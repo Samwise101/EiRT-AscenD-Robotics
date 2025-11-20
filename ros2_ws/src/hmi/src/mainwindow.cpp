@@ -17,7 +17,7 @@ namespace qos_profiles
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0), master_found(true)
+    : QMainWindow(parent), ui(new Ui::MainWindow), master_exists(false), number_of_boxes(0), new_box_request(false), currentBoxIndex(0)
 {
     this->ui->setupUi(this);
 
@@ -317,8 +317,12 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
             ui->boxComboBox->addItem(id);
         }
         Coordinates coord{box_lat, box_lon, box_elv};
-        if(isMaster())
+
+        std::cout << "Master exists: " << this->master_exists << std::endl;
+
+        if(!this->master_exists)
         {
+            this->master_exists = true;
             Box box(BoxType::MASTER, coord, box_id, box_status, this->boxes.size() + 1);
             this->boxes.push_back(box);
         }
@@ -382,10 +386,8 @@ void MainWindow::onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxF
 
         this->ui->boxIdValueLabel->setText(QString::fromStdString(box_id));
 
-        if(isMaster())
-            this->ui->boxTypeValueLabel->setText("Master");
-        else
-            this->ui->boxTypeValueLabel->setText("Slave");
+        int box_index = this->ui->boxComboBox->currentIndex();
+        this->ui->boxTypeValueLabel->setText(QString::fromStdString(boxTypeToString(boxes[box_index].get_box_type())));
 
         std::cout << "New  box status = " << box_status << std::endl;
 
@@ -463,8 +465,9 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
         Coordinates coord{dialog.get_box_lat(),dialog.get_box_lon(),dialog.get_box_alt()};
         std::cout << "Coord" << coord.alt << std::endl;
 
-        if(isMaster())
+        if(!this->master_exists)
         {
+            this->master_exists = true;
             std::cout << "Adding a MASTER box\n";
             Box box(BoxType::MASTER, coord, return_msg.box_id, boxStatusToString(BoxState::EMPTY) ,this->boxes.size() + 1);
             this->boxes.push_back(box);
@@ -488,7 +491,6 @@ void MainWindow::onNewBoxMessage(const dronehive_interfaces::msg::BoxSetupConfir
         return_msg.confirm = false;
         response_pub_->publish(return_msg);
     }
-    std::cout << "Hello2\n";
 }
 
 void MainWindow::onBackEndStopped()
@@ -823,10 +825,7 @@ void MainWindow::on_boxComboBox_currentIndexChanged(int index)
 
         int box_type = this->boxes[index].get_box_type();
 
-        if(box_type == BoxType::SLAVE)
-            this->ui->boxTypeValueLabel->setText("Slave");
-        else if(box_type == BoxType::MASTER)
-            this->ui->boxTypeValueLabel->setText("Master");
+        this->ui->boxTypeValueLabel->setText(QString::fromStdString(boxTypeToString(this->boxes[index].get_box_type())));
     }
 }
 
@@ -1088,13 +1087,14 @@ void MainWindow::on_restartButton_pushButton_clicked()
 
 bool MainWindow::isMaster()
 {
-    if(this->master_found)
+    if(!this->master_exists)
     {
-        this->master_found = false;
+        this->master_exists = true;
         return true;
     }
-
-    return this->master_found;
+    else{
+        return false;
+    }
 }
 
 void MainWindow::on_arm_pushButton_clicked()
