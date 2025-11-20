@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
-    <height>363</height>
+    <width>436</width>
+    <height>233</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,11 +18,11 @@
     <rect>
      <x>9</x>
      <y>9</y>
-     <width>401</width>
-     <height>341</height>
+     <width>421</width>
+     <height>211</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
     <item>
      <widget class="QLabel" name="label">
       <property name="font">
@@ -39,37 +39,6 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Box Type:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBox">
-        <item>
-         <property name="text">
-          <string>Slave</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Master</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -103,7 +72,7 @@
         <item>
          <widget class="QLineEdit" name="boxLatLineEdit">
           <property name="readOnly">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -121,7 +90,7 @@
         <item>
          <widget class="QLineEdit" name="boxLonLineEdit">
           <property name="readOnly">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -139,7 +108,7 @@
         <item>
          <widget class="QLineEdit" name="boxAltLineEdit">
           <property name="readOnly">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -200,28 +169,12 @@
    <slot>on_cancle_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>129</x>
-     <y>333</y>
+     <x>90</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>146</x>
      <y>201</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBox</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>NewBoxDialog</receiver>
-   <slot>on_comboBox_currentIndexChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>407</x>
-     <y>110</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>401</x>
-     <y>55</y>
     </hint>
    </hints>
   </connection>
@@ -232,8 +185,8 @@
    <slot>on_add_pushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>333</y>
+     <x>427</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -248,8 +201,8 @@
    <slot>on_boxIdLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>171</x>
-     <y>152</y>
+     <x>231</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>264</x>
@@ -264,8 +217,8 @@
    <slot>on_boxLatLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>220</x>
-     <y>207</y>
+     <x>400</x>
+     <y>112</y>
     </hint>
     <hint type="destinationlabel">
      <x>302</x>
@@ -280,8 +233,8 @@
    <slot>on_boxLonLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>258</x>
-     <y>248</y>
+     <x>426</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>301</x>
@@ -296,12 +249,12 @@
    <slot>on_boxAltLineEdit_editingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>296</x>
-     <y>264</y>
+     <x>426</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
-     <y>292</y>
+     <y>232</y>
     </hint>
    </hints>
   </connection>

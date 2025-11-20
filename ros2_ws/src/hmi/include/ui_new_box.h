@@ -12,7 +12,6 @@
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
@@ -30,9 +29,6 @@ public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
     QLabel *label;
-    QHBoxLayout *horizontalLayout;
-    QLabel *label_2;
-    QComboBox *comboBox;
     QHBoxLayout *horizontalLayout_2;
     QLabel *box_id_label;
     QLineEdit *boxIdLineEdit;
@@ -55,10 +51,10 @@ public:
     {
         if (NewBoxDialog->objectName().isEmpty())
             NewBoxDialog->setObjectName(QString::fromUtf8("NewBoxDialog"));
-        NewBoxDialog->resize(418, 363);
+        NewBoxDialog->resize(436, 233);
         verticalLayoutWidget = new QWidget(NewBoxDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(9, 9, 401, 341));
+        verticalLayoutWidget->setGeometry(QRect(9, 9, 421, 211));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
@@ -72,27 +68,6 @@ public:
         label->setAlignment(Qt::AlignCenter);
 
         verticalLayout->addWidget(label);
-
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        label_2 = new QLabel(verticalLayoutWidget);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-        QFont font1;
-        font1.setBold(true);
-        font1.setWeight(75);
-        label_2->setFont(font1);
-
-        horizontalLayout->addWidget(label_2);
-
-        comboBox = new QComboBox(verticalLayoutWidget);
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
-
-        horizontalLayout->addWidget(comboBox);
-
-
-        verticalLayout->addLayout(horizontalLayout);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
@@ -121,7 +96,7 @@ public:
 
         boxLatLineEdit = new QLineEdit(verticalLayoutWidget);
         boxLatLineEdit->setObjectName(QString::fromUtf8("boxLatLineEdit"));
-        boxLatLineEdit->setReadOnly(true);
+        boxLatLineEdit->setReadOnly(false);
 
         horizontalLayout_3->addWidget(boxLatLineEdit);
 
@@ -137,7 +112,7 @@ public:
 
         boxLonLineEdit = new QLineEdit(verticalLayoutWidget);
         boxLonLineEdit->setObjectName(QString::fromUtf8("boxLonLineEdit"));
-        boxLonLineEdit->setReadOnly(true);
+        boxLonLineEdit->setReadOnly(false);
 
         horizontalLayout_7->addWidget(boxLonLineEdit);
 
@@ -153,7 +128,7 @@ public:
 
         boxAltLineEdit = new QLineEdit(verticalLayoutWidget);
         boxAltLineEdit->setObjectName(QString::fromUtf8("boxAltLineEdit"));
-        boxAltLineEdit->setReadOnly(true);
+        boxAltLineEdit->setReadOnly(false);
 
         horizontalLayout_6->addWidget(boxAltLineEdit);
 
@@ -191,7 +166,6 @@ public:
 
         retranslateUi(NewBoxDialog);
         QObject::connect(pushButton, SIGNAL(clicked()), NewBoxDialog, SLOT(on_cancle_pushButton_clicked()));
-        QObject::connect(comboBox, SIGNAL(currentIndexChanged(int)), NewBoxDialog, SLOT(on_comboBox_currentIndexChanged()));
         QObject::connect(pushButton_2, SIGNAL(clicked()), NewBoxDialog, SLOT(on_add_pushButton_clicked()));
         QObject::connect(boxIdLineEdit, SIGNAL(editingFinished()), NewBoxDialog, SLOT(on_boxIdLineEdit_editingFinished()));
         QObject::connect(boxLatLineEdit, SIGNAL(editingFinished()), NewBoxDialog, SLOT(on_boxLatLineEdit_editingFinished()));
@@ -205,10 +179,6 @@ public:
     {
         NewBoxDialog->setWindowTitle(QCoreApplication::translate("NewBoxDialog", "Dialog", nullptr));
         label->setText(QCoreApplication::translate("NewBoxDialog", "New Box Settings", nullptr));
-        label_2->setText(QCoreApplication::translate("NewBoxDialog", "Box Type:", nullptr));
-        comboBox->setItemText(0, QCoreApplication::translate("NewBoxDialog", "Slave", nullptr));
-        comboBox->setItemText(1, QCoreApplication::translate("NewBoxDialog", "Master", nullptr));
-
         box_id_label->setText(QCoreApplication::translate("NewBoxDialog", "Box ID: ", nullptr));
         label_4->setText(QCoreApplication::translate("NewBoxDialog", "Box Landing Position Lat:", nullptr));
         label_5->setText(QCoreApplication::translate("NewBoxDialog", "Box Landing Position Lon:", nullptr));

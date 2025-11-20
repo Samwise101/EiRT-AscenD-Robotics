@@ -1154,8 +1154,6 @@ void MainWindow::on_resumeTrajectoryButton_pushButton_clicked()
 {
     std::cout << "Hello from resume trajectory button" << std::endl;
 
-    this->resume_trajectory_status = (!this->resume_trajectory_status);
-
     if(this->resume_trajectory_status)
     {
         QIcon icon(":/resources/icons/pause.png");
@@ -1167,6 +1165,8 @@ void MainWindow::on_resumeTrajectoryButton_pushButton_clicked()
         this->ui->resumeTrajectoryButton->setIcon(icon);
         this->ui->resumeTrajectoryButton->setText("Resume\nTrajectory");
     }
+
+    this->resume_trajectory_status = (!this->resume_trajectory_status);
 }
 
 void MainWindow::on_upload_path_pushButton_clicked()
