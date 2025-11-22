@@ -62,6 +62,7 @@ class XL430Controller(Node):
 		self.baudrate = baudrate
 		self.dxl_id = dxl_id
 		self.protocol_version = 2.0
+		self.stopped = True
 
 		config = Config.load()
 		callback_group = ReentrantCallbackGroup()
@@ -160,6 +161,7 @@ class XL430Controller(Node):
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 0)  # disable torque before changing
 		self.write1(ControlCommand.ADDR_OPERATING_MODE, mode)
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 1)
+		self.stopped = False
 		get_logger(f"motor_{self.dxl_id}").info(f"Operating mode set to {mode}")
 
 
@@ -172,7 +174,7 @@ class XL430Controller(Node):
 		self.write4(ControlCommand.ADDR_GOAL_POSITION, position_ticks)
 		get_logger(f"motor_{self.dxl_id}").info(f"Moving to {position_ticks} ticks...")
 
-		while rclpy_ok():
+		while rclpy_ok() or not self.stopped:
 			pos = self.read4(ControlCommand.ADDR_PRESENT_POSITION)
 			cur = self.read2(ControlCommand.ADDR_PRESENT_CURRENT)
 			get_logger(f"motor_{self.dxl_id}").info(f"REQUESETED: {position_ticks:10f} Pos: {pos}, Current: {cur}")
@@ -215,6 +217,7 @@ class XL430Controller(Node):
 		"""Stop by writing zero velocity and disabling torque."""
 		try:
 			self.write4(ControlCommand.ADDR_GOAL_VELOCITY, 0)
+			self.stopped = True
 		except Exception:
 			pass
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 0)
