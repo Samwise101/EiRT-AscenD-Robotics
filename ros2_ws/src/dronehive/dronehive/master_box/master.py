@@ -529,7 +529,7 @@ class MasterBoxNode(Node):
 
 
 	def open_close_box_via_motor(self, open: bool, box_id: str | None = None) -> bool:
-
+		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
 		if box_id is None:
 			box_id = self.config.box_id
 
@@ -539,7 +539,7 @@ class MasterBoxNode(Node):
 		)
 
 		if not client.wait_for_service(timeout_sec=1.0):
-			self.get_logger().info("Waiting for motor controller service to be available...")
+			self.get_logger().warn("Waiting for motor controller service to be available...")
 			return False
 
 		future: Future = client.call_async(SetBool.Request(data=open))
@@ -780,6 +780,8 @@ class MasterBoxNode(Node):
 			# 	return response
 
 			# response.ack = self.motor.open_box()
+
+			self.open_close_box_via_motor(open=True, box_id=box_id)
 
 			if not drone_client.wait_for_service(timeout_sec=2.0):
 				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")

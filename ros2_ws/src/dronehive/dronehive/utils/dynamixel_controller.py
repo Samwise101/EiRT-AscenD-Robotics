@@ -66,6 +66,7 @@ class XL430Controller(Node):
 
 		config = Config.load()
 		callback_group = ReentrantCallbackGroup()
+		self.get_logger().info(f"Setting up XL430Controller on service namespace /{config.box_id}/motor_{self.dxl_id}")
 		self.create_service(
 			SetBool,
 			f'/{config.box_id}/motor_{self.dxl_id}/open_box',
@@ -96,6 +97,7 @@ class XL430Controller(Node):
 
 
 	def handle_open_box(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
+		self.get_logger().info(f"Received open_box request: {'open' if request.data else 'close'}")
 		if request.data:
 			response.success = self.open_box()
 			if response.success:
