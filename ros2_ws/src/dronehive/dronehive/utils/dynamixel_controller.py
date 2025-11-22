@@ -64,6 +64,7 @@ class XL430Controller(Node):
 
 		config = Config.load()
 		self.create_service(SetBool, f'/{config.box_id}/motor_{self.dxl_id}/open_box', self.handle_open_box)
+		self.create_service(SetBool, f'/{config.box_id}/motor_{self.dxl_id}/stop', self.handle_stop)
 
 		# --- Setup SDK handlers ---
 		self.port_handler = PortHandler(self.device_name)
@@ -86,6 +87,7 @@ class XL430Controller(Node):
 			if response.success:
 				get_logger(f"motor_{self.dxl_id}").info("Box opened successfully.")
 			else:
+				response.message = "Failed to open box."
 				get_logger(f"motor_{self.dxl_id}").error("Failed to open box.")
 
 		else:
@@ -93,8 +95,16 @@ class XL430Controller(Node):
 			if response.success:
 				get_logger(f"motor_{self.dxl_id}").info("Box closed successfully.")
 			else:
+				response.message = "Failed to close box."
 				get_logger(f"motor_{self.dxl_id}").error("Failed to close box.")
 
+		return response
+
+
+	def handle_stop(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
+		self.stop()
+		response.success = True
+		get_logger(f"motor_{self.dxl_id}").info("Motor stopped via service call.")
 		return response
 
 
@@ -219,7 +229,7 @@ class XL430Controller(Node):
 
 def main(args=None):
 	rclpy.init(args=args)
-	motor = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=1)
+	motor = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=0)
 	executor = MultiThreadedExecutor()
 	executor.add_node(motor)
 
