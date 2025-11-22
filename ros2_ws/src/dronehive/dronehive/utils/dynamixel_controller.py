@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rclpy.callback_groups import ReentrantCallbackGroup
 from dronehive.utils import Config
 import rclpy
 from rclpy.utilities import ok as rclpy_ok
@@ -63,8 +64,20 @@ class XL430Controller(Node):
 		self.protocol_version = 2.0
 
 		config = Config.load()
-		self.create_service(SetBool, f'/{config.box_id}/motor_{self.dxl_id}/open_box', self.handle_open_box)
-		self.create_service(SetBool, f'/{config.box_id}/motor_{self.dxl_id}/stop', self.handle_stop)
+		callback_group = ReentrantCallbackGroup()
+		self.create_service(
+			SetBool,
+			f'/{config.box_id}/motor_{self.dxl_id}/open_box',
+			self.handle_open_box,
+			callback_group=callback_group
+		)
+
+		self.create_service(
+			SetBool,
+			f'/{config.box_id}/motor_{self.dxl_id}/stop',
+			self.handle_stop,
+			callback_group=callback_group
+		)
 
 		# --- Setup SDK handlers ---
 		self.port_handler = PortHandler(self.device_name)
