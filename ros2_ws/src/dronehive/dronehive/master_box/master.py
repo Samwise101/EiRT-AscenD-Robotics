@@ -535,22 +535,26 @@ class MasterBoxNode(Node):
 
 		client = self.temp_node.create_client(
 			SetBool,
-			f"/{box_id}/motor_1/open_box",
+			f"/{box_id}/motor_0/open_box",
 		)
 
+		self.get_logger().info("Waiting for motor controller service to be available...")
 		if not client.wait_for_service(timeout_sec=1.0):
-			self.get_logger().warn("Waiting for motor controller service to be available...")
+			self.get_logger().error("Motor controller service not available.")
 			return False
 
+		self.get_logger().info("Motor controller service available. Sending request...")
 		future: Future = client.call_async(SetBool.Request(data=open))
 		exec = SingleThreadedExecutor()
 		exec.add_node(self.temp_node)
 		exec.spin_until_future_complete(future)
+		exec.shutdown()
 
 		if not future.result() or not future.result().success:
 			self.get_logger().error("Failed to open box via motor controller.")
 			return False
 
+		self.get_logger().info("Box successfully opened/closed via motor controller.")
 		return True
 
 	#####################
