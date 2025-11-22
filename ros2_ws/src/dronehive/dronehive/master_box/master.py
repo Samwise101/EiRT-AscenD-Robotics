@@ -5,6 +5,7 @@ from rclpy.callback_groups import (
 	ReentrantCallbackGroup,
 	MutuallyExclusiveCallbackGroup,
 )
+from std_srvs.srv import SetBool
 
 from rclpy.executors import SingleThreadedExecutor
 
@@ -64,7 +65,6 @@ class MasterBoxNode(Node):
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 		self.known_drones: set[str] = set()
-		self.motor: dh.XL430Controller | None = None
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
 
@@ -101,13 +101,6 @@ class MasterBoxNode(Node):
 		self.create_actions()
 
 		self.gather_slave_boxes_states()
-
-		# Initialise the motor controller
-		try:
-			self.motor = dh.XL430Controller(dxl_id=0)
-		except Exception as e:
-			self.get_logger().error(f"Failed to initialise motor controller: {e}")
-			self.motor = None
 
 		# Drop the initialiser to free memory
 		self.initialiser = None
@@ -323,7 +316,6 @@ class MasterBoxNode(Node):
 		self.get_logger().warn("Deinitialising box as requested...")
 		dh.dronehive_deinitialise(self.config)
 		self.linked_slave_boxes = {}
-		self.motor = None
 
 		def deferred_reinit():
 			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
@@ -421,6 +413,12 @@ class MasterBoxNode(Node):
 			msg: DroneStatusMessage - The message containing the drone status.
 		"""
 		# self.get_logger().info(f"Republishing drone status message for drone ID: '{msg.drone_id}'")
+		if msg.reached_first_waypoint:
+			box_id = self.find_box_id_from_drone_id(msg.drone_id)
+			if box_id is not None:
+				self.open_close_box_via_motor(open=False, box_id=box_id)
+
+
 		self.drone_state_republisher.publish(msg)
 
 
@@ -529,6 +527,32 @@ class MasterBoxNode(Node):
 			callback_group=MutuallyExclusiveCallbackGroup()
 		)
 
+
+	def open_close_box_via_motor(self, open: bool, box_id: str | None = None) -> bool:
+
+		if box_id is None:
+			box_id = self.config.box_id
+
+		client = self.temp_node.create_client(
+			SetBool,
+			f"/{box_id}/motor_1/open_box",
+		)
+
+		if not client.wait_for_service(timeout_sec=1.0):
+			self.get_logger().info("Waiting for motor controller service to be available...")
+			return False
+
+		future: Future = client.call_async(SetBool.Request(data=open))
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(future)
+
+		if not future.result() or not future.result().success:
+			self.get_logger().error("Failed to open box via motor controller.")
+			return False
+
+		return True
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
@@ -626,13 +650,7 @@ class MasterBoxNode(Node):
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
 		else:
-			# If the closest box is the master box, open the box.
-			if self.motor:
-				self.get_logger().info("Opening master box for incoming drone...")
-				self.motor.open_box()
-			else:
-				self.get_logger().error("Motor controller not initialised. Cannot open box.")
-
+			self.open_close_box_via_motor(open=True)
 
 		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
@@ -752,7 +770,7 @@ class MasterBoxNode(Node):
 		)
 
 		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
-		self.linked_slave_boxes[box_id].drone_id = ""
+		# self.linked_slave_boxes[box_id].drone_id = ""
 
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Executing trajectory on master box ID: '{box_id}' for drone ID: '{request.drone_id}'")

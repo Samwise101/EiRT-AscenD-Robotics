@@ -20,6 +20,7 @@ from dronehive_interfaces.srv import (
 	DroneTrajectoryWaypointsService,
 	RequestBoxOpenService,
 )
+from std_srvs.srv import SetBool
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -86,11 +87,6 @@ class SlaveBoxNode(Node):
 
 		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
-		try:
-			self.motor = dh.XL430Controller(dxl_id=0)
-		except Exception as e:
-			self.get_logger().error(f"Failed to initialise motor controller: {e}")
-			self.motor = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 		request=BoxStatusSlaveUpdateService.Request(
@@ -188,6 +184,28 @@ class SlaveBoxNode(Node):
 		self.get_logger().info(f"Responding with landing position: {response.landing_pos} and drone ID: {response.drone_id}")
 		return response
 
+	def open_close_box_via_motor(self, open: bool) -> bool:
+		client = self.temp_node.create_client(
+			SetBool,
+			f"/{self.config.box_id}/motor_1/open_box",
+		)
+
+		if not client.wait_for_service(timeout_sec=1.0):
+			self.get_logger().info("Waiting for motor controller service to be available...")
+			return False
+
+		future: Future = client.call_async(SetBool.Request(data=open))
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(future)
+
+		if not future.result() or not future.result().success:
+			self.get_logger().error("Failed to open box via motor controller.")
+			return False
+
+		return True
+
+
 	def handle_trajectory_waypoints_request(self,
 										 request: DroneTrajectoryWaypointsService.Request,
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
@@ -196,12 +214,7 @@ class SlaveBoxNode(Node):
 		self.config.drone_id = ""
 		self.config.save()
 
-		if not self.motor:
-			response.ack = False
-			self.get_logger().error("Motor controller not initialised.")
-			return response
-
-		response.ack = self.motor.open_box()
+		response.ack = self.open_close_box_via_motor(open=True)
 		self.get_logger().info("Box opened.")
 
 		return response
@@ -210,12 +223,7 @@ class SlaveBoxNode(Node):
 	def handle_box_open_request(self, request: RequestBoxOpenService.Request,
 								response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
 
-		if not self.motor:
-			response.ack = False
-			self.get_logger().error("Motor controller not initialised.")
-			return response
-
-		response.ack = self.motor.open_box()
+		response.ack = self.open_close_box_via_motor(open=True)
 		if response.ack:
 			self.get_logger().info(f"Box ID: {self.config.box_id} opened successfully.")
 		else:
@@ -253,10 +261,6 @@ class SlaveBoxNode(Node):
 
 			# Recreate the initialisation publisher and timer.
 			self.box_init_interfaces()
-
-			# Destroy motor controller if exists.
-			if self.motor is not None:
-				self.motor.destroy()
 
 
 	def destroy_interfaces(self) -> None:
