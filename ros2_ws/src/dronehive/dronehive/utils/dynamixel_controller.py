@@ -174,6 +174,7 @@ class XL430Controller(Node):
 		self.write4(ControlCommand.ADDR_GOAL_POSITION, position_ticks)
 		get_logger(f"motor_{self.dxl_id}").info(f"Moving to {position_ticks} ticks...")
 
+		now = time.time()
 		while rclpy_ok() or not self.stopped:
 			pos = self.read4(ControlCommand.ADDR_PRESENT_POSITION)
 			cur = self.read2(ControlCommand.ADDR_PRESENT_CURRENT)
@@ -184,7 +185,7 @@ class XL430Controller(Node):
 				self.stop()
 				return True
 
-			if abs(cur) > MAX_CURRENT:
+			if abs(cur) > MAX_CURRENT and (time.time() - now) > 2.0:
 				# If the current is too high, the motor is likely stalled or obstructed
 				# and the target position is not reached.
 				get_logger(f"motor_{self.dxl_id}").warn("High current detected! Stopping.")
