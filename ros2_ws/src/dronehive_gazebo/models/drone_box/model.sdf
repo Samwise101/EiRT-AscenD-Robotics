@@ -1,0 +1,457 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+ <!-- Working reference SDF file, moved to URDF with ROS CTRL -->
+  <model name="drone_box">
+    <static>false</static>
+
+    <!-- Top beams -->
+    <link name="top_beam_front">
+      <pose>0 0.595 0.60 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="top_beam_back">
+      <pose>0 -0.595 0.60 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="top_beam_left">
+      <pose>0.595 0 0.60 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="top_beam_right">
+      <pose>-0.595 0 0.60 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Bottom beams -->
+    <link name="bottom_beam_front">
+      <pose>0 0.595 0.0 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="bottom_beam_back">
+      <pose>0 -0.595 0.0 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>1.29 0.10 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+
+    <link name="bottom_beam_left">
+      <pose>0.595 0 0.0 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="bottom_beam_right">
+      <pose>-0.595 0 0.0 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 1.29 0.10</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Vertical beams -->
+    <link name="vertical_fl">
+      <pose>0.595 0.595 0.30 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="vertical_fr">
+      <pose>-0.595 0.595 0.30 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="vertical_bl">
+      <pose>0.595 -0.595 0.30 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <link name="vertical_br">
+      <pose>-0.595 -0.595 0.30 0 0 0</pose>
+
+      <gravity>0</gravity>
+      <kinematic>true</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.10 0.10 0.60</size></box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Sliding platform -->
+    <link name="sliding_platform">
+      <pose>0 0 0.075 0 0 0</pose>
+
+      <gravity>1</gravity>
+      <kinematic>false</kinematic>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>1.09 1.09 0.02</size></box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <box><size>1.09 1.09 0.05</size></box>
+        </geometry>
+        <material>
+          <ambient>0.2 0.2 0.2 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+
+    <!-- Prismatic joint for sliding tray (slides along +Y) -->
+    <joint name="slide_joint" type="prismatic">
+      <parent>bottom_beam_back</parent>
+      <child>sliding_platform</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0.93</upper>
+        </limit>
+      </axis>
+    </joint>
+
+  </model>
+</sdf>

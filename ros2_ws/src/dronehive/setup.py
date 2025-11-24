@@ -27,7 +27,8 @@ setup(
             'box_node = dronehive.box_node:main',
             'slave_node = dronehive.slave_box_node:main',
             'dummy_confirm = dronehive.dummy:main',
-            'dummy_drone = dronehive.dummy_drone:main'
+            'dummy_drone = dronehive.dummy_drone:main',
+            'new_box_responder = dronehive.new_box_responder:main'
         ],
     },
 )

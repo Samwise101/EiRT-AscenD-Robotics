@@ -81,5 +81,19 @@
         "__bit_reference": "cpp",
         "__string": "cpp",
         "ios": "cpp"
-    }
+    },
+    "python.autoComplete.extraPaths": [
+        "/home/fljv/Desktop/new/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages",
+        "/home/fljv/Desktop/new/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages",
+        "/home/fljv/Desktop/new/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/fljv/Desktop/new/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages",
+        "/home/fljv/Desktop/new/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages",
+        "/home/fljv/Desktop/new/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
 }

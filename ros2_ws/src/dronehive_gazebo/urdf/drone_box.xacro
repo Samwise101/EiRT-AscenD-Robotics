@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+<robot name="drone_box" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Base link (frame beams) -->
+  <link name="base_link">
+    <inertial>
+      <mass value="10.0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+               iyy="1.0" iyz="0.0"
+               izz="1.0"/>
+    </inertial>
+
+    <!-- Bottom beams (z = 0.0) -->
+
+    <!-- Front bottom beam -->
+    <visual name="bottom_beam_front_visual">
+      <origin xyz="0 0.595 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="bottom_beam_front_collision">
+      <origin xyz="0 0.595 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Back bottom beam -->
+    <visual name="bottom_beam_back_visual">
+      <origin xyz="0 -0.595 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="bottom_beam_back_collision">
+      <origin xyz="0 -0.595 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Left bottom beam -->
+    <visual name="bottom_beam_left_visual">
+      <origin xyz="0.595 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="bottom_beam_left_collision">
+      <origin xyz="0.595 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Right bottom beam -->
+    <visual name="bottom_beam_right_visual">
+      <origin xyz="-0.595 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="bottom_beam_right_collision">
+      <origin xyz="-0.595 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Top beams (z = 0.60) -->
+
+    <!-- Front top beam -->
+    <visual name="top_beam_front_visual">
+      <origin xyz="0 0.595 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="top_beam_front_collision">
+      <origin xyz="0 0.595 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Back top beam -->
+    <visual name="top_beam_back_visual">
+      <origin xyz="0 -0.595 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="top_beam_back_collision">
+      <origin xyz="0 -0.595 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.29 0.10 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Left top beam -->
+    <visual name="top_beam_left_visual">
+      <origin xyz="0.595 0 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="top_beam_left_collision">
+      <origin xyz="0.595 0 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Right top beam -->
+    <visual name="top_beam_right_visual">
+      <origin xyz="-0.595 0 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="top_beam_right_collision">
+      <origin xyz="-0.595 0 0.60" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 1.29 0.10"/>
+      </geometry>
+    </collision>
+
+    <!-- Vertical beams -->
+
+    <!-- Front-left -->
+    <visual name="vertical_fl_visual">
+      <origin xyz="0.595 0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="vertical_fl_collision">
+      <origin xyz="0.595 0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+    </collision>
+
+    <!-- Front-right -->
+    <visual name="vertical_fr_visual">
+      <origin xyz="-0.595 0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="vertical_fr_collision">
+      <origin xyz="-0.595 0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+    </collision>
+
+    <!-- Back-left -->
+    <visual name="vertical_bl_visual">
+      <origin xyz="0.595 -0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="vertical_bl_collision">
+      <origin xyz="0.595 -0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+    </collision>
+
+    <!-- Back-right -->
+    <visual name="vertical_br_visual">
+      <origin xyz="-0.595 -0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+      <material name="frame_blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision name="vertical_br_collision">
+      <origin xyz="-0.595 -0.595 0.30" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.10 0.60"/>
+      </geometry>
+    </collision>
+
+  </link>
+
+  <!-- Sliding platform (door) -->
+  <link name="sliding_platform">
+    <inertial>
+      <mass value="5.0"/>
+      <inertia ixx="0.1" ixy="0.0" ixz="0.0"
+               iyy="0.1" iyz="0.0"
+               izz="0.1"/>
+    </inertial>
+
+    <!-- Same size as SDF: 1.09 x 1.09 x 0.05 -->
+    <visual name="sliding_platform_visual">
+      <origin xyz="0 0 0.075" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.09 1.09 0.05"/>
+      </geometry>
+      <material name="door_grey">
+        <color rgba="0.2 0.2 0.2 1.0"/>
+      </material>
+    </visual>
+
+    <collision name="sliding_platform_collision">
+      <origin xyz="0 0 0.075" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.09 1.09 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Prismatic joint (slide along +X) -->
+  <joint name="slide_joint" type="prismatic">
+    <parent link="base_link"/>
+    <child link="sliding_platform"/>
+
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+
+    <!-- Same limits as SDF: 0 ... 0.93 m -->
+    <limit lower="0.0" upper="0.93"
+           effort="100.0" velocity="2.0"/>
+    <dynamics damping="1.0" friction="0.1"/>
+  </joint>
+
+  <!-- ros2_control description -->
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+
+    <joint name="slide_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <!-- Gazebo plugin that spins up controller_manager -->
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <parameters>$(find dronehive_gazebo)/config/ros2_control_params.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+</robot>
