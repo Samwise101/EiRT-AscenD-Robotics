@@ -70,6 +70,7 @@ class MasterBoxNode(Node):
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
 		self.lock = threading.Lock()
+		self.threads: dict[threading.Thread, threading.Event] = {}
 
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
@@ -465,6 +466,15 @@ class MasterBoxNode(Node):
 			)
 
 
+	def thread_wrapper(self, target, event, thread):
+		try:
+			target()
+		finally:
+			event.set()
+			if thread in self.threads:
+				del self.threads[thread]
+
+
 	def _republish_drone_status(self, msg: DroneStatusMessage) -> None:
 		"""
 		Callback for the DroneStatusMessage topic. This callback is used to republish the drone status
@@ -485,21 +495,28 @@ class MasterBoxNode(Node):
 
 		# if msg.landing_position != PositionMessage(int_min, int_min, int_min):
 		if msg.fligt_state == dh.FlightState.LANDING_HOME.value:
-			landing_status: dh.DroneLandingStatus | None = self.landing_drones.get(msg.drone_id, None)
-			if landing_status is None:
-				landing_status = dh.DroneLandingStatus(
-					msg.drone_id,
-					msg.position,
-					msg.landing_position,
-					np.linalg.norm(msg.position - msg.landing_position),
-				)
+			self.get_logger().info(f"Drone ID: '{msg.drone_id}' is landing. Coordinating landing...")
+			landing_status = dh.DroneLandingStatus(
+				msg.drone_id,
+				msg.position,
+				msg.landing_position,
+				np.linalg.norm(msg.position - msg.landing_position),
+			)
 
 			with self.lock:
 				self.landing_drones[msg.drone_id] = landing_status
 
-			t = threading.Thread(target=self.coordinate_landing_drones, daemon=True)
-			t.start()
+			event = threading.Event()
+			t = threading.Thread(
+				target=self.thread_wrapper,
+				args=(self.coordinate_landing_drones, event, None),
+				daemon=True
+			)
 
+			t._args = (self.coordinate_landing_drones, event, t)
+
+			self.threads[t] = event
+			t.start()
 			return
 
 
@@ -516,27 +533,29 @@ class MasterBoxNode(Node):
 
 		allowed_drones: dict[str, bool] = {}
 
-		for i, landing_status in enumerate(sorted_drones):
+		for i, drone_status in enumerate(sorted_drones):
 			# Allow only the closest drone to land
 			if i == 0:
-				self.get_logger().info(f"Allowing drone ID: '{landing_status.drone_id}' to land.")
-				allowed_drones[landing_status.drone_id] = True
+				self.get_logger().info(f"Allowing drone ID: '{drone_status.drone_id}' to land.")
+				allowed_drones[drone_status.drone_id] = True
 				continue
 
 			# For all the others check if they are too close to any of the allowed drones
-			# ERROR: They still may have conflicting trajecotires
+			# We check the distance between 2 drones. If they are closer than 2 meters, we request from the second drone to
+			# hold. This also prevents potential deadlocks, as the closest drone will always be allowed to land.
 			allowed = True
-			for ad in allowed_drones:
-				dist: float = np.linalg.norm(landing_status.position - landing_status[ad].position)
-				if dist < 2.0:
+			for ad in allowed_drones.keys():
+				drone_drone_dist: float = np.linalg.norm(drone_status.position - drone_status[ad].position)
+				if drone_drone_dist < 2.0:
 					allowed = False
 					break
 
-			allowed_drones[landing_status.drone_id] = allowed
+			allowed_drones[drone_status.drone_id] = allowed
 
 		msg: DroneToggleExecutionMessage = DroneToggleExecutionMessage()
 		msg.allow = list(allowed_drones.values())
 		msg.drone_ids = list(allowed_drones.keys())
+		self.get_logger().info(f"Publishing drone landing coordination message: {msg}")
 		self.drone_toggle_trajectory_execution_pub.publish(msg)
 
 
