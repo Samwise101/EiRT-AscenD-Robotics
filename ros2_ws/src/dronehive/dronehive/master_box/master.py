@@ -50,6 +50,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict
 import time
+import numpy as np
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -630,7 +631,7 @@ class MasterBoxNode(Node):
 				continue
 
 			# Evaluate the best box by the proximity defined by Euclidean distance.
-			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
+			distance = np.linalg.norm(request.drone_pos - box_status.position)
 			self.get_logger().info(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
 				closest_distance = distance
