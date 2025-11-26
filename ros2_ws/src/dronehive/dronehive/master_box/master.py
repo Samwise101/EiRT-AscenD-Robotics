@@ -528,7 +528,7 @@ class MasterBoxNode(Node):
 		)
 
 
-	def open_close_box_via_motor(self, open: bool, box_id: str | None = None) -> bool:
+	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
 		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
 		if box_id is None:
 			box_id = self.config.box_id
@@ -545,16 +545,25 @@ class MasterBoxNode(Node):
 
 		self.get_logger().info("Motor controller service available. Sending request...")
 		future: Future = client.call_async(SetBool.Request(data=open))
-		exec = SingleThreadedExecutor()
-		exec.add_node(self.temp_node)
-		exec.spin_until_future_complete(future)
-		exec.shutdown()
 
-		if not future.result() or not future.result().success:
-			self.get_logger().error("Failed to open box via motor controller.")
-			return False
+		if block:
+			exec = SingleThreadedExecutor()
+			exec.add_node(self.temp_node)
+			exec.spin_until_future_complete(future)
+			exec.shutdown()
 
-		self.get_logger().info("Box successfully opened/closed via motor controller.")
+			if not future.result() or not future.result().success:
+				self.get_logger().error("Failed to open box via motor controller.")
+				return False
+
+			self.get_logger().info("Box successfully opened/closed via motor controller.")
+		else:
+			future.add_done_callback(
+			lambda f:
+				self.get_logger().info("Box successfully opened/closed via motor controller."
+				if f.result() and f.result().success
+				else "Failed to open box via motor controller."))
+
 		return True
 
 	#####################
