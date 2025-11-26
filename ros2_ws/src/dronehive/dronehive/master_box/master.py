@@ -828,20 +828,20 @@ class MasterBoxNode(Node):
 			response.ack = False
 			return response
 
-		box_future = box_client.call_async(request)
-
 		if not drone_client.wait_for_service(timeout_sec=2.0):
 			self.temp_node.get_logger().error(f"Target service for box ID: '{box_id}' not available")
 			response.ack = False
 			return response
 
-		drone_future = drone_client.call_async(request)
+		box_future = box_client.call_async(request)
 
-
-		# Spin a temporary executor that only has the temp node
 		exec = SingleThreadedExecutor()
 		exec.add_node(self.temp_node)
 		exec.spin_until_future_complete(box_future)
+
+		drone_future = drone_client.call_async(request)
+
+		# Spin a temporary executor that only has the temp node
 		exec.spin_until_future_complete(drone_future)
 		exec.shutdown()
 
