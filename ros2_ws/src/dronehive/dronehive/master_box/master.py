@@ -476,7 +476,7 @@ class MasterBoxNode(Node):
 		self.create_service(
 			DroneLandingService,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
-			self.find_best_lending_place
+			self.find_best_landing_place
 		)
 
 		self.create_service(
@@ -582,7 +582,7 @@ class MasterBoxNode(Node):
 		return response
 
 
-	def find_best_lending_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
+	def find_best_landing_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
 		"""
 		Finds the best landing place for a drone based on its current position.
 		It will look for the closest empty slave box and assign it to the drone.
