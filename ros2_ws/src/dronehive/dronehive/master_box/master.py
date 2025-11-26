@@ -527,6 +527,14 @@ class MasterBoxNode(Node):
 			callback_group=MutuallyExclusiveCallbackGroup()
 		)
 
+		# Drone reached first waypoint service
+		self.create_service(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_DRONE_REACHED_FIRST_WAYPOINT_SERVICE,
+			self.handle_drone_reached_first_waypoint,
+			callback_group=ReentrantCallbackGroup()
+		)
+
 
 	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
 		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
@@ -997,6 +1005,40 @@ class MasterBoxNode(Node):
 			return response
 
 		response.ack = True
+		return response
+
+
+	def handle_drone_reached_first_waypoint(self,
+		request: AddRemoveDroneService.Request,
+		response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
+
+		self.get_logger().info(f"Received drone reached first waypoint notification for drone ID: '{request.drone_id}'")
+		box: BoxStatus = self.linked_slave_boxes[request.box_id]
+
+		box.status = BoxStatusEnum.EMPTY
+		box.drone_id = ""
+
+		if box.box_id == self.config.box_id:
+			self.get_logger().info(f"Drone ID: '{request.drone_id}' reached first waypoint in master box ID: '{box.box_id}'. Clearing drone ID from config.")
+
+			self.open_close_box_via_motor(open=False, block=False)
+
+			self.config.drone_id = ""
+			self.config.save()
+			response.ack = True
+			return response
+
+		else:
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Requested box open for box ID: {box.box_id}, Result: {future.result().ack}"
+				),
+			)
+			response.ack = True
+
 		return response
 
 	##################
