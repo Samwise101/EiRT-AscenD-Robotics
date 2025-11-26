@@ -6,3 +6,5 @@ float32 battery_percentage
 string fligt_state
 bool reached_first_waypoint
 PositionMessage current_position
+PositionMessage landing_position
+
