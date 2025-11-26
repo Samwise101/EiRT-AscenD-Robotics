@@ -29,6 +29,7 @@ DRONEHIVE_DRONE_LAND_REQUEST = "/dronehive/drone_land_request"
 DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
 
 DRONEHIVE_DRONE_STATUS_MESSAGE = "/dronehive/drone_status"
+DRONEHIVE_DRONE_LANDED_NOTIFICATION_TOPIC = "/dronehive/drone_landed_notification"
 
 ############
 # Services #

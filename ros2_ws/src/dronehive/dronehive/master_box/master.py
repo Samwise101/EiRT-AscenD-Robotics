@@ -238,6 +238,14 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		# Topic used by drones to leth the master box know they have landed.
+		self.create_subscription(
+			String,
+			dh.DRONEHIVE_DRONE_LANDED_NOTIFICATION_TOPIC,
+			self._drone_landed_notification_callback,
+			qos_profile
+		)
+
 		# Publishers
 		# Topic used to forward the initialisation confirmation of a slave box from the GUI to the slave box.
 		self.slave_box_confirm_init_pub = self.create_publisher(
@@ -403,6 +411,44 @@ class MasterBoxNode(Node):
 			)
 
 			self._pub_box_broadcast.publish(response)
+
+
+	def notify_gui_drone_landed(self, box_id: str, drone_id: str, landing_pos: PositionMessage) -> None:
+		request = OccupancyService.Request()
+		request.box_id = box_id
+		request.drone_id = drone_id
+
+		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
+
+		self.client_manager.call_async(
+			OccupancyService,
+			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
+			request,
+			lambda future: self.get_logger().info(
+				f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}, Occupancy result: {future.result().occupancy_status}"
+			),
+			10
+		)
+
+
+	def _drone_landed_notification_callback(self, msg: String) -> None:
+		self.get_logger().info(f"Received drone landed notification for drone ID: '{msg.data}'. Forwarding to GUI...")
+		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
+
+		box_id: str = self.find_box_id_from_drone_id(msg.data)
+		if box_id == self.config.box_id:
+			self.get_logger().info(f"Drone ID: '{msg.data}' has landed at master box ID: '{box_id}'. Closing box...")
+			self.open_close_box_via_motor(open=False, block=False)
+
+		else:
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Requested box close for box ID: {box_id}, Result: {future.result().ack}"
+				),
+			)
 
 
 	def _republish_drone_status(self, msg: DroneStatusMessage) -> None:
@@ -674,27 +720,8 @@ class MasterBoxNode(Node):
 		else:
 			self.open_close_box_via_motor(open=True)
 
-		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
 		return response
-
-
-	def notify_gui_drone_landed(self, box_id: str, drone_id: str, landing_pos: PositionMessage) -> None:
-		request = OccupancyService.Request()
-		request.box_id = box_id
-		request.drone_id = drone_id
-
-		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
-
-		self.client_manager.call_async(
-			OccupancyService,
-			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
-			request,
-			lambda future: self.get_logger().info(
-				f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}, Occupancy result: {future.result().occupancy_status}"
-			),
-			10
-		)
 
 
 	def return_home_request(self, request: RequestReturnHome.Request, response: RequestReturnHome.Response) -> RequestReturnHome.Response:
