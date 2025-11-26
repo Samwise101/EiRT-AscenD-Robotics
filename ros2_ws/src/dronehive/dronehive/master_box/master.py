@@ -778,19 +778,13 @@ class MasterBoxNode(Node):
 
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Executing trajectory on master box ID: '{box_id}' for drone ID: '{request.drone_id}'")
-			# if not self.motor:
-			# 	self.get_logger().error("Motor controller not initialised. Cannot open box.")
-			# 	response.ack = False
-			# 	return response
-
-			# response.ack = self.motor.open_box()
-
-			self.open_close_box_via_motor(open=True, box_id=box_id)
 
 			if not drone_client.wait_for_service(timeout_sec=2.0):
 				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
 				response.ack = False
 				return response
+
+			self.open_close_box_via_motor(open=True, box_id=box_id)
 
 			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			drone_future = drone_client.call_async(request)
