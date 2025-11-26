@@ -24,6 +24,7 @@ from dronehive_interfaces.msg import (
 	BoxBroadcastMessage,
 	BoxSetupConfirmationMessage,
 	DroneForceLandingMessage,
+	DroneToggleExecutionMessage,
 	DroneStatusMessage,
 	PositionMessage
 )
@@ -51,6 +52,7 @@ from enum import Enum
 from typing import Dict
 import time
 import numpy as np
+import threading
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -66,8 +68,10 @@ class MasterBoxNode(Node):
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 		self.known_drones: set[str] = set()
+		self.landing_drones: dict[str, dh.DroneLandingStatus] = set()
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
+		self.lock = threading.Lock()
 
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
@@ -286,6 +290,14 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.drone_toggle_trajectory_execution_pub = self.create_publisher(
+			DroneToggleExecutionMessage,
+			dh.DRONEHIVE_DRONE_TOGGLE_TRAJECTORY_EXECUTION_TOPIC,
+			qos_profile,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+
 	#####################
 	# Message callbacks #
 	#####################
@@ -436,6 +448,10 @@ class MasterBoxNode(Node):
 		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 
 		box_id: str = self.find_box_id_from_drone_id(msg.data)
+
+		with self.lock:
+			self.landing_drones.pop(msg.data, None)
+
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Drone ID: '{msg.data}' has landed at master box ID: '{box_id}'. Closing box...")
 			self.open_close_box_via_motor(open=False, block=False)
@@ -460,13 +476,70 @@ class MasterBoxNode(Node):
 			msg: DroneStatusMessage - The message containing the drone status.
 		"""
 		# self.get_logger().info(f"Republishing drone status message for drone ID: '{msg.drone_id}'")
-		if msg.reached_first_waypoint:
+		self.drone_state_republisher.publish(msg)
+
+		# TODO: remove once the propper way is implemented in the drone code
+		if msg.reached_first_waypoint and msg.fligt_state == dh.FlightState.EXECUTE_TRAJ.value:
 			box_id = self.find_box_id_from_drone_id(msg.drone_id)
 			if box_id is not None:
 				self.open_close_box_via_motor(open=False, box_id=box_id)
+				return
+
+		# if msg.landing_position != PositionMessage(int_min, int_min, int_min):
+		if msg.fligt_state == dh.FlightState.LANDING_HOME.value:
+			landing_status: dh.DroneLandingStatus | None = self.landing_drones.get(msg.drone_id, None)
+			if landing_status is None:
+				landing_status = dh.DroneLandingStatus(
+					msg.drone_id,
+					msg.position,
+					msg.landing_position,
+					np.linalg.norm(msg.position - msg.landing_position),
+				)
+
+			with self.lock:
+				self.landing_drones[msg.drone_id] = landing_status
+
+			t = threading.Thread(target=self.coordinate_landing_drones, daemon=True)
+			t.start()
+
+			return
 
 
-		self.drone_state_republisher.publish(msg)
+	def coordinate_landing_drones(self) -> None:
+		"""
+		Coordinates the landing of multiple drones to avoid collisions.
+		"""
+		# Sort drones by distance to landing position
+		with self.lock:
+			sorted_drones = sorted(
+				self.landing_drones.values(),
+				key=lambda x: x.distance_to_landing_pos
+			)
+
+		allowed_drones: dict[str, bool] = {}
+
+		for i, landing_status in enumerate(sorted_drones):
+			# Allow only the closest drone to land
+			if i == 0:
+				self.get_logger().info(f"Allowing drone ID: '{landing_status.drone_id}' to land.")
+				allowed_drones[landing_status.drone_id] = True
+				continue
+
+			# For all the others check if they are too close to any of the allowed drones
+			# ERROR: They still may have conflicting trajecotires
+			allowed = True
+			for ad in allowed_drones:
+				dist: float = np.linalg.norm(landing_status.position - landing_status[ad].position)
+				if dist < 2.0:
+					allowed = False
+					break
+
+			allowed_drones[landing_status.drone_id] = allowed
+
+		msg: DroneToggleExecutionMessage = DroneToggleExecutionMessage()
+		msg.allow = list(allowed_drones.values())
+		msg.drone_ids = list(allowed_drones.keys())
+		self.drone_toggle_trajectory_execution_pub.publish(msg)
 
 
 	#################
