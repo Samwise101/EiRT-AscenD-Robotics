@@ -158,6 +158,12 @@ class SlaveBoxNode(Node):
 		)
 
 		self.create_service(
+			RequestBoxOpenService,
+			dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{self.config.box_id}",
+			self.handle_box_close_request
+		)
+
+		self.create_service(
 			AddRemoveDroneService,
 			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE + f"_{self.config.box_id}",
 			self.handle_add_remove_drone_request
@@ -228,6 +234,19 @@ class SlaveBoxNode(Node):
 			self.get_logger().info(f"Box ID: {self.config.box_id} opened successfully.")
 		else:
 			self.get_logger().error(f"Failed to open box ID: {self.config.box_id}.")
+
+		return response
+
+
+	def handle_box_close_request(self,
+		request: RequestBoxOpenService.Request,
+		response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
+
+		response.ack = self.open_close_box_via_motor(open=False)
+		if response.ack:
+			self.get_logger().info(f"Box ID: {self.config.box_id} closed successfully.")
+		else:
+			self.get_logger().error(f"Failed to close box ID: {self.config.box_id}.")
 
 		return response
 
