@@ -1134,6 +1134,27 @@ class MasterBoxNode(Node):
 
 		if request.drone_id != "":
 			success = self._add_remove_drone(request.drone_id, add=True)
+
+			req = AddRemoveDroneService.Request()
+			req.drone_id = request.drone_id
+			req.box_id = request.box_id
+
+			def callback(future):
+				try:
+					result: AddRemoveDroneService.Response = future.result()
+					self.get_logger().info(
+						f"Assigned drone ID: '{request.drone_id}' to box ID: '{request.box_id}': ack={result.ack}"
+					)
+				except Exception as e:
+					self.get_logger().error(f"Failed to assign drone ID: '{request.drone_id}' to box ID: '{request.box_id}': {e}")
+
+			self.client_manager.call_async(
+				AddRemoveDroneService,
+				dh.DRONEHIVE_DRONE_ASSIGN_TO_BOX + f"_{request.drone_id}",
+				AddRemoveDroneService.Request,
+				callback,
+			)
+
 			if not success:
 				self.get_logger().warn(f"Drone ID: '{request.drone_id}' is already known in the system. Cannot add drone to box ID: '{request.box_id}'.")
 				response.ack = False
