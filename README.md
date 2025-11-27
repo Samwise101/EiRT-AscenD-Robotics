@@ -59,7 +59,5 @@ sudo apt install -y \
     libqt5charts5 libqt5charts5-dev \
     libqt5webkit5 libqt5webkit5-dev \
     libqt5webenginecore5 libqt5webenginewidgets5 qtwebengine5-dev \
-    qml-module-qtqml qml-module-qtquick-controls qml-module-qtquick-controls2 \
-    qml-module-qtquick-layouts qml-module-qtquick-window2 \
     libqtdatavisualization5 libqtdatavisualization5-dev
 ```
