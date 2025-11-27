@@ -751,7 +751,8 @@ class MasterBoxNode(Node):
 			exec.spin_until_future_complete(future)
 			exec.shutdown()
 
-			if not future.result() or not future.result().success:
+			response: SetBool.Response | None = future.result()
+			if response is None or not response.success:
 				self.get_logger().error("Failed to open box via motor controller.")
 				return False
 
