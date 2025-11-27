@@ -444,9 +444,12 @@ class MasterBoxNode(Node):
 
 	def _drone_landed_notification_callback(self, msg: String) -> None:
 		self.get_logger().info(f"Received drone landed notification for drone ID: '{msg.data}'. Forwarding to GUI...")
-		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
+		box_id: str | None = self.find_box_id_from_drone_id(msg.data)
+		box: BoxStatus | None = None
 
-		box_id: str = self.find_box_id_from_drone_id(msg.data)
+		if box_id is not None:
+			box = self.linked_slave_boxes[box_id]
+			self.notify_gui_drone_landed(box_id, msg.data, box.position)
 
 		with self.lock:
 			self.landing_drones.pop(msg.data, None)
@@ -455,7 +458,8 @@ class MasterBoxNode(Node):
 			self.get_logger().info(f"Drone ID: '{msg.data}' has landed at master box ID: '{box_id}'. Closing box...")
 			self.open_close_box_via_motor(open=False, block=False)
 
-		else:
+		elif box is not None:
+			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
 			self.client_manager.call_async(
 				RequestBoxOpenService,
 				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
