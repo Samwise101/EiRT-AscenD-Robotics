@@ -70,7 +70,7 @@ class MasterBoxNode(Node):
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
 		self.lock = threading.Lock()
-		self.threads: dict[threading.Thread, threading.Event] = {}
+		self.threads: dict[threading.Event, threading.Thread] = {}
 
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
@@ -470,13 +470,11 @@ class MasterBoxNode(Node):
 			)
 
 
-	def thread_wrapper(self, target, event, thread):
+	def thread_wrapper(self, target, event):
 		try:
 			target()
 		finally:
 			event.set()
-			if thread in self.threads:
-				del self.threads[thread]
 
 
 	def _republish_drone_status(self, msg: DroneStatusMessage) -> None:
@@ -513,13 +511,11 @@ class MasterBoxNode(Node):
 			event = threading.Event()
 			t = threading.Thread(
 				target=self.thread_wrapper,
-				args=(self.coordinate_landing_drones, event, None),
+				args=(self.coordinate_landing_drones, event),
 				daemon=True
 			)
 
-			t._args = (self.coordinate_landing_drones, event, t)
-
-			self.threads[t] = event
+			self.threads[event] = t
 			t.start()
 			return
 
@@ -572,6 +568,8 @@ class MasterBoxNode(Node):
 		self.slave_publish_timer = self.create_timer(1.0, self.__publish_slave_boxes)
 		self.slave_publish_timer.cancel()
 
+		self.create_timer(5.0, self._cleanup_finished_threads)
+
 	###################
 	# TIMER Callbacks #
 	###################
@@ -599,6 +597,14 @@ class MasterBoxNode(Node):
 
 		for box_id in to_remove:
 			self.uninitialised_slave_boxes.pop(box_id, None)
+
+
+	def _cleanup_finished_threads(self) -> None:
+		finished_events = [event for event, thread in self.threads.items() if not thread.is_alive()]
+		for event in finished_events:
+			if event.is_set():
+				self.get_logger().info("Cleaning up finished landing coordination thread.")
+				self.threads.pop(event, None)
 
 
 	###################
