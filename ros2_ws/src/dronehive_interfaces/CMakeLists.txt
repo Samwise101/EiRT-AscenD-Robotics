@@ -65,6 +65,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GuiDroneTrajectoryUpload.msg"
   "msg/GuiAddNewDrone.msg"
   "msg/ToggleTrajectory.msg"
+  "msg/DroneStopResumeTrajectory.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)
