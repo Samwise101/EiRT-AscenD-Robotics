@@ -53,6 +53,7 @@ ros2 topic pub /dronehive/deinitialise_box std_msgs/msg/String 'data: "<box_id>"
 ```
 
 ##### GUI Dependendencies
+```bash
 sudo apt update
 sudo apt install -y \
     libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5xml5 \
@@ -64,3 +65,4 @@ sudo apt install -y \
     qml-module-qtqml qml-module-qtquick-controls qml-module-qtquick-controls2 \
     qml-module-qtquick-layouts qml-module-qtquick-window2 \
     libqtdatavisualization5 libqtdatavisualization5-dev
+```
