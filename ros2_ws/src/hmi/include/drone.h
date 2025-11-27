@@ -38,6 +38,9 @@ class Drone
         void set_drone_lon(float value);
         float get_drone_lon();
 
+        void set_battery_level(float value);
+        float get_battery_level();
+
         void set_drone_id(std::string id);
         std::string get_drone_id();
 
@@ -69,6 +72,7 @@ class Drone
         std::string drone_id;
         QColor drone_color;
         std::string parentBoxID;
+        float battery_level;
 };
 
 #endif

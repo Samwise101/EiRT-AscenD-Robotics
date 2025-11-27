@@ -54,12 +54,18 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BoxStatusMessage.msg"
   "msg/DroneForceLandingMessage.msg"
   "msg/DroneStatusMessage.msg"
+  "msg/DroneToggleExecutionMessage.msg"
   "msg/ExecutePathMessage.msg"
   "msg/GuiCommand.msg"
   "msg/OccupancyMessage.msg"
   "msg/PositionMessage.msg"
   "msg/SetConfigMessage.msg"
   "msg/SetPathMessage.msg"
+  "msg/GuiDroneLandingRequest.msg"
+  "msg/GuiDroneTrajectoryUpload.msg"
+  "msg/GuiAddNewDrone.msg"
+  "msg/ToggleTrajectory.msg"
+  "msg/DroneStopResumeTrajectory.msg"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

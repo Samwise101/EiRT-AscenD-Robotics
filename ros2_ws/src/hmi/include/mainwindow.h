@@ -18,6 +18,7 @@
 #include <memory>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -27,6 +28,13 @@
 #include <dronehive_interfaces/msg/backend_command.hpp>
 #include <dronehive_interfaces/msg/box_full_status.hpp>
 #include <dronehive_interfaces/msg/occupancy_message.hpp>
+#include <dronehive_interfaces/msg/gui_drone_landing_request.hpp>
+#include <dronehive_interfaces/msg/gui_drone_trajectory_upload.hpp>
+#include <dronehive_interfaces/msg/gui_add_new_drone.hpp>
+#include <dronehive_interfaces/msg/toggle_trajectory.hpp>
+#include <dronehive_interfaces/msg/drone_force_landing_message.hpp>
+#include <dronehive_interfaces/msg/drone_stop_resume_trajectory.hpp>
+#include <dronehive_interfaces/msg/drone_status_message.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -38,6 +46,18 @@
 #include "flight_plan_dialog.h"
 #include "flight_preset_create_dialog.h"
 #include "helper.h"
+#include "add_drone_dialog.h"
+
+struct BoxData
+{
+    std::string box_id;
+    std::string drone_id;
+    std::string box_status;
+    std::string elv;
+    std::string lat;
+    std::string lon;
+};
+
 
 class MainWindow : public QMainWindow
 {
@@ -53,7 +73,7 @@ public:
     void update_box_comboBox(int& new_box_number);
     void cleanup();
 
-    bool isMasterId(std::string box_id);
+    bool isMaster();
 
     void onBackendMessage(const std_msgs::msg::String::SharedPtr msg);
     void onHeartBeatMessage(const std_msgs::msg::String::SharedPtr msg);
@@ -61,10 +81,11 @@ public:
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
     void onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg);
+    void onBackendDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg);
 
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
-    
+
 
 private slots:
 
@@ -77,7 +98,6 @@ private slots:
     void on_takeoff_pushButton_clicked();
     void on_return_home_pushButton_clicked();
     void on_land_pushButton_clicked();
-    void on_request_drone_status_pushButton_clicked();
     void on_upload_path_pushButton_clicked();
 
     void on_remove_box_pushButton_clicked();
@@ -93,6 +113,7 @@ private slots:
     void on_addDroneButton_pushButton_clicked();
     void on_restartButton_pushButton_clicked();
     void on_visualizationButton_pushButton_clicked();
+    void on_resumeTrajectoryButton_pushButton_clicked();
 
     void on_boxComboBox_currentIndexChanged(int index);
     void on_droneComboBox_currentIndexChanged(int index);
@@ -112,6 +133,9 @@ private:
     rclcpp::Publisher<dronehive_interfaces::msg::GuiCommand>::SharedPtr gui_cmd_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_find_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr response_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::GuiAddNewDrone>::SharedPtr gui_add_remove_drone_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>::SharedPtr gui_trajectory_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::DroneStopResumeTrajectory>::SharedPtr gui_drone_stop_start_traj_pub_;
 
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
@@ -119,6 +143,9 @@ private:
     rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxFullStatus>::SharedPtr backend_box_status_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr drone_box_status_change_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::DroneStatusMessage>::SharedPtr backend_drone_status_sub_;
+
+    std::mutex box_status_mutex_;
 
     std::vector<Box> boxes;
     std::vector<Drone> drones;
@@ -128,9 +155,10 @@ private:
     BackEndManager* backEndManager;
     QTimer* spinTimer_;
     bool new_box_request;
+    bool master_found;
     int currentBoxIndex;
     bool box_update_happened;
-    QLabel* imageLabel_drone; 
+    QLabel* imageLabel_drone;
     QLabel* imageLabel_box;
     QLabel* batteryImageLabel_drone;
     QLabel* batteryTextLabel_drone;
@@ -138,9 +166,12 @@ private:
     QLabel* batteryTextLabel_box;
     QListWidget* list_widget;
 
+    bool resume_trajectory_status;
+
     QtDataVisualization::Q3DScatter *scatter3D = nullptr;
     QtDataVisualization::QScatter3DSeries *trajectorySeries = nullptr;
     QWidget *scatterContainer = nullptr;
+	rclcpp::SubscriptionOptions subscription_options_reentrant_;
 
     bool visuals2dOn;
 };

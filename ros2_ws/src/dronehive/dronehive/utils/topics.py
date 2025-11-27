@@ -28,6 +28,11 @@ DRONEHIVE_DRONE_LAND_REQUEST = "/dronehive/drone_land_request"
 # Topic that receives a request for a drone to lend at a specific position.
 DRONEHIVE_REQUEST_LANDING_POS_TOPIC = "/dronehive/request_landing_pos"
 
+DRONEHIVE_DRONE_STATUS_MESSAGE = "/dronehive/drone_status"
+DRONEHIVE_DRONE_LANDED_NOTIFICATION_TOPIC = "/dronehive/drone_landed_notification"
+DRONEHIVE_DRONE_TOGGLE_TRAJECTORY_EXECUTION_TOPIC = "/dronehive/drone_toggle_trajectory_execution"
+DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION_TOPIC =  "/dronehive/drone_stop_resume_traj"
+
 ############
 # Services #
 ############
@@ -45,8 +50,11 @@ DRONEHIVE_GUI_REQUEST_DRONE_LAND_SERVICE = "/dronehive/gui_request_drone_land_se
 DRONEHIVE_GUI_REQUEST_DRONE_RETURN_HOME_SERVICE = "/dronehive/gui_request_drone_return_home_service"
 
 DRONEHIVE_REQUEST_BOX_OPEN_SERVICE = "/dronehive/request_box_open_service"
+DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE = "/dronehive/request_box_close_service"
 DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE = "/dronehive/gui_add_remove_drone_service"
 DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION = "/dronehive/gui_toggle_trajectory_execution_service"
+
+DRONEHIVE_DRONE_REACHED_FIRST_WAYPOINT_SERVICE = "/dronehive/drone_reached_first_waypoint_service"
 
 ###########
 # Actions #

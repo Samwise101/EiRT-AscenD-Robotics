@@ -27,9 +27,21 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
+
+from dronehive_interfaces.srv import (
+    AddRemoveDroneService,
+    DroneLandingService,
+    DroneTrajectoryWaypointsService,
+    DroneStartStopService,
+)
+
+from dronehive_interfaces.msg import (
+    PositionMessage,
+    DroneStatusMessage,
+)
+
 from sensor_msgs.msg import BatteryState
-from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService, DroneStartStopService, FirstWaypointService
-from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
+
 
 
 # ---------------------- helpers ---------------------------------
@@ -107,6 +119,8 @@ class LandingControl(Node):
         self.loiter_radius = float(loiter_radius)
         self.landing_timeout = float(landing_timeout)
         self.publish_dt = 1.0 / float(publish_hz)
+        self.landing_box_id: str = ""
+        self.landing_future = None
 
         # ---------------- ROS I/O ----------------
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
@@ -117,7 +131,7 @@ class LandingControl(Node):
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
-        self.cli_fws = self.create_client(FirstWaypointService, '/dronehive/first_waypoint')
+        self.first_waypoint_reached = self.create_client(AddRemoveDroneService, "/dronehive/drone_reached_first_waypoint_service")
 
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
@@ -149,6 +163,10 @@ class LandingControl(Node):
         # Battery
         self.battery_level = 0.0  # percentage
 
+        # Status
+        self.battery_percentage = 0.0  # percent
+        self.battery_voltage = 0.0  # volts
+
         # Loiter
         self._circle_angle_deg = 0.0
 
@@ -165,7 +183,7 @@ class LandingControl(Node):
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
         self.r_waypoints = []
-        self.reached_first_waypoint = False
+        self.reached_first_waypoint_nonlanding = False
 
         # Waypoint readiness
         self.waypoints_ready = False
@@ -209,6 +227,8 @@ class LandingControl(Node):
         if request.waypoints is not None:
             self.r_waypoints = request.waypoints
             self.waypoints_ready = True
+            self.hold_position = None  # reset hold position
+
             response.ack = True
             self.current_segment_idx = 0
             self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service: {self.r_waypoints}")
@@ -243,7 +263,7 @@ class LandingControl(Node):
         Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
         """
         now = time.time()
-        
+
         # Publish drone status
         self._publish_status()
 
@@ -298,10 +318,22 @@ class LandingControl(Node):
         elif self.state == FlightState.WAIT_OFFBOARD:
             # Keep feeding setpoints so offboard won't drop if operator switches
             self._publish_hold_here()
-            if self.mav_state.mode == "OFFBOARD":
-                self._begin_loiter_and_request(now)
-                self.get_logger().info("Operator set OFFBOARD. Waiting for waypoints.")
-                self.state = FlightState.WAIT_AND_PLAN_TRAJ
+            # if self.mav_state.mode == "OFFBOARD":
+            #     self._begin_loiter_and_request(now)
+            #     self.get_logger().info("Operator set OFFBOARD. Waiting for waypoints.")
+            #     self.state = FlightState.WAIT_AND_PLAN_TRAJ
+            # If taken out of armed, return to WAIT_ARM
+            if not self._is_armed():
+                self.get_logger().info("Disarmed, returning to WAIT_ARM.")
+                self.state = FlightState.WAIT_ARM
+
+            if self.waypoints_ready:
+                self.get_logger().info("Waypoints ready. Planning and executing trajectory.")
+                self._plan_test_trajectory()
+                self.traj_t0_wall = now
+                self.position_tolerance = 0.3
+                self.hold_position = None  # reset hold position
+                self.state = FlightState.EXECUTE_TRAJ
 
         elif self.state == FlightState.TAKEOFF:
             #Simulation or real mode takeoff
@@ -331,6 +363,7 @@ class LandingControl(Node):
                 self._plan_test_trajectory()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.3
+                self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
             else:
                 #self._publish_hold_here()
@@ -371,6 +404,7 @@ class LandingControl(Node):
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.3
+                self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
                 return
@@ -394,6 +428,7 @@ class LandingControl(Node):
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
                 self.position_tolerance = 0.1
+                self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
                 return
@@ -468,10 +503,12 @@ class LandingControl(Node):
                     self.seg_t0_wall = time.time()
                     self.now = time.time()
                     self.get_logger().info(f"Segment {self.current_segment_idx} reached, moving to next.")
-                    if not self.reached_first_waypoint:
-                        self.reached_first_waypoint = True
-                        # Call first waypoint service
-                        self._call_fws()
+                    if not self.reached_first_waypoint_nonlanding:
+                        msg = AddRemoveDroneService.Request()
+                        msg.drone_id = self.drone_id
+                        self.landing_future = self.first_waypoint_reached.call_async(msg)
+                        self.landing_future.add_done_callback(self._first_waypoint_future_cb)
+                        self.reached_first_waypoint_nonlanding = True
                         self.get_logger().info("Reached first waypoint...")
 
 
@@ -493,7 +530,6 @@ class LandingControl(Node):
             self.get_logger().info("Mission complete. Resetting.")
             self.state = FlightState.WAIT_ARM
             self._reset_all()
-            
 
 
     # -------------------- Simulation helper --------------------
@@ -518,6 +554,7 @@ class LandingControl(Node):
             req = CommandBool.Request()
             req.value = False
             self.cli_arm.call_async(req)
+            self.hold_position = None
             self.get_logger().info("SIM: requesting DISARM...")
 
     # -------------------- Landing Service --------------------
@@ -552,6 +589,20 @@ class LandingControl(Node):
 
         self.get_logger().info(f"First Waypoint Service acknowledged by master box.")
 
+    def _first_waypoint_future_cb(self, future):
+        try:
+            resp: AddRemoveDroneService.Response = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"First waypoint service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'ack') or not resp.ack:
+            self.get_logger().warn("First waypoint service returned no valid ack.")
+            return
+
+        self.get_logger().info("First waypoint reached acknowledged by masterbox.")
+
+
     def _call_landing_service(self, now_wall: float):
         """Send landing request to the masterbox."""
         self.request_sent = True
@@ -581,7 +632,7 @@ class LandingControl(Node):
 
     def _landing_future_cb(self, future):
         try:
-            resp = future.result()
+            resp: DroneLandingService.Response = future.result()
         except Exception as e:
             self.get_logger().warn(f"Landing service call failed: {e}")
             return
@@ -591,8 +642,10 @@ class LandingControl(Node):
             return
 
         lp = resp.landing_pos
+        self.landing_box_id = resp.box_id
         self.landing_target = np.array([float(lp.lat), float(lp.lon), float(lp.elv)], dtype=float)
         self.landing_received = True
+        self.hold_position = None  # reset hold position
         self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
 
     # -------------------- Waypoint readiness check --------------------
@@ -621,7 +674,11 @@ class LandingControl(Node):
         above = self.landing_target.copy()
         above[2] += 1.0  # 1 m above
 
-        waypoints = [p0, above, self.landing_target]
+        if np.linalg.norm(above - p0) < 0.1:
+            waypoints = [p0, self.landing_target]
+        else:
+            waypoints = [p0, above, self.landing_target]
+
         self.traj_segments.clear()
         self.segment_times.clear()
         total_T = 0.0
@@ -660,6 +717,7 @@ class LandingControl(Node):
         p0 = self.curr_xyz.copy()
         p1 = p0 + np.array([0.0, 0.0, 1.0])  # 1 m up
         waypoints = [p0, p1]
+        self.reached_first_waypoint_nonlanding = False
 
         for wp in self.r_waypoints:
             wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
@@ -741,14 +799,14 @@ class LandingControl(Node):
         """Publish the drone status message."""
         msg = DroneStatusMessage()
         msg.drone_id = self.drone_id
-        msg.battery_level = self._get_battery_level()
+        msg.battery_voltage = self.battery_voltage
+        msg.battery_percentage = self.battery_percentage
         msg.fligt_state = self.state.name
         pos_msg = PositionMessage()
         pos_msg.lat = float(self.curr_xyz[0])
         pos_msg.lon = float(self.curr_xyz[1])
         pos_msg.elv = float(self.curr_xyz[2])
         msg.current_position = pos_msg
-        msg.reached_first_waypoint = self.reached_first_waypoint
         self.pub_status.publish(msg)
 
 
@@ -789,7 +847,7 @@ class LandingControl(Node):
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
         self.r_waypoints = []
-        self.reached_first_waypoint = False
+        self.reached_first_waypoint_nonlanding = False
         self.waypoints_ready = False
         self.current_segment_idx = 0
         self.position_tolerance = 0.3

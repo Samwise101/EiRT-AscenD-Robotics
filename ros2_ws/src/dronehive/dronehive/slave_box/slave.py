@@ -14,11 +14,13 @@ from dronehive_interfaces.msg import (
 )
 
 from dronehive_interfaces.srv import (
+	AddRemoveDroneService,
 	BoxStatusService,
 	BoxStatusSlaveUpdateService,
 	DroneTrajectoryWaypointsService,
 	RequestBoxOpenService,
 )
+from std_srvs.srv import SetBool
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -85,11 +87,6 @@ class SlaveBoxNode(Node):
 
 		self.client_manager = dh.ServiceClientManager(self, max_clients=32)
 
-		try:
-			self.motor = dh.XL430Controller(dxl_id=0)
-		except Exception as e:
-			self.get_logger().error(f"Failed to initialise motor controller: {e}")
-			self.motor = None
 		self.get_logger().info(f"Initialised with config : {self.config}")
 
 		request=BoxStatusSlaveUpdateService.Request(
@@ -98,7 +95,7 @@ class SlaveBoxNode(Node):
 				box_battery_level=100.0,
 				box_id=self.config.box_id,
 				drone_id=self.config.drone_id,
-				status=dh.BoxStatusEnum.EMPTY.value
+				status=dh.BoxStatusEnum.OCCUPIED.value if self.config.drone_id != "" else dh.BoxStatusEnum.EMPTY.value
 			)
 		)
 
@@ -160,6 +157,18 @@ class SlaveBoxNode(Node):
 			self.handle_box_open_request
 		)
 
+		self.create_service(
+			RequestBoxOpenService,
+			dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{self.config.box_id}",
+			self.handle_box_close_request
+		)
+
+		self.create_service(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_GUI_ADD_REMOVE_DRONE_SERVICE + f"_{self.config.box_id}",
+			self.handle_add_remove_drone_request
+		)
+
 
 	def create_actions(self) -> None:
 		pass
@@ -181,46 +190,38 @@ class SlaveBoxNode(Node):
 		self.get_logger().info(f"Responding with landing position: {response.landing_pos} and drone ID: {response.drone_id}")
 		return response
 
+	def open_close_box_via_motor(self, open: bool) -> bool:
+		client = self.temp_node.create_client(
+			SetBool,
+			f"/{self.config.box_id}/motor_1/open_box",
+		)
+
+		if not client.wait_for_service(timeout_sec=1.0):
+			self.get_logger().info("Waiting for motor controller service to be available...")
+			return False
+
+		future: Future = client.call_async(SetBool.Request(data=open))
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		exec.spin_until_future_complete(future)
+
+		if not future.result() or not future.result().success:
+			self.get_logger().error("Failed to open box via motor controller.")
+			return False
+
+		return True
+
+
 	def handle_trajectory_waypoints_request(self,
 										 request: DroneTrajectoryWaypointsService.Request,
 										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
 		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
 
-		if not self.motor:
-			response.ack = False
-			self.get_logger().error("Motor controller not initialised.")
-			return response
+		self.config.drone_id = ""
+		self.config.save()
 
-		drone_client = self.temp_node.create_client(
-			DroneTrajectoryWaypointsService,
-			dh.DRONEHIVE_DRONE_SEND_TRAJECTORY_SERVICE + f"{request.drone_id}"
-		)
-
-		if not drone_client.wait_for_service(timeout_sec=2.0):
-			self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
-			self.temp_node.destroy_node()
-			response.ack = False
-			return response
-
-		self.get_logger().info(f"Processing drone_id {request.drone_id} waypoints: '{request.waypoints}'")
-		drone_future = drone_client.call_async(request)
-		response.ack = self.motor.open_box()
-
-		self.get_logger().info("Box opened for waypoint transfer.")
-
-		exec = SingleThreadedExecutor()
-		exec.add_node(self.temp_node)
-		exec.spin_until_future_complete(drone_future)
-		exec.shutdown()
-
-		if not drone_future or not drone_future.result():
-			self.get_logger().error(f"Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{self.config.box_id}'.")
-			response.ack = False
-			return response
-
-		self.get_logger().info(f"Forwarded trajectory waypoints request for drone ID: '{request.drone_id}' to box ID: '{self.config.box_id}'")
-		result = drone_future.result() or DroneTrajectoryWaypointsService.Response(ack=False)
-		response.ack = response.ack and result.ack
+		response.ack = self.open_close_box_via_motor(open=True)
+		self.get_logger().info("Box opened.")
 
 		return response
 
@@ -228,16 +229,37 @@ class SlaveBoxNode(Node):
 	def handle_box_open_request(self, request: RequestBoxOpenService.Request,
 								response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
 
-		if not self.motor:
-			response.ack = False
-			self.get_logger().error("Motor controller not initialised.")
-			return response
-
-		response.ack = self.motor.open_box()
+		response.ack = self.open_close_box_via_motor(open=True)
 		if response.ack:
 			self.get_logger().info(f"Box ID: {self.config.box_id} opened successfully.")
 		else:
 			self.get_logger().error(f"Failed to open box ID: {self.config.box_id}.")
+
+		return response
+
+
+	def handle_box_close_request(self,
+		request: RequestBoxOpenService.Request,
+		response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
+
+		response.ack = self.open_close_box_via_motor(open=False)
+		if response.ack:
+			self.get_logger().info(f"Box ID: {self.config.box_id} closed successfully.")
+		else:
+			self.get_logger().error(f"Failed to close box ID: {self.config.box_id}.")
+
+		return response
+
+
+	def handle_add_remove_drone_request(self,
+										request: AddRemoveDroneService.Request,
+										response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
+
+		self.get_logger().info(f"Received add/remove drone request for box ID: {self.config.box_id} with drone ID: {request.drone_id}")
+		self.config.drone_id = request.drone_id
+		self.config.save()
+
+		response.ack = True
 
 		return response
 
@@ -258,10 +280,6 @@ class SlaveBoxNode(Node):
 
 			# Recreate the initialisation publisher and timer.
 			self.box_init_interfaces()
-
-			# Destroy motor controller if exists.
-			if self.motor is not None:
-				self.motor.destroy()
 
 
 	def destroy_interfaces(self) -> None:
