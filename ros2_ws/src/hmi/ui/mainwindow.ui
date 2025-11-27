@@ -1242,7 +1242,7 @@ Trajectory</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Home Pos. Lon:</string>
+                      <string>Drone Pos. Lon:</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -1259,7 +1259,7 @@ Trajectory</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Home Pos. Lat:</string>
+                      <string>Drone Pos. Lat:</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -1276,7 +1276,7 @@ Trajectory</string>
                       </font>
                      </property>
                      <property name="text">
-                      <string>Drone Hone Pos. Alt:</string>
+                      <string>Drone Pos. Alt:</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>

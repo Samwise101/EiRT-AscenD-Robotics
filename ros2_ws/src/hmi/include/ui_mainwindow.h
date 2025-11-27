@@ -1190,9 +1190,9 @@ public:
         pushButton->setText(QCoreApplication::translate("MainWindow", "Arm", nullptr));
         pushButton_3->setText(QCoreApplication::translate("MainWindow", "Take-Off", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "Land", nullptr));
-        drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lon:", nullptr));
-        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Home Pos. Lat:", nullptr));
-        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Hone Pos. Alt:", nullptr));
+        drone_longitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Pos. Lon:", nullptr));
+        latitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Pos. Lat:", nullptr));
+        altitude_label->setText(QCoreApplication::translate("MainWindow", "Drone Pos. Alt:", nullptr));
         drone_latitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         drone_longitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         drone_altitude_value_label->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
