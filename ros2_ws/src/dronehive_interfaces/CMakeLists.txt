@@ -32,7 +32,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DroneLandingService.srv"
   "srv/DroneStatusService.srv"
   "srv/DroneTrajectoryWaypointsService.srv"
-  "srv/DroneStartStopService.srv"
   "srv/GetConfig.srv"
   "srv/GetFlightlog.srv"
   "srv/OccupancyService.srv"

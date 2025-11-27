@@ -23,6 +23,11 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import (
+	QoSProfile,
+	QoSReliabilityPolicy,
+	QoSHistoryPolicy,
+)
 
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
@@ -32,17 +37,21 @@ from dronehive_interfaces.srv import (
     AddRemoveDroneService,
     DroneLandingService,
     DroneTrajectoryWaypointsService,
-    DroneStartStopService,
 )
 
 from dronehive_interfaces.msg import (
     PositionMessage,
     DroneStatusMessage,
+    DroneToggleExecutionMessage
 )
 
 from sensor_msgs.msg import BatteryState
 
-
+qos_profile = QoSProfile(
+	reliability=QoSReliabilityPolicy.BEST_EFFORT,
+	history=QoSHistoryPolicy.KEEP_LAST,
+	depth=1
+)
 
 # ---------------------- helpers ---------------------------------
 
@@ -127,7 +136,7 @@ class LandingControl(Node):
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
         self.create_subscription(BatteryState, '/mavros/battery', self._battery_cb, 10)
-        self.create_subscription(DroneToggleExecutionMessage, "/dronehive/drone_toggle_trajectory_execution", self._toggle_execution_cb, 10)
+        self.create_subscription(DroneToggleExecutionMessage, "/dronehive/drone_toggle_trajectory_execution", self._toggle_execution_cb, qos_profile)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
@@ -238,12 +247,10 @@ class LandingControl(Node):
     def _battery_cb(self, msg: BatteryState):
         self.battery_level = msg.percentage * 100.0  # convert to percentage
 
-   def _toggle_execution_cb(self, msg: DroneToggleExecutionMessage):
+    def _toggle_execution_cb(self, msg: DroneToggleExecutionMessage):
         my_spot = -1
-        for i in msg.drone_ids:
-            if self.drone_id == msg.drone_ids[i]:
-                my_spot = i
-                break
+        if msg.drone_ids.index(self.drone_id) is not ValueError:
+            my_spot = msg.drone_ids.index(self.drone_id)
         if my_spot == -1:
             self.get_logger().info("Toggle execution message received, but drone_id not found in list.")
             return
@@ -506,6 +513,7 @@ class LandingControl(Node):
                     if not self.reached_first_waypoint_nonlanding:
                         msg = AddRemoveDroneService.Request()
                         msg.drone_id = self.drone_id
+                        msg.box_id = 'master'
                         self.landing_future = self.first_waypoint_reached.call_async(msg)
                         self.landing_future.add_done_callback(self._first_waypoint_future_cb)
                         self.reached_first_waypoint_nonlanding = True
