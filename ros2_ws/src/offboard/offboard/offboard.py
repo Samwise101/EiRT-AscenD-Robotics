@@ -28,7 +28,7 @@ from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
 from sensor_msgs.msg import BatteryState
-from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService, DroneStartStopService
+from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService, DroneStartStopService, FirstWaypointService
 from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
 
 
@@ -116,6 +116,7 @@ class LandingControl(Node):
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
+        self.cli_fws = self.create_client(FirstWaypointService, '/dronehive/first_waypoint')
 
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
@@ -460,6 +461,8 @@ class LandingControl(Node):
                     self.get_logger().info(f"Segment {self.current_segment_idx} reached, moving to next.")
                     if not self.reached_first_waypoint:
                         self.reached_first_waypoint = True
+                        # Call first waypoint service
+                        self._call_fws()
                         self.get_logger().info("Reached first waypoint...")
 
 
@@ -509,6 +512,36 @@ class LandingControl(Node):
             self.get_logger().info("SIM: requesting DISARM...")
 
     # -------------------- Landing Service --------------------
+    def _call_fws(self):
+        """Call first waypoint service to notify master box."""
+        if not self.cli_fws.service_is_ready():
+            self.get_logger().warn("First Waypoint Service not yet available.")
+            return
+
+        req = FirstWaypointService.Request()
+        req.drone_id = self.drone_id
+        req.reached_first_waypoint = True
+
+        self.get_logger().info(
+            f"Notifying first waypoint reached to /dronehive/first_waypoint_service "
+            f"with drone_id='{req.drone_id}'"
+        )
+
+        future = self.cli_fws.call_async(req)
+        future.add_done_callback(self._fws_future_cb)
+
+    def _fws_future_cb(self, future):
+        try:
+            resp = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"First Waypoint Service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'ack') or not resp.ack:
+            self.get_logger().warn("First Waypoint Service returned no valid acknowledgment.")
+            return
+
+        self.get_logger().info(f"First Waypoint Service acknowledged by master box.")
 
     def _call_landing_service(self, now_wall: float):
         """Send landing request to the masterbox."""

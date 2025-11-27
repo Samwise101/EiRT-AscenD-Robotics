@@ -1,0 +1,6 @@
+#service called when drone reaches first waypoint
+
+string drone_id
+bool reached_first_waypoint
+---
+string ack
