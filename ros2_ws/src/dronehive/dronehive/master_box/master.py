@@ -24,8 +24,9 @@ from dronehive_interfaces.msg import (
 	BoxBroadcastMessage,
 	BoxSetupConfirmationMessage,
 	DroneForceLandingMessage,
-	DroneToggleExecutionMessage,
+	DroneStopResumeTrajectory,
 	DroneStatusMessage,
+	DroneToggleExecutionMessage,
 	PositionMessage
 )
 
@@ -67,6 +68,7 @@ class MasterBoxNode(Node):
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 		self.known_drones: set[str] = set()
 		self.landing_drones: dict[str, dh.DroneLandingStatus] = {}
+		self.paused_drones: set[str] = set()
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
 		self.lock = threading.Lock()
@@ -247,6 +249,13 @@ class MasterBoxNode(Node):
 			dh.DRONEHIVE_DRONE_LANDED_NOTIFICATION_TOPIC,
 			self._drone_landed_notification_callback,
 			qos_profile
+		)
+
+		self.create_subscription(
+			DroneStopResumeTrajectory,
+			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION_TOPIC,
+			self._handle_gui_toggle_trajectory_execution,
+			qos_profile,
 		)
 
 		# Publishers
@@ -470,6 +479,24 @@ class MasterBoxNode(Node):
 			)
 
 
+	def _handle_gui_toggle_trajectory_execution(self, msg: DroneStopResumeTrajectory) -> None:
+		if msg.drone_id == "" or msg.drone_id not in self.known_drones:
+			self.get_logger().warn("Received empty drone ID in toggle trajectory execution message. Ignoring...")
+			return
+
+		if msg.drone_id in self.paused_drones:
+			self.get_logger().info(f"Pausing trajectory execution for drone ID: '{msg.drone_id}' as requested by GUI.")
+			self.paused_drones.add(msg.drone_id)
+		else:
+			self.get_logger().info(f"Resuming trajectory execution for drone ID: '{msg.drone_id}' as requested by GUI.")
+			self.paused_drones.discard(msg.drone_id)
+
+		toggle_msg: DroneToggleExecutionMessage = DroneToggleExecutionMessage()
+		toggle_msg.drone_ids = [msg.drone_id]
+		toggle_msg.allow = [msg.drone_id not in self.paused_drones]
+		self.drone_toggle_trajectory_execution_pub.publish(toggle_msg)
+
+
 	def thread_wrapper(self, target, event):
 		try:
 			target()
@@ -540,6 +567,10 @@ class MasterBoxNode(Node):
 			if i == 0:
 				self.get_logger().info(f"Allowing drone ID: '{drone_status.drone_id}' to land.")
 				allowed_drones[drone_status.drone_id] = True
+				continue
+
+			if drone_status.drone_id in self.paused_drones:
+				allowed_drones[drone_status.drone_id] = False
 				continue
 
 			# For all the others check if they are too close to any of the allowed drones
