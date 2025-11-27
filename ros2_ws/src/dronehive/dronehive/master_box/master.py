@@ -726,6 +726,13 @@ class MasterBoxNode(Node):
 			callback_group=ReentrantCallbackGroup()
 		)
 
+		self.create_service(
+			DroneLandingService,
+			dh.DRONEHIVE_DRONE_ASSIGN_BOX,
+			self.handle_request_box_open_service,
+			callback_group=ReentrantCallbackGroup()
+		)
+
 
 	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
 		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
@@ -1217,6 +1224,19 @@ class MasterBoxNode(Node):
 			)
 			response.ack = True
 
+		return response
+
+	def handle_request_box_open_service(self,
+		request: DroneLandingService.Request,
+		response: DroneLandingService.Response) -> DroneLandingService.Response:
+
+		box_id = self.find_box_id_from_drone_id(request.drone_id)
+		if box_id is None:
+			self.get_logger().error(f"Request box open service received for unknown drone ID: '{request.drone_id}'. Cannot open box.")
+			response.landing_pos = PositionMessage()
+			return response
+
+		response.box_id = box_id
 		return response
 
 	##################
