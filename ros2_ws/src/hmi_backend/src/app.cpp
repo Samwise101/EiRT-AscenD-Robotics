@@ -138,6 +138,7 @@ void App::onBoxDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMe
     msg_new.drone_id = msg->drone_id;
     msg_new.battery_voltage = msg->battery_voltage;
     msg_new.fligt_state = msg->fligt_state;
+    msg_new.current_position = msg->current_position;
 
     this->to_gui_drone_status_pub_->publish(msg_new);
 }

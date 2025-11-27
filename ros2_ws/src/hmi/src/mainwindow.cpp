@@ -206,22 +206,23 @@ void MainWindow::cleanup()
 
 void MainWindow::onBackendDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg)
 {
+
+    std::string drone_id = msg->drone_id;
+
+    auto current_box_index = this->ui->boxComboBox->currentIndex();
+
+    if(drone_id != boxes[current_box_index].get_assigned_drone_id()) return;
+
     if(drones.empty()) return;
 
-    int index = -1;
+    drones[current_box_index].set_battery_level(msg->battery_percentage);
+    drones[current_box_index].set_drone_alt(msg->current_position.elv);
+    drones[current_box_index].set_drone_lat(msg->current_position.lat);
+    drones[current_box_index].set_drone_lon(msg->current_position.lon);
 
-    for(int i = 0; i < drones.size(); i++)
-    {
-        if(drones[i].get_drone_id() == msg->drone_id)
-        {
-            index = i;
-            break;
-        }
-    }
-
-    if(index < 0) return;
-
-    drones[index].set_battery_level(msg->battery_percentage);
+    this->ui->drone_altitude_value_label->setText(QString::number(msg->current_position.elv, 'f', 4));
+    this->ui->drone_latitude_value_label->setText(QString::number(msg->current_position.lat, 'f', 4));
+    this->ui->drone_longitude_value_label->setText(QString::number(msg->current_position.lon, 'f', 4));
 }
 
 void MainWindow::update3DTrajectories(std::vector<DroneVis> drones)
