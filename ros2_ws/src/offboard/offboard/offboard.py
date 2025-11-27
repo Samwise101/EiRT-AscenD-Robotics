@@ -113,6 +113,7 @@ class LandingControl(Node):
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
         self.create_subscription(BatteryState, '/mavros/battery', self._battery_cb, 10)
+        self.create_subscription(DroneToggleExecutionMessage, "/dronehive/drone_toggle_trajectory_execution", self._toggle_execution_cb, 10)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
@@ -121,7 +122,7 @@ class LandingControl(Node):
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
-        self.srv = self.create_service(DroneStartStopService, f"/dronehive/drone_start_stop_{self.drone_id}", self.start_stop_service_cb)
+        
 
         self.pub_status = self.create_publisher(DroneStatusMessage, f"/dronehive/drone_status_{self.drone_id}", 10)
 
@@ -142,6 +143,8 @@ class LandingControl(Node):
         self.takeoff_reached = False
         self.last_requested_pose = np.zeros(3)
         self.latest_xyz = np.zeros(3)
+        self.hold_position = None
+        self.resume_allowed = True
 
         # Battery
         self.battery_level = 0.0  # percentage
@@ -215,21 +218,24 @@ class LandingControl(Node):
     def _battery_cb(self, msg: BatteryState):
         self.battery_level = msg.percentage * 100.0  # convert to percentage
 
-    def start_stop_service_cb(self, request, response):
-        if request.control_var == 1:  # pause
-            self.get_logger().info("Pausing trajectory execution.")
-            self.state = FlightState.WAIT
-        elif request.control_var == 0:  # resume
-            self.get_logger().info("Resuming trajectory execution.")
-            if self.traj_segments:
-                self.state = FlightState.EXECUTE_TRAJ
-            else:
-                self.get_logger().info("No trajectory to execute, remaining in current state.")
-        elif request.control_var == 2:  # stop
-            self.get_logger().info("Stopping trajectory execution and landing home.")
-            self.state = FlightState.LANDING_HOME
-        response.ack = True
-        return response
+   def _toggle_execution_cb(self, msg: DroneToggleExecutionMessage):
+        my_spot = -1
+        for i in msg.drone_ids:
+            if self.drone_id == msg.drone_ids[i]:
+                my_spot = i
+                break
+        if my_spot == -1:
+            self.get_logger().info("Toggle execution message received, but drone_id not found in list.")
+            return
+        if msg.allow[my_spot]:
+            self.get_logger().info("Recieved toggle command")
+            self.resume_allowed = msg.allow[my_spot]
+            self.hold_position = None  # reset hold position
+        elif self.hold_position is None:
+            self.hold_position = self.curr_xyz.copy()
+            self.get_logger().info("Recieved toggle command to pause execution.")
+
+
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
@@ -240,7 +246,10 @@ class LandingControl(Node):
         
         # Publish drone status
         self._publish_status()
-        
+
+        # Pause and resume control based on external command
+        self._pause_function()
+
 
         if self.state == FlightState.INIT:
             # Need valid pose before proceeding
@@ -688,10 +697,10 @@ class LandingControl(Node):
         """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
         if not self.have_pose:
             return
-        # set the latest_xyz to current position and publish that unless the drone has moved more than 0.1m
-        if np.linalg.norm(self.curr_xyz - self.latest_xyz) > 0.1:
-            self.latest_xyz = self.curr_xyz.copy()
-        self._publish_xyz(self.latest_xyz[0], self.latest_xyz[1], self.latest_xyz[2])
+        if self.hold_position is None:
+            self.hold_position = self.curr_xyz.copy()
+
+        self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2])
 
     def _publish_takeoff_sp(self):
         """Publish a setpoint at home XY and takeoff_alt Z (simulation takeoff)."""
@@ -760,6 +769,13 @@ class LandingControl(Node):
             # Will retry call as soon as service comes up (handled in LOITER_WAIT_SERVICE)
             self.request_sent = False
             self.request_start_wall = now_wall
+    
+    def _pause_function(self):
+        """Pause and resume control based on external command"""
+        if not self.resume_allowed:
+            self._publish_hold_here()
+            self.get_logger().info("Control paused, holding position.")
+            return
 
     def _reset_all(self):
         """Reset all internal states for a new mission."""
