@@ -143,7 +143,7 @@ class LandingControl(Node):
         self.first_waypoint_reached = self.create_client(AddRemoveDroneService, "/dronehive/drone_reached_first_waypoint_service")
 
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
-
+        self.cli_box_id = self.create_client(DroneLandingService,f"/dronehive/drone_assign_box_service")
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
         
 
@@ -209,9 +209,18 @@ class LandingControl(Node):
         self.position_tolerance = 0.3  # meters
 
         # Timers
-        self.timer = self.create_timer(self.publish_dt, self._timer_cb)
-        if self.simulation_mode:
-            self.sim_timer = self.create_timer(0.5, self._simulation_mode_switcher)
+        # If we don't have a landing_box_id yet, start the box_id polling timer and
+        # defer creating the main timer until we receive an assignment. Otherwise
+        # create the main timer immediately.
+        if self.landing_box_id == "":
+            self.box_timer = self.create_timer(2.0, self._get_box_id_timer)
+            self.timer = None
+            self.sim_timer = None
+        else:
+            self.box_timer = None
+            self.timer = self.create_timer(self.publish_dt, self._timer_cb)
+            if self.simulation_mode:
+                self.sim_timer = self.create_timer(0.5, self._simulation_mode_switcher)
 
         self.get_logger().info(f"UnifiedLandingControl started (simulation_mode={self.simulation_mode}).")
 
@@ -262,9 +271,57 @@ class LandingControl(Node):
             self.hold_position = self.curr_xyz.copy()
             self.get_logger().info("Recieved toggle command to pause execution.")
 
+    # -------------------- Initial Timer --------------------
+    def _get_box_id_timer(self):
+        """Request box ID assignment from master box."""
+        if not self.cli_box_id.service_is_ready():
+            self.get_logger().warn("Box ID assignment service not yet available.")
+            return
+
+        req = DroneLandingService.Request()
+        req.drone_id = self.drone_id
+
+        self.get_logger().info(
+            f"Requesting box ID assignment from /dronehive/drone_assign_box_service "
+            f"with drone_id='{req.drone_id}'"
+        )
+
+        future = self.cli_box_id.call_async(req)
+        future.add_done_callback(self._box_id_future_cb)
+        
+    def _box_id_future_cb(self, future):
+        try:
+            resp: DroneLandingService.Response = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"Box ID service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'box_id') or resp.box_id is None:
+            self.get_logger().warn("Box ID service returned no valid box_id.")
+            return
+
+        self.landing_box_id = resp.box_id
+        self.get_logger().info(f"Assigned landing_box_id='{self.landing_box_id}' from master box.")
+        # We have a landing box assignment now — stop polling and start the main
+        # timer if it hasn't been created yet.
+        try:
+            if hasattr(self, 'box_timer') and self.box_timer is not None:
+                try:
+                    self.box_timer.cancel()
+                except Exception:
+                    pass
+                self.box_timer = None
+        except Exception:
+            pass
+
+        # Create main timer if not present
+        if not hasattr(self, 'timer') or self.timer is None:
+            self.timer = self.create_timer(self.publish_dt, self._timer_cb)
+            # Create simulation timer when in simulation mode
+            if self.simulation_mode and (not hasattr(self, 'sim_timer') or self.sim_timer is None):
+                self.sim_timer = self.create_timer(0.5, self._simulation_mode_switcher)
 
     # -------------------- Main Timer --------------------
-
     def _timer_cb(self):
         """
         Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
