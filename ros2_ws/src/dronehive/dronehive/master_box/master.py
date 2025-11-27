@@ -811,6 +811,7 @@ class MasterBoxNode(Node):
 			self.open_close_box_via_motor(open=True)
 
 		response.landing_pos = landing_pos
+		response.box_id = closest_box_id
 		return response
 
 
