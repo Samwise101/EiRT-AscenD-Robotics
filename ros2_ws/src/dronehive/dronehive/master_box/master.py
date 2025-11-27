@@ -66,7 +66,7 @@ class MasterBoxNode(Node):
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 		self.known_drones: set[str] = set()
-		self.landing_drones: dict[str, dh.DroneLandingStatus] = set()
+		self.landing_drones: dict[str, dh.DroneLandingStatus] = {}
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
 		self.lock = threading.Lock()
@@ -498,11 +498,13 @@ class MasterBoxNode(Node):
 		# if msg.landing_position != PositionMessage(int_min, int_min, int_min):
 		if msg.fligt_state == dh.FlightState.LANDING_HOME.value:
 			self.get_logger().info(f"Drone ID: '{msg.drone_id}' is landing. Coordinating landing...")
+			position = np.array([msg.current_position.lat, msg.current_position.lon, msg.current_position.elv])
+			landing = np.array([msg.landing_position.lat, msg.landing_position.lon, msg.landing_position.elv])
 			landing_status = dh.DroneLandingStatus(
-				msg.drone_id,
-				msg.position,
-				msg.landing_position,
-				np.linalg.norm(msg.position - msg.landing_position),
+				drone_id = msg.drone_id,
+				position = msg.current_position,
+				landing_position = msg.landing_position,
+				distance_to_landing = np.linalg.norm(position - landing).item(),
 			)
 
 			with self.lock:
@@ -528,7 +530,7 @@ class MasterBoxNode(Node):
 		with self.lock:
 			sorted_drones = sorted(
 				self.landing_drones.values(),
-				key=lambda x: x.distance_to_landing_pos
+				key=lambda x: x.distance_to_landing
 			)
 
 		allowed_drones: dict[str, bool] = {}
@@ -545,8 +547,19 @@ class MasterBoxNode(Node):
 			# hold. This also prevents potential deadlocks, as the closest drone will always be allowed to land.
 			allowed = True
 			for ad in allowed_drones.keys():
-				drone_drone_dist: float = np.linalg.norm(drone_status.position - drone_status[ad].position)
-				if drone_drone_dist < 2.0:
+				drone_pos = np.array([
+					drone_status.position.lat,
+					drone_status.position.lon,
+					drone_status.position.elv
+				])
+
+				other_drone_pos = np.array([
+					self.landing_drones[ad].position.lat,
+					self.landing_drones[ad].position.lon,
+					self.landing_drones[ad].position.elv
+				])
+				drone_drone_dist: float = np.linalg.norm(drone_pos - other_drone_pos).item()
+				if drone_drone_dist < 5.0:
 					allowed = False
 					break
 
@@ -777,7 +790,10 @@ class MasterBoxNode(Node):
 				continue
 
 			# Evaluate the best box by the proximity defined by Euclidean distance.
-			distance = np.linalg.norm(request.drone_pos - box_status.position)
+			drone_pos = np.array([request.drone_pos.lat, request.drone_pos.lon, request.drone_pos.elv])
+			box_pos = np.array([box_status.position.lat, box_status.position.lon, box_status.position.elv])
+			distance: float = np.linalg.norm(drone_pos - box_pos).item()
+
 			self.get_logger().info(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
 				closest_distance = distance
@@ -1158,6 +1174,7 @@ class MasterBoxNode(Node):
 			return response
 
 		else:
+			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
 			self.client_manager.call_async(
 				RequestBoxOpenService,
 				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",

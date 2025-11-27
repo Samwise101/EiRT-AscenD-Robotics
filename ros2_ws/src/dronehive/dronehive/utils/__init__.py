@@ -71,5 +71,5 @@ class DroneLandingStatus:
 	drone_id: str
 	position: PositionMessage
 	landing_position: PositionMessage | None
-	distance_to_landing: float | None
+	distance_to_landing: float
 
