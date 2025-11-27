@@ -1,6 +1,21 @@
 #include <iostream>
 #include <app.h>
 #include <rclcpp/logging.hpp>
+#include <fstream>
+#include <filesystem>
+
+static std::string get_workspace_root(const std::string& path)
+{
+    std::filesystem::path p(path);
+
+    // Remove the last component (package folder)
+    if (!p.empty()) {
+        p = p.parent_path();
+    }
+
+    return p.string();
+}
+
 
 namespace qos_profiles
 {
@@ -40,6 +55,8 @@ App::App() : Node("app_node")
     this->box_msg_pub_ = this->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos);
     this->box_deinit_pub_ = this->create_publisher<std_msgs::msg::String>("/dronehive/deinitialise_box", qos_profiles::master_qos);
     this->notify_gui_on_ccupancy_change_pub_ = this->create_publisher<dronehive_interfaces::msg::OccupancyMessage>("/backend/drone_update_box_state", qos_profiles::master_qos);
+    this->to_box_drone_stop_resume_pub_ = this->create_publisher<dronehive_interfaces::msg::DroneStopResumeTrajectory>("/dronehive/drone_stop_resume_traj", qos_profiles::master_qos);
+    this->to_gui_drone_status_pub_ = this->create_publisher<dronehive_interfaces::msg::DroneStatusMessage>("/backend/drone_status", qos_profiles::master_qos);
 
     this->gui_command_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos, std::bind(&App::onGuiCommand, this, std::placeholders::_1));
 
@@ -57,6 +74,14 @@ App::App() : Node("app_node")
 
     gui_drone_trajectory_sub_ = this->create_subscription<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>(
         "/gui/drone_trajectory", qos_profiles::master_qos, std::bind(&App::onGuiTrajectoryRecieved, this, std::placeholders::_1)
+    );
+
+    gui_drone_stop_resume_sub_ = this->create_subscription<dronehive_interfaces::msg::DroneStopResumeTrajectory>(
+        "/gui/drone_stop_resume_traj", qos_profiles::master_qos, std::bind(&App::onGuiDroneStopResumeTraj, this, std::placeholders::_1)
+    );
+
+    box_drone_status_sub_ = this->create_subscription<dronehive_interfaces::msg::DroneStatusMessage>(
+        "/dronehive/drone_status", qos_profiles::master_qos, std::bind(&App::onBoxDroneStatusMessage, this, std::placeholders::_1)
     );
 
     box_status_client_ = this->create_client<dronehive_interfaces::srv::SlaveBoxInformationService>("/dronehive/gui_slave_box_info_service");
@@ -102,9 +127,36 @@ App::~App()
     rclcpp::shutdown();
 }
 
+void App::onBoxDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg)
+{
+    std_msgs::msg::String msg2;
+    msg2.data = "Got Box Drone Status message for drone " + msg->drone_id;
+    to_gui_msg_pub_->publish(msg2);
+
+    dronehive_interfaces::msg::DroneStatusMessage msg_new;
+    msg_new.battery_percentage = msg->battery_percentage;
+    msg_new.drone_id = msg->drone_id;
+    msg_new.battery_voltage = msg->battery_voltage;
+    msg_new.fligt_state = msg->fligt_state;
+    msg_new.current_position = msg->current_position;
+
+    this->to_gui_drone_status_pub_->publish(msg_new);
+}
+
+void App::onGuiDroneStopResumeTraj(const dronehive_interfaces::msg::DroneStopResumeTrajectory::SharedPtr msg)
+{
+    std_msgs::msg::String msg2;
+    msg2.data = "Got Drone Stop Resume Traj message for drone " + msg->drone_id;
+    to_gui_msg_pub_->publish(msg2);
+
+    dronehive_interfaces::msg::DroneStopResumeTrajectory traj_message;
+    traj_message.drone_id = msg->drone_id;
+
+    this->to_box_drone_stop_resume_pub_->publish(traj_message);
+}
+
 void App::onNotifyGui(const std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Request> request, std::shared_ptr<dronehive_interfaces::srv::OccupancyService::Response> response)
 {
-
     std_msgs::msg::String msg2;
     msg2.data = "Got Notify client request";
     to_gui_msg_pub_->publish(msg2);
@@ -158,7 +210,7 @@ void App::onServiceTimer()
         this->waypoints.clear();
     }
 
-    if(this->box_status_client_->wait_for_service(std::chrono::seconds(0)) && this->get_box_status_request_appeared)
+    if(this->box_status_client_->wait_for_service(std::chrono::seconds(5)) && this->get_box_status_request_appeared)
     {
         if(box_id.empty()) return;
 
@@ -231,6 +283,10 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
     std::vector<std::string> box_ids = response->box_ids;
     int box_ids_size = response->size;
 
+    auto msg3 = std_msgs::msg::String();
+    msg3.data = "Confirming, got SYSTEM status response " + box_ids.size();
+    to_gui_msg_pub_->publish(msg3);
+
     this->pending_box_responses_ = box_ids_size;
 
     for (int i = 0; i < box_ids_size; i++)
@@ -240,12 +296,12 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 		RCLCPP_WARN(this->get_logger(), "%s", msg2.data.c_str());
         to_gui_msg_pub_->publish(msg2);
 
-        auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
-        req->box_id = box_ids[i];
-        std::string current_box_id = box_ids[i];  // Capture for lambda
-
-        if (this->box_status_client_->wait_for_service(std::chrono::seconds(10)))
+        if (this->box_status_client_->wait_for_service(std::chrono::seconds(1)))
         {
+            auto req = std::make_shared<dronehive_interfaces::srv::SlaveBoxInformationService::Request>();
+            req->box_id = box_ids[i];
+            std::string current_box_id = box_ids[i];  // Capture for lambda
+
             this->box_status_client_->async_send_request(
                 req,
                 [this, current_box_id](rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
@@ -256,7 +312,7 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
         }
         else
         {
-			RCLCPP_ERROR(this->get_logger(), "Service not available for box ID: %s", current_box_id.c_str());
+			// RCLCPP_ERROR(this->get_logger(), "Service not available for box ID: %s", current_box_id.c_str());
             pending_box_responses_--;
         }
     }
@@ -264,26 +320,56 @@ void App::onSystemStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv
 
 void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::SlaveBoxInformationService>::SharedFuture f)
 {
-    auto response = f.get();
-    this->get_box_status_request_appeared = false;
+    auto resp = f.get();
+
+    dronehive_interfaces::msg::BoxFullStatus msg;
+    msg.box_id = std::string(resp->status.box_id.c_str());    // force deep copy
+    msg.drone_id = std::string(resp->status.drone_id.c_str());
+    msg.box_status = std::string(resp->status.status.c_str());
+    msg.landing_pos = resp->status.landing_pos;  // primitive fields are safe
+
+    box_status_pub_->publish(msg);
+    // this->get_box_status_request_appeared = false;
 
     auto msg2 = std_msgs::msg::String();
-    msg2.data = "Got box status for " + response->status.box_id;
+    msg2.data = "Got box status for " + resp->status.box_id;
 	RCLCPP_INFO(this->get_logger(), "%s", msg2.data.c_str());
     to_gui_msg_pub_->publish(msg2);
 
     if (this->pending_box_responses_ != 0)
+    {
         this->pending_box_responses_--;
 
-    auto msg = dronehive_interfaces::msg::BoxFullStatus();
-    msg.box_id = response->status.box_id;
-    msg.drone_id = response->status.drone_id;
-    msg.landing_pos = response->status.landing_pos;
-    msg.box_status = response->status.status;
+        BoxData box_data;
+        box_data.box_id = msg.box_id;
+        box_data.drone_id = msg.drone_id;
+        box_data.box_status = msg.box_status;
+        box_data.position = msg.landing_pos;
+        this->data.push_back(box_data);
+    }
+    if(this->pending_box_responses_ <= 0)
+    {
+        
+        std::string raw = std::string(DRONEHIVE_SOURCE_DIR);
+        std::string real_path = get_workspace_root(raw);
 
+        std::ofstream MyFile(real_path + "/box_data.txt");
+        // Write to the file
+        for(BoxData box_data : this->data)
+        {
+            MyFile << box_data.box_id << "," << box_data.drone_id << "," << box_data.box_status
+            << "," << std::to_string(box_data.position.elv)
+            << "," << std::to_string(box_data.position.lat) 
+            << "," << std::to_string(box_data.position.lon) 
+            << "\n"; 
+        }
+
+        // Close the file
+        MyFile.close();
+        this->data.clear();
+        box_status_pub_->publish(msg);;
+    }
 	RCLCPP_INFO(this->get_logger(), "Box ID: %s, Drone ID: %s, Status: %s", msg.box_id.c_str(), msg.drone_id.c_str(), msg.box_status.c_str());
-
-    box_status_pub_->publish(msg);;
 }
 
 void App::onDroneLandingRequestResponse(rclcpp::Client<dronehive_interfaces::srv::DroneLandingService>::SharedFuture f)

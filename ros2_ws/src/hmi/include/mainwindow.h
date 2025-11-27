@@ -18,6 +18,7 @@
 #include <memory>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -31,6 +32,9 @@
 #include <dronehive_interfaces/msg/gui_drone_trajectory_upload.hpp>
 #include <dronehive_interfaces/msg/gui_add_new_drone.hpp>
 #include <dronehive_interfaces/msg/toggle_trajectory.hpp>
+#include <dronehive_interfaces/msg/drone_force_landing_message.hpp>
+#include <dronehive_interfaces/msg/drone_stop_resume_trajectory.hpp>
+#include <dronehive_interfaces/msg/drone_status_message.hpp>
 
 #include "drone.h"
 #include "box.h"
@@ -43,6 +47,17 @@
 #include "flight_preset_create_dialog.h"
 #include "helper.h"
 #include "add_drone_dialog.h"
+
+struct BoxData
+{
+    std::string box_id;
+    std::string drone_id;
+    std::string box_status;
+    std::string elv;
+    std::string lat;
+    std::string lon;
+};
+
 
 class MainWindow : public QMainWindow
 {
@@ -66,6 +81,7 @@ public:
     void onBackendCommand(const dronehive_interfaces::msg::BackendCommand::SharedPtr msg);
     void onBackendBoxStatusMessage(const dronehive_interfaces::msg::BoxFullStatus::SharedPtr msg);
     void onDroneChangedBoxStatus(const dronehive_interfaces::msg::OccupancyMessage::SharedPtr msg);
+    void onBackendDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg);
 
     void setBoxStateGraphics(std::string& box_status, float box_battery_level);
     void setDroneGraphics(float box_battery_level);
@@ -119,6 +135,7 @@ private:
     rclcpp::Publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr response_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::GuiAddNewDrone>::SharedPtr gui_add_remove_drone_pub_;
     rclcpp::Publisher<dronehive_interfaces::msg::GuiDroneTrajectoryUpload>::SharedPtr gui_trajectory_pub_;
+    rclcpp::Publisher<dronehive_interfaces::msg::DroneStopResumeTrajectory>::SharedPtr gui_drone_stop_start_traj_pub_;
 
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr heart_beat_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>::SharedPtr new_box_gui_sub_;
@@ -126,6 +143,9 @@ private:
     rclcpp::Subscription<dronehive_interfaces::msg::BackendCommand>::SharedPtr backend_command_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::BoxFullStatus>::SharedPtr backend_box_status_sub_;
     rclcpp::Subscription<dronehive_interfaces::msg::OccupancyMessage>::SharedPtr drone_box_status_change_sub_;
+    rclcpp::Subscription<dronehive_interfaces::msg::DroneStatusMessage>::SharedPtr backend_drone_status_sub_;
+
+    std::mutex box_status_mutex_;
 
     std::vector<Box> boxes;
     std::vector<Drone> drones;

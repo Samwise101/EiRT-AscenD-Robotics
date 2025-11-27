@@ -1,20 +1,20 @@
 #include <iostream>
 #include "box.h"
 
-Box::Box(int type, Coordinates coord, std::string id, std::string status, int number) : 
+Box::Box(BoxType type, Coordinates coord, std::string id, std::string status, int number) : 
 box_type(type), coord(coord), id(id), number(number), status(status), assigned_drone_id("")
 {
-
+    this->battery_level = 100.0;
 }
 
 Box::~Box(){}
 
-void Box::set_box_type(int type)
+void Box::set_box_type(BoxType type)
 {
     this->box_type = type;
 }
 
-int Box::get_box_type()
+BoxType Box::get_box_type()
 {
     return this->box_type;
 }
@@ -77,4 +77,15 @@ void Box::set_box_landing_lon(float value)
 void Box::set_box_landing_alt(float value)
 {
     this->coord.alt = value;
+}
+
+
+void Box::set_battery_level(float value)
+{
+    this->battery_level = value;
+}
+
+float Box::get_battery_level()
+{
+    return this->battery_level;
 }
