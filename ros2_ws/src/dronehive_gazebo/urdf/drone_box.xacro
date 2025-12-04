@@ -279,9 +279,12 @@
 
   <!-- Gazebo plugin that spins up controller_manager -->
   <gazebo>
-    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <parameters>$(find dronehive_gazebo)/config/ros2_control_params.yaml</parameters>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <!-- Direct parameter file for gazebo_ros2_control -->
+      <parameters>$(find dronehive_gazebo)/config/drone_box_controllers.yaml</parameters>
     </plugin>
   </gazebo>
 
 </robot>
+
+
