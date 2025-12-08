@@ -480,16 +480,18 @@ class MasterBoxNode(Node):
 
 
 	def _handle_gui_toggle_trajectory_execution(self, msg: DroneStopResumeTrajectory) -> None:
+		self.get_logger().info(f"Received toggle trajectory execution request from GUI for drone ID: '{msg.drone_id}'")
+
 		if msg.drone_id == "" or msg.drone_id not in self.known_drones:
 			self.get_logger().warn("Received empty drone ID in toggle trajectory execution message. Ignoring...")
 			return
 
 		if msg.drone_id in self.paused_drones:
 			self.get_logger().info(f"Pausing trajectory execution for drone ID: '{msg.drone_id}' as requested by GUI.")
-			self.paused_drones.add(msg.drone_id)
+			self.paused_drones.discard(msg.drone_id)
 		else:
 			self.get_logger().info(f"Resuming trajectory execution for drone ID: '{msg.drone_id}' as requested by GUI.")
-			self.paused_drones.discard(msg.drone_id)
+			self.paused_drones.add(msg.drone_id)
 
 		toggle_msg: DroneToggleExecutionMessage = DroneToggleExecutionMessage()
 		toggle_msg.drone_ids = [msg.drone_id]
