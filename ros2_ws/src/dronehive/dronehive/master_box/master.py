@@ -728,7 +728,7 @@ class MasterBoxNode(Node):
 
 		self.create_service(
 			DroneLandingService,
-			dh.DRONEHIVE_DRONE_ASSIGN_BOX,
+			dh.DRONEHIVE_DRONE_ASSIGN_TO_BOX,
 			self.handle_request_box_open_service,
 			callback_group=ReentrantCallbackGroup()
 		)
