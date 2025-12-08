@@ -5,6 +5,7 @@ from rclpy.callback_groups import (
 	ReentrantCallbackGroup,
 	MutuallyExclusiveCallbackGroup,
 )
+from std_srvs.srv import SetBool
 
 from rclpy.executors import SingleThreadedExecutor
 
@@ -23,7 +24,9 @@ from dronehive_interfaces.msg import (
 	BoxBroadcastMessage,
 	BoxSetupConfirmationMessage,
 	DroneForceLandingMessage,
+	DroneStopResumeTrajectory,
 	DroneStatusMessage,
+	DroneToggleExecutionMessage,
 	PositionMessage
 )
 
@@ -45,9 +48,9 @@ from dronehive_interfaces.srv import (
 import dronehive.utils as dh
 from dronehive.utils import BoxStatus, BoxStatusEnum
 
-from dataclasses import dataclass
-from enum import Enum
 from typing import Dict
+import numpy as np
+import threading
 import time
 
 qos_profile = QoSProfile(
@@ -64,9 +67,12 @@ class MasterBoxNode(Node):
 		self.uninitialised_slave_boxes = {}
 		self.linked_slave_boxes: Dict[str, BoxStatus] = {}
 		self.known_drones: set[str] = set()
-		self.motor: dh.XL430Controller | None = None
+		self.landing_drones: dict[str, dh.DroneLandingStatus] = {}
+		self.paused_drones: set[str] = set()
 		self.temp_node = Node('temp_waypoint_client_node')
 		self.drone_subscriptions: Dict[str, Subscription] = {}
+		self.lock = threading.Lock()
+		self.threads: dict[threading.Event, threading.Thread] = {}
 
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
@@ -101,13 +107,6 @@ class MasterBoxNode(Node):
 		self.create_actions()
 
 		self.gather_slave_boxes_states()
-
-		# Initialise the motor controller
-		try:
-			self.motor = dh.XL430Controller(dxl_id=0)
-		except Exception as e:
-			self.get_logger().error(f"Failed to initialise motor controller: {e}")
-			self.motor = None
 
 		# Drop the initialiser to free memory
 		self.initialiser = None
@@ -244,6 +243,21 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		# Topic used by drones to leth the master box know they have landed.
+		self.create_subscription(
+			String,
+			dh.DRONEHIVE_DRONE_LANDED_NOTIFICATION_TOPIC,
+			self._drone_landed_notification_callback,
+			qos_profile
+		)
+
+		self.create_subscription(
+			DroneStopResumeTrajectory,
+			dh.DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION_TOPIC,
+			self._handle_gui_toggle_trajectory_execution,
+			qos_profile,
+		)
+
 		# Publishers
 		# Topic used to forward the initialisation confirmation of a slave box from the GUI to the slave box.
 		self.slave_box_confirm_init_pub = self.create_publisher(
@@ -284,6 +298,14 @@ class MasterBoxNode(Node):
 			qos_profile
 		)
 
+		self.drone_toggle_trajectory_execution_pub = self.create_publisher(
+			DroneToggleExecutionMessage,
+			dh.DRONEHIVE_DRONE_TOGGLE_TRAJECTORY_EXECUTION_TOPIC,
+			qos_profile,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+
 	#####################
 	# Message callbacks #
 	#####################
@@ -323,7 +345,6 @@ class MasterBoxNode(Node):
 		self.get_logger().warn("Deinitialising box as requested...")
 		dh.dronehive_deinitialise(self.config)
 		self.linked_slave_boxes = {}
-		self.motor = None
 
 		def deferred_reinit():
 			self.get_logger().warn("Box deinitialised. Restarting initialiser...")
@@ -412,6 +433,79 @@ class MasterBoxNode(Node):
 			self._pub_box_broadcast.publish(response)
 
 
+	def notify_gui_drone_landed(self, box_id: str, drone_id: str, landing_pos: PositionMessage) -> None:
+		request = OccupancyService.Request()
+		request.box_id = box_id
+		request.drone_id = drone_id
+
+		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
+
+		self.client_manager.call_async(
+			OccupancyService,
+			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
+			request,
+			lambda future: self.get_logger().info(
+				f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}, Occupancy result: {future.result().occupancy_status}"
+			),
+			10
+		)
+
+
+	def _drone_landed_notification_callback(self, msg: String) -> None:
+		self.get_logger().info(f"Received drone landed notification for drone ID: '{msg.data}'. Forwarding to GUI...")
+		box_id: str | None = self.find_box_id_from_drone_id(msg.data)
+		box: BoxStatus | None = None
+
+		if box_id is not None:
+			box = self.linked_slave_boxes[box_id]
+			self.notify_gui_drone_landed(box_id, msg.data, box.position)
+
+		with self.lock:
+			self.landing_drones.pop(msg.data, None)
+
+		if box_id == self.config.box_id:
+			self.get_logger().info(f"Drone ID: '{msg.data}' has landed at master box ID: '{box_id}'. Closing box...")
+			self.open_close_box_via_motor(open=False, block=False)
+
+		elif box is not None:
+			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Requested box close for box ID: {box_id}, Result: {future.result().ack}"
+				),
+			)
+
+
+	def _handle_gui_toggle_trajectory_execution(self, msg: DroneStopResumeTrajectory) -> None:
+		self.get_logger().info(f"Received toggle trajectory execution request from GUI for drone ID: '{msg.drone_id}'")
+
+		if msg.drone_id == "" or msg.drone_id not in self.known_drones:
+			self.get_logger().warn("Received empty drone ID in toggle trajectory execution message. Ignoring...")
+			return
+
+		if msg.drone_id in self.paused_drones:
+			self.get_logger().info(f"Pausing trajectory execution for drone ID: '{msg.drone_id}' as requested by GUI.")
+			self.paused_drones.discard(msg.drone_id)
+		else:
+			self.get_logger().info(f"Resuming trajectory execution for drone ID: '{msg.drone_id}' as requested by GUI.")
+			self.paused_drones.add(msg.drone_id)
+
+		toggle_msg: DroneToggleExecutionMessage = DroneToggleExecutionMessage()
+		toggle_msg.drone_ids = [msg.drone_id]
+		toggle_msg.allow = [msg.drone_id not in self.paused_drones]
+		self.drone_toggle_trajectory_execution_pub.publish(toggle_msg)
+
+
+	def thread_wrapper(self, target, event):
+		try:
+			target()
+		finally:
+			event.set()
+
+
 	def _republish_drone_status(self, msg: DroneStatusMessage) -> None:
 		"""
 		Callback for the DroneStatusMessage topic. This callback is used to republish the drone status
@@ -423,6 +517,93 @@ class MasterBoxNode(Node):
 		# self.get_logger().info(f"Republishing drone status message for drone ID: '{msg.drone_id}'")
 		self.drone_state_republisher.publish(msg)
 
+		# TODO: remove once the propper way is implemented in the drone code
+		if msg.reached_first_waypoint and msg.fligt_state == dh.FlightState.EXECUTE_TRAJ.value:
+			box_id = self.find_box_id_from_drone_id(msg.drone_id)
+			if box_id is not None:
+				self.open_close_box_via_motor(open=False, box_id=box_id)
+				return
+
+		# if msg.landing_position != PositionMessage(int_min, int_min, int_min):
+		if msg.fligt_state == dh.FlightState.LANDING_HOME.value:
+			self.get_logger().info(f"Drone ID: '{msg.drone_id}' is landing. Coordinating landing...")
+			position = np.array([msg.current_position.lat, msg.current_position.lon, msg.current_position.elv])
+			landing = np.array([msg.landing_position.lat, msg.landing_position.lon, msg.landing_position.elv])
+			landing_status = dh.DroneLandingStatus(
+				drone_id = msg.drone_id,
+				position = msg.current_position,
+				landing_position = msg.landing_position,
+				distance_to_landing = np.linalg.norm(position - landing).item(),
+			)
+
+			with self.lock:
+				self.landing_drones[msg.drone_id] = landing_status
+
+			event = threading.Event()
+			t = threading.Thread(
+				target=self.thread_wrapper,
+				args=(self.coordinate_landing_drones, event),
+				daemon=True
+			)
+
+			self.threads[event] = t
+			t.start()
+			return
+
+
+	def coordinate_landing_drones(self) -> None:
+		"""
+		Coordinates the landing of multiple drones to avoid collisions.
+		"""
+		# Sort drones by distance to landing position
+		with self.lock:
+			sorted_drones = sorted(
+				self.landing_drones.values(),
+				key=lambda x: x.distance_to_landing
+			)
+
+		allowed_drones: dict[str, bool] = {}
+
+		for i, drone_status in enumerate(sorted_drones):
+			# Allow only the closest drone to land
+			if i == 0:
+				self.get_logger().info(f"Allowing drone ID: '{drone_status.drone_id}' to land.")
+				allowed_drones[drone_status.drone_id] = True
+				continue
+
+			if drone_status.drone_id in self.paused_drones:
+				allowed_drones[drone_status.drone_id] = False
+				continue
+
+			# For all the others check if they are too close to any of the allowed drones
+			# We check the distance between 2 drones. If they are closer than 2 meters, we request from the second drone to
+			# hold. This also prevents potential deadlocks, as the closest drone will always be allowed to land.
+			allowed = True
+			for ad in allowed_drones.keys():
+				drone_pos = np.array([
+					drone_status.position.lat,
+					drone_status.position.lon,
+					drone_status.position.elv
+				])
+
+				other_drone_pos = np.array([
+					self.landing_drones[ad].position.lat,
+					self.landing_drones[ad].position.lon,
+					self.landing_drones[ad].position.elv
+				])
+				drone_drone_dist: float = np.linalg.norm(drone_pos - other_drone_pos).item()
+				if drone_drone_dist < 5.0:
+					allowed = False
+					break
+
+			allowed_drones[drone_status.drone_id] = allowed
+
+		msg: DroneToggleExecutionMessage = DroneToggleExecutionMessage()
+		msg.allow = list(allowed_drones.values())
+		msg.drone_ids = list(allowed_drones.keys())
+		self.get_logger().info(f"Publishing drone landing coordination message: {msg}")
+		self.drone_toggle_trajectory_execution_pub.publish(msg)
+
 
 	#################
 	# Create TIMERS #
@@ -432,6 +613,8 @@ class MasterBoxNode(Node):
 		""" Creates the timers used by the master box node. """
 		self.slave_publish_timer = self.create_timer(1.0, self.__publish_slave_boxes)
 		self.slave_publish_timer.cancel()
+
+		self.create_timer(5.0, self._cleanup_finished_threads)
 
 	###################
 	# TIMER Callbacks #
@@ -462,6 +645,14 @@ class MasterBoxNode(Node):
 			self.uninitialised_slave_boxes.pop(box_id, None)
 
 
+	def _cleanup_finished_threads(self) -> None:
+		finished_events = [event for event, thread in self.threads.items() if not thread.is_alive()]
+		for event in finished_events:
+			if event.is_set():
+				self.get_logger().info("Cleaning up finished landing coordination thread.")
+				self.threads.pop(event, None)
+
+
 	###################
 	# Create SERVICES #
 	###################
@@ -478,7 +669,7 @@ class MasterBoxNode(Node):
 		self.create_service(
 			DroneLandingService,
 			dh.DRONEHIVE_DRONE_LAND_REQUEST,
-			self.find_best_lending_place
+			self.find_best_landing_place
 		)
 
 		self.create_service(
@@ -529,6 +720,61 @@ class MasterBoxNode(Node):
 			callback_group=MutuallyExclusiveCallbackGroup()
 		)
 
+		# Drone reached first waypoint service
+		self.create_service(
+			AddRemoveDroneService,
+			dh.DRONEHIVE_DRONE_REACHED_FIRST_WAYPOINT_SERVICE,
+			self.handle_drone_reached_first_waypoint,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+		self.create_service(
+			DroneLandingService,
+			dh.DRONEHIVE_DRONE_ASSIGN_TO_BOX,
+			self.handle_request_box_open_service,
+			callback_group=ReentrantCallbackGroup()
+		)
+
+
+	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
+		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
+		if box_id is None:
+			box_id = self.config.box_id
+
+		client = self.temp_node.create_client(
+			SetBool,
+			f"/{box_id}/motor_0/open_box",
+		)
+
+		self.get_logger().info("Waiting for motor controller service to be available...")
+		if not client.wait_for_service(timeout_sec=1.0):
+			self.get_logger().error("Motor controller service not available.")
+			return False
+
+		self.get_logger().info("Motor controller service available. Sending request...")
+		future: Future = client.call_async(SetBool.Request(data=open))
+
+		if block:
+			exec = SingleThreadedExecutor()
+			exec.add_node(self.temp_node)
+			exec.spin_until_future_complete(future)
+			exec.shutdown()
+
+			response: SetBool.Response | None = future.result()
+			if response is None or not response.success:
+				self.get_logger().error("Failed to open box via motor controller.")
+				return False
+
+			self.get_logger().info("Box successfully opened/closed via motor controller.")
+		else:
+			future.add_done_callback(
+			lambda f:
+				self.get_logger().info("Box successfully opened/closed via motor controller."
+				if f.result() and f.result().success
+				else "Failed to open box via motor controller."))
+
+		return True
+
 	#####################
 	# SERVICE Callbacks #
 	#####################
@@ -554,7 +800,7 @@ class MasterBoxNode(Node):
 		return response
 
 
-	def find_best_lending_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
+	def find_best_landing_place(self, request: DroneLandingService.Request, response: DroneLandingService.Response) -> DroneLandingService.Response:
 		"""
 		Finds the best landing place for a drone based on its current position.
 		It will look for the closest empty slave box and assign it to the drone.
@@ -575,18 +821,21 @@ class MasterBoxNode(Node):
 
 		positions = [box_status.position for box_status in self.linked_slave_boxes.values()]
 		info = zip(self.linked_slave_boxes.keys(), positions)
-		print(f"Linked boxes: {list(info)}")
-		print(f"Drone position: {request.drone_pos}")
+		self.get_logger().info(f"Linked boxes: {list(info)}")
+		self.get_logger().info(f"Drone position: {request.drone_pos}")
 
 		# Go through all the boxes (including the master box) and find the closest empty box.
 		for box_id, box_status in self.linked_slave_boxes.items():
 			if box_status.status != BoxStatusEnum.EMPTY:
-				print(f"Box ID: {box_id} is not empty (status: {box_status.status}). Skipping...")
+				self.get_logger().info(f"Box ID: {box_id} is not empty (status: {box_status.status}). Skipping...")
 				continue
 
 			# Evaluate the best box by the proximity defined by Euclidean distance.
-			distance = ((box_status.position.lat - request.drone_pos.lat) ** 2 + (box_status.position.lon - request.drone_pos.lon) ** 2) ** 0.5
-			print(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
+			drone_pos = np.array([request.drone_pos.lat, request.drone_pos.lon, request.drone_pos.elv])
+			box_pos = np.array([box_status.position.lat, box_status.position.lon, box_status.position.elv])
+			distance: float = np.linalg.norm(drone_pos - box_pos).item()
+
+			self.get_logger().info(f"Box ID: {box_id} is empty. Distance to drone: {distance}")
 			if distance < closest_distance:
 				closest_distance = distance
 				closest_box_id = box_id
@@ -626,35 +875,11 @@ class MasterBoxNode(Node):
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
 		else:
-			# If the closest box is the master box, open the box.
-			if self.motor:
-				self.get_logger().info("Opening master box for incoming drone...")
-				self.motor.open_box()
-			else:
-				self.get_logger().error("Motor controller not initialised. Cannot open box.")
+			self.open_close_box_via_motor(open=True)
 
-
-		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
+		response.box_id = closest_box_id
 		return response
-
-
-	def notify_gui_drone_landed(self, box_id: str, drone_id: str, landing_pos: PositionMessage) -> None:
-		request = OccupancyService.Request()
-		request.box_id = box_id
-		request.drone_id = drone_id
-
-		self.get_logger().info(f"Notifying GUI of drone ID: {drone_id} landing at box ID: {box_id}...")
-
-		self.client_manager.call_async(
-			OccupancyService,
-			dh.DRONEHIVE_DRONE_LAND_NOTIFY_GUI,
-			request,
-			lambda future: self.get_logger().info(
-				f"Notified GUI of drone ID: {drone_id} landing at box ID: {box_id}, Occupancy result: {future.result().occupancy_status}"
-			),
-			10
-		)
 
 
 	def return_home_request(self, request: RequestReturnHome.Request, response: RequestReturnHome.Response) -> RequestReturnHome.Response:
@@ -752,21 +977,17 @@ class MasterBoxNode(Node):
 		)
 
 		self.linked_slave_boxes[box_id].status = BoxStatusEnum.EMPTY
-		self.linked_slave_boxes[box_id].drone_id = ""
+		# self.linked_slave_boxes[box_id].drone_id = ""
 
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Executing trajectory on master box ID: '{box_id}' for drone ID: '{request.drone_id}'")
-			# if not self.motor:
-			# 	self.get_logger().error("Motor controller not initialised. Cannot open box.")
-			# 	response.ack = False
-			# 	return response
 
-			# response.ack = self.motor.open_box()
-
-			if not drone_client.wait_for_service(timeout_sec=2.0):
-				self.temp_node.get_logger().error(f"Target service for box ID: '{request.drone_id}' not available")
+			if not drone_client.wait_for_service(timeout_sec=45.0):
+				self.temp_node.get_logger().error(f"Target service for drone ID: '{request.drone_id}' not available on master box")
 				response.ack = False
 				return response
+
+			self.open_close_box_via_motor(open=True, box_id=box_id)
 
 			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			drone_future = drone_client.call_async(request)
@@ -793,44 +1014,45 @@ class MasterBoxNode(Node):
 
 
 		# Create a transient node to make the client call
-		box_client = self.temp_node.create_client(
-			DroneTrajectoryWaypointsService,
-			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
-		)
+		# box_client = self.temp_node.create_client(
+		# 	DroneTrajectoryWaypointsService,
+		# 	dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
+		# )
 
-		# wait for service
-		if not box_client.wait_for_service(timeout_sec=5.0):
-			self.temp_node.get_logger().error("Target service not available")
+		# # wait for service
+		# if not box_client.wait_for_service(timeout_sec=45.0):
+		# 	self.temp_node.get_logger().error("Target service not available")
+		# 	response.ack = False
+		# 	return response
+
+		if not drone_client.wait_for_service(timeout_sec=45.0):
+			self.temp_node.get_logger().error(f"Target service for drone ID: '{request.drone_id}' not available on slave")
 			response.ack = False
 			return response
 
-		box_future = box_client.call_async(request)
+		# box_future = box_client.call_async(request)
 
-		if not drone_client.wait_for_service(timeout_sec=2.0):
-			self.temp_node.get_logger().error(f"Target service for box ID: '{box_id}' not available")
-			response.ack = False
-			return response
+		exec = SingleThreadedExecutor()
+		exec.add_node(self.temp_node)
+		# exec.spin_until_future_complete(box_future)
 
 		drone_future = drone_client.call_async(request)
 
-
 		# Spin a temporary executor that only has the temp node
-		exec = SingleThreadedExecutor()
-		exec.add_node(self.temp_node)
-		exec.spin_until_future_complete(box_future)
 		exec.spin_until_future_complete(drone_future)
 		exec.shutdown()
 
-		if not box_future or not drone_future:
-			msg = f"""
-			Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.
-			Drone result: {drone_future or "None"}, Box result: {box_future or "None"}
-			"""
-			self.get_logger().error(msg)
-			response.ack = False
-			return response
+		# if not box_future or not drone_future:
+		# 	msg = f"""
+		# 	Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.
+		# 	Drone result: {drone_future or "None"}, Box result: {box_future or "None"}
+		# 	"""
+		# 	self.get_logger().error(msg)
+		# 	response.ack = False
+		# 	return response
 
-		box_result: DroneTrajectoryWaypointsService.Response | None= box_future.result()
+		box_result: DroneTrajectoryWaypointsService.Response | None= DroneTrajectoryWaypointsService.Response() #box_future.result()
+		box_result.ack = True;
 		drone_result: DroneTrajectoryWaypointsService.Response | None = drone_future.result()
 
 		if not box_result or not drone_result:
@@ -915,6 +1137,27 @@ class MasterBoxNode(Node):
 
 		if request.drone_id != "":
 			success = self._add_remove_drone(request.drone_id, add=True)
+
+			req = AddRemoveDroneService.Request()
+			req.drone_id = request.drone_id
+			req.box_id = request.box_id
+
+			def callback(future):
+				try:
+					result: AddRemoveDroneService.Response = future.result()
+					self.get_logger().info(
+						f"Assigned drone ID: '{request.drone_id}' to box ID: '{request.box_id}': ack={result.ack}"
+					)
+				except Exception as e:
+					self.get_logger().error(f"Failed to assign drone ID: '{request.drone_id}' to box ID: '{request.box_id}': {e}")
+
+			self.client_manager.call_async(
+				AddRemoveDroneService,
+				dh.DRONEHIVE_DRONE_ASSIGN_TO_BOX + f"_{request.drone_id}",
+				AddRemoveDroneService.Request,
+				callback,
+			)
+
 			if not success:
 				self.get_logger().warn(f"Drone ID: '{request.drone_id}' is already known in the system. Cannot add drone to box ID: '{request.box_id}'.")
 				response.ack = False
@@ -970,6 +1213,54 @@ class MasterBoxNode(Node):
 			return response
 
 		response.ack = True
+		return response
+
+
+	def handle_drone_reached_first_waypoint(self,
+		request: AddRemoveDroneService.Request,
+		response: AddRemoveDroneService.Response) -> AddRemoveDroneService.Response:
+
+		self.get_logger().info(f"Received drone reached first waypoint notification for drone ID: '{request.drone_id}'")
+		box: BoxStatus = self.linked_slave_boxes[request.box_id]
+
+		box.status = BoxStatusEnum.EMPTY
+		box.drone_id = ""
+
+		if box.box_id == self.config.box_id:
+			self.get_logger().info(f"Drone ID: '{request.drone_id}' reached first waypoint in master box ID: '{box.box_id}'. Clearing drone ID from config.")
+
+			self.open_close_box_via_motor(open=False, block=False)
+
+			self.config.drone_id = ""
+			self.config.save()
+			response.ack = True
+			return response
+
+		else:
+			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Requested box open for box ID: {box.box_id}, Result: {future.result().ack}"
+				),
+			)
+			response.ack = True
+
+		return response
+
+	def handle_request_box_open_service(self,
+		request: DroneLandingService.Request,
+		response: DroneLandingService.Response) -> DroneLandingService.Response:
+
+		box_id = self.find_box_id_from_drone_id(request.drone_id)
+		if box_id is None:
+			self.get_logger().error(f"Request box open service received for unknown drone ID: '{request.drone_id}'. Cannot open box.")
+			response.landing_pos = PositionMessage()
+			return response
+
+		response.box_id = box_id
 		return response
 
 	##################

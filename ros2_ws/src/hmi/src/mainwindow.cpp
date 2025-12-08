@@ -2,6 +2,8 @@
 #include "mainwindow.h"
 #include <QDebug>
 #include <chrono>
+#include <qchar.h>
+#include <rclcpp/logging.hpp>
 #include <sstream>
 #include <thread>
 #include <QStringList>
@@ -64,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->node_ = std::make_shared<rclcpp::Node>("gui_node");
 
 	subscription_options_reentrant_.callback_group = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-        
+
     // Create publishers
     new_box_find_pub_ = node_->create_publisher<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/gui/new_box_confirm", qos_profiles::master_qos);
     gui_cmd_pub_ = node_->create_publisher<dronehive_interfaces::msg::GuiCommand>("/gui/command", qos_profiles::master_qos);
@@ -78,8 +80,8 @@ MainWindow::MainWindow(QWidget *parent)
     new_box_gui_sub_ = node_->create_subscription<dronehive_interfaces::msg::BoxSetupConfirmationMessage>("/backend/newbox",qos_profiles::master_qos, std::bind(&MainWindow::onNewBoxMessage, this, std::placeholders::_1));
     backend_msg_sub_ = node_->create_subscription<std_msgs::msg::String>("/backend/msg", qos_profiles::master_qos, std::bind(&MainWindow::onBackendMessage, this, std::placeholders::_1));
     backend_drone_status_sub_ = node_->create_subscription<dronehive_interfaces::msg::DroneStatusMessage>(
-        "/backend/drone_status", 
-        qos_profiles::master_qos, 
+        "/backend/drone_status",
+        qos_profiles::master_qos,
         std::bind(&MainWindow::onBackendDroneStatusMessage, this, std::placeholders::_1)
     );
 
@@ -206,23 +208,26 @@ void MainWindow::cleanup()
 
 void MainWindow::onBackendDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg)
 {
-
     std::string drone_id = msg->drone_id;
+	try {
+		auto current_box_index = this->ui->boxComboBox->currentIndex();
 
-    auto current_box_index = this->ui->boxComboBox->currentIndex();
+		// if(drone_id != boxes[current_box_index].get_assigned_drone_id()) return;
 
-    if(drone_id != boxes[current_box_index].get_assigned_drone_id()) return;
+		if(drones.empty()) return;
 
-    if(drones.empty()) return;
+		drones[current_box_index].set_battery_level(msg->battery_percentage);
+		drones[current_box_index].set_drone_alt(msg->current_position.elv);
+		drones[current_box_index].set_drone_lat(msg->current_position.lat);
+		drones[current_box_index].set_drone_lon(msg->current_position.lon);
 
-    drones[current_box_index].set_battery_level(msg->battery_percentage);
-    drones[current_box_index].set_drone_alt(msg->current_position.elv);
-    drones[current_box_index].set_drone_lat(msg->current_position.lat);
-    drones[current_box_index].set_drone_lon(msg->current_position.lon);
-
-    this->ui->drone_altitude_value_label->setText(QString::number(msg->current_position.elv, 'f', 4));
-    this->ui->drone_latitude_value_label->setText(QString::number(msg->current_position.lat, 'f', 4));
-    this->ui->drone_longitude_value_label->setText(QString::number(msg->current_position.lon, 'f', 4));
+		this->ui->drone_altitude_value_label->setText(QString::number(msg->current_position.elv));
+		this->ui->drone_latitude_value_label->setText(QString::number(msg->current_position.lat));
+		this->ui->drone_longitude_value_label->setText(QString::number(msg->current_position.lon));
+	}
+	catch(const std::exception& e) {
+		RCLCPP_ERROR(this->node_->get_logger(), "Error updating drone status: %s", e.what());
+	}
 }
 
 void MainWindow::update3DTrajectories(std::vector<DroneVis> drones)

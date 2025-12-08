@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drones>
+    <drone id="drone01" color="#0fab30">
+        <point x="1.000" y="4.000" z="2.000"/>
+        <point x="3.000" y="4.000" z="2.000"/>
+        <point x="3.000" y="1.000" z="2.000"/>
+    </drone>
+</drones>

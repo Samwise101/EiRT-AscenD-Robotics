@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
+from rclpy.callback_groups import ReentrantCallbackGroup
+from dronehive.utils import Config
 import rclpy
 from rclpy.utilities import ok as rclpy_ok
 from rclpy.node import Node
 from rclpy.logging import get_logger
 import time
 from dynamixel_sdk import PortHandler, PacketHandler
+from rclpy.executors import MultiThreadedExecutor
 
 from enum import IntEnum
+
+from std_srvs.srv import SetBool
 
 class CommResult(IntEnum):
 	COMM_SUCCESS = 0  # tx or rx packet communication success
@@ -42,16 +47,39 @@ class ControlCommand(IntEnum):
 	ADDR_PRESENT_POSITION = 132
 
 
+class MotorOperation(IntEnum):
+	OPEN_BOX = 1
+	CLOSE_BOX = 2
+
+
 MAX_CURRENT = 300
 
-class XL430Controller:
+class XL430Controller(Node):
 	def __init__(self, device_name='/dev/ttyUSB0', baudrate=57600, *, dxl_id):
+		super().__init__(f"xl430_controller_node_{dxl_id}")
 
 		self.device_name = device_name
 		self.baudrate = baudrate
 		self.dxl_id = dxl_id
 		self.protocol_version = 2.0
+		self.stopped = True
 
+		config = Config.load()
+		callback_group = ReentrantCallbackGroup()
+		self.get_logger().info(f"Setting up XL430Controller on service namespace /{config.box_id}/motor_{self.dxl_id}")
+		self.create_service(
+			SetBool,
+			f'/{config.box_id}/motor_{self.dxl_id}/open_box',
+			self.handle_open_box,
+			callback_group=callback_group
+		)
+
+		self.create_service(
+			SetBool,
+			f'/{config.box_id}/motor_{self.dxl_id}/stop',
+			self.handle_stop,
+			callback_group=callback_group
+		)
 
 		# --- Setup SDK handlers ---
 		self.port_handler = PortHandler(self.device_name)
@@ -66,6 +94,34 @@ class XL430Controller:
 		# Enable torque
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 1)
 		get_logger(f"motor_{self.dxl_id}").info("Torque enabled")
+
+
+	def handle_open_box(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
+		self.get_logger().info(f"Received open_box request: {'open' if request.data else 'close'}")
+		if request.data:
+			response.success = self.open_box()
+			if response.success:
+				get_logger(f"motor_{self.dxl_id}").info("Box opened successfully.")
+			else:
+				response.message = "Failed to open box."
+				get_logger(f"motor_{self.dxl_id}").error("Failed to open box.")
+
+		else:
+			response.success = self.close_box()
+			if response.success:
+				get_logger(f"motor_{self.dxl_id}").info("Box closed successfully.")
+			else:
+				response.message = "Failed to close box."
+				get_logger(f"motor_{self.dxl_id}").error("Failed to close box.")
+
+		return response
+
+
+	def handle_stop(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
+		self.stop()
+		response.success = True
+		get_logger(f"motor_{self.dxl_id}").info("Motor stopped via service call.")
+		return response
 
 
 	# --- Helpers for read/write ---
@@ -107,6 +163,7 @@ class XL430Controller:
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 0)  # disable torque before changing
 		self.write1(ControlCommand.ADDR_OPERATING_MODE, mode)
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 1)
+		self.stopped = False
 		get_logger(f"motor_{self.dxl_id}").info(f"Operating mode set to {mode}")
 
 
@@ -119,7 +176,8 @@ class XL430Controller:
 		self.write4(ControlCommand.ADDR_GOAL_POSITION, position_ticks)
 		get_logger(f"motor_{self.dxl_id}").info(f"Moving to {position_ticks} ticks...")
 
-		while rclpy_ok():
+		now = time.time()
+		while rclpy_ok() or not self.stopped:
 			pos = self.read4(ControlCommand.ADDR_PRESENT_POSITION)
 			cur = self.read2(ControlCommand.ADDR_PRESENT_CURRENT)
 			get_logger(f"motor_{self.dxl_id}").info(f"REQUESETED: {position_ticks:10f} Pos: {pos}, Current: {cur}")
@@ -129,7 +187,7 @@ class XL430Controller:
 				self.stop()
 				return True
 
-			if abs(cur) > MAX_CURRENT:
+			if abs(cur) > MAX_CURRENT and (time.time() - now) > 2.0:
 				# If the current is too high, the motor is likely stalled or obstructed
 				# and the target position is not reached.
 				get_logger(f"motor_{self.dxl_id}").warn("High current detected! Stopping.")
@@ -162,6 +220,7 @@ class XL430Controller:
 		"""Stop by writing zero velocity and disabling torque."""
 		try:
 			self.write4(ControlCommand.ADDR_GOAL_VELOCITY, 0)
+			self.stopped = True
 		except Exception:
 			pass
 		self.write1(ControlCommand.ADDR_TORQUE_ENABLE, 0)
@@ -171,12 +230,13 @@ class XL430Controller:
 	def destroy(self):
 		self.stop()
 		self.port_handler.closePort()
+		self.destroy_node()
 		get_logger(f"motor_{self.dxl_id}").info("Port closed")
 
 
 	def open_box(self) -> bool:
 		get_logger(f"motor_{self.dxl_id}").info("Opening box...")
-		return self.move_extended(4096 * 5 - 900, profile_velocity=150, profile_accel=100)
+		return self.move_extended(4096 * 6.1, profile_velocity=150, profile_accel=100)
 
 
 	def close_box(self) -> bool:
@@ -188,7 +248,19 @@ class XL430Controller:
 
 def main(args=None):
 	rclpy.init(args=args)
-	node = Node('dynamixel_controller_node')
+	motor = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=0)
+	executor = MultiThreadedExecutor()
+	executor.add_node(motor)
+
+	executor.spin()
+
+	motor.destroy()
+	rclpy.shutdown()
+
+
+
+
+if __name__ == '__main__':
 	# motor1 = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=0)
 	motor2 = XL430Controller('/dev/ttyUSB0', 57600, dxl_id=1)
 	velocity = 150
@@ -208,18 +280,13 @@ def main(args=None):
 		# Example 2: Velocity move
 		# motor1.move_velocity(200)  # units ≈ 0.229 RPM per tick (depends on model)
 	except Exception as e:
-		node.get_logger().error(f"Error during motor operation: {e}")
+		motor2.get_logger().error(f"Error during motor operation: {e}")
 		motor2.stop()
 		motor2.destroy()
-		node.destroy_node()
 		rclpy.shutdown()
 
 	finally:
 		# motor1.destroy()
 		motor2.destroy()
-		node.destroy_node()
 		rclpy.shutdown()
-
-if __name__ == '__main__':
-	main()
 

@@ -23,16 +23,35 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import (
+	QoSProfile,
+	QoSReliabilityPolicy,
+	QoSHistoryPolicy,
+)
 
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
-from sensor_msgs.msg import BatteryState
-from dronehive_interfaces.srv import DroneLandingService, DroneTrajectoryWaypointsService, DroneStartStopService
-from dronehive_interfaces.msg import PositionMessage, DroneStatusMessage
+
+from dronehive_interfaces.srv import (
+    AddRemoveDroneService,
+    DroneLandingService,
+    DroneTrajectoryWaypointsService,
+)
+
+from dronehive_interfaces.msg import (
+    PositionMessage,
+    DroneStatusMessage,
+    DroneToggleExecutionMessage
+)
+
 from sensor_msgs.msg import BatteryState
 
-
+qos_profile = QoSProfile(
+	reliability=QoSReliabilityPolicy.BEST_EFFORT,
+	history=QoSHistoryPolicy.KEEP_LAST,
+	depth=1
+)
 
 # ---------------------- helpers ---------------------------------
 
@@ -109,20 +128,24 @@ class LandingControl(Node):
         self.loiter_radius = float(loiter_radius)
         self.landing_timeout = float(landing_timeout)
         self.publish_dt = 1.0 / float(publish_hz)
+        self.landing_box_id: str = ""
+        self.landing_future = None
 
         # ---------------- ROS I/O ----------------
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
         self.create_subscription(BatteryState, '/mavros/battery', self._battery_cb, 10)
+        self.create_subscription(DroneToggleExecutionMessage, "/dronehive/drone_toggle_trajectory_execution", self._toggle_execution_cb, qos_profile)
 
         self.cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.cli_arm = self.create_client(CommandBool, '/mavros/cmd/arming')
+        self.first_waypoint_reached = self.create_client(AddRemoveDroneService, "/dronehive/drone_reached_first_waypoint_service")
 
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
-        self.srv = self.create_service(DroneStartStopService, f"/dronehive/drone_start_stop_{self.drone_id}", self.start_stop_service_cb)
+
 
         self.pub_status = self.create_publisher(DroneStatusMessage, f"/dronehive/drone_status_{self.drone_id}", 10)
 
@@ -144,6 +167,7 @@ class LandingControl(Node):
         self.last_requested_pose = np.zeros(3)
         self.latest_xyz = np.zeros(3)
         self.hold_position = None
+        self.resume_allowed = True
 
         # Battery
         self.battery_level = 0.0  # percentage
@@ -168,7 +192,7 @@ class LandingControl(Node):
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
         self.r_waypoints = []
-        self.reached_first_waypoint = False
+        self.reached_first_waypoint_nonlanding = False
 
         # Waypoint readiness
         self.waypoints_ready = False
@@ -223,21 +247,28 @@ class LandingControl(Node):
     def _battery_cb(self, msg: BatteryState):
         self.battery_level = msg.percentage * 100.0  # convert to percentage
 
-    def start_stop_service_cb(self, request, response):
-        if request.control_var == 1:  # pause
-            self.get_logger().info("Pausing trajectory execution.")
-            self.state = FlightState.WAIT
-        elif request.control_var == 0:  # resume
-            self.get_logger().info("Resuming trajectory execution.")
-            if self.traj_segments:
-                self.state = FlightState.EXECUTE_TRAJ
-            else:
-                self.get_logger().info("No trajectory to execute, remaining in current state.")
-        elif request.control_var == 2:  # stop
-            self.get_logger().info("Stopping trajectory execution and landing home.")
-            self.state = FlightState.LANDING_HOME
-        response.ack = True
-        return response
+    def _toggle_execution_cb(self, msg: DroneToggleExecutionMessage):
+        my_spot = -1
+        self.get_logger().info(f"Toggle execution message received for drone IDs: {msg.drone_ids}")
+
+        if msg.drone_ids.index(self.drone_id) is not ValueError:
+            self.get_logger().info(f"Drone ID {self.drone_id} found in toggle execution message.")
+            my_spot = msg.drone_ids.index(self.drone_id)
+
+        if my_spot == -1:
+            self.get_logger().info("Toggle execution message received, but drone_id not found in list.")
+            return
+
+        self.get_logger().info(f"Toggle execution for drone ID {self.drone_id} at index {my_spot} with allow={msg.allow[my_spot]}")
+        self.resume_allowed = msg.allow[my_spot]
+        self.hold_position = None  # reset hold position
+        self.get_logger().info(f"Resume: {self.resume_allowed}")
+
+        # elif self.hold_position is None:
+        #     self.hold_position = self.curr_xyz.copy()
+        #     self.get_logger().info("Recieved toggle command to pause execution.")
+
+
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
@@ -248,6 +279,11 @@ class LandingControl(Node):
 
         # Publish drone status
         self._publish_status()
+
+        # Pause and resume control based on external command
+        if not self.resume_allowed:
+            self._pause_function()
+            return
 
 
         if self.state == FlightState.INIT:
@@ -406,7 +442,7 @@ class LandingControl(Node):
                 self.isLanding = True
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
-                self.position_tolerance = 0.1
+                self.position_tolerance = 0.05
                 self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
@@ -482,8 +518,13 @@ class LandingControl(Node):
                     self.seg_t0_wall = time.time()
                     self.now = time.time()
                     self.get_logger().info(f"Segment {self.current_segment_idx} reached, moving to next.")
-                    if not self.reached_first_waypoint:
-                        self.reached_first_waypoint = True
+                    if not self.reached_first_waypoint_nonlanding:
+                        msg = AddRemoveDroneService.Request()
+                        msg.drone_id = self.drone_id
+                        msg.box_id = 'master'
+                        self.landing_future = self.first_waypoint_reached.call_async(msg)
+                        self.landing_future.add_done_callback(self._first_waypoint_future_cb)
+                        self.reached_first_waypoint_nonlanding = True
                         self.get_logger().info("Reached first waypoint...")
 
 
@@ -533,6 +574,50 @@ class LandingControl(Node):
             self.get_logger().info("SIM: requesting DISARM...")
 
     # -------------------- Landing Service --------------------
+    def _call_fws(self):
+        """Call first waypoint service to notify master box."""
+        if not self.cli_fws.service_is_ready():
+            self.get_logger().warn("First Waypoint Service not yet available.")
+            return
+
+        req = FirstWaypointService.Request()
+        req.drone_id = self.drone_id
+        req.reached_first_waypoint = True
+
+        self.get_logger().info(
+            f"Notifying first waypoint reached to /dronehive/first_waypoint_service "
+            f"with drone_id='{req.drone_id}'"
+        )
+
+        future = self.cli_fws.call_async(req)
+        future.add_done_callback(self._fws_future_cb)
+
+    def _fws_future_cb(self, future):
+        try:
+            resp = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"First Waypoint Service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'ack') or not resp.ack:
+            self.get_logger().warn("First Waypoint Service returned no valid acknowledgment.")
+            return
+
+        self.get_logger().info(f"First Waypoint Service acknowledged by master box.")
+
+    def _first_waypoint_future_cb(self, future):
+        try:
+            resp: AddRemoveDroneService.Response = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"First waypoint service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'ack') or not resp.ack:
+            self.get_logger().warn("First waypoint service returned no valid ack.")
+            return
+
+        self.get_logger().info("First waypoint reached acknowledged by masterbox.")
+
 
     def _call_landing_service(self, now_wall: float):
         """Send landing request to the masterbox."""
@@ -563,7 +648,7 @@ class LandingControl(Node):
 
     def _landing_future_cb(self, future):
         try:
-            resp = future.result()
+            resp: DroneLandingService.Response = future.result()
         except Exception as e:
             self.get_logger().warn(f"Landing service call failed: {e}")
             return
@@ -573,6 +658,7 @@ class LandingControl(Node):
             return
 
         lp = resp.landing_pos
+        self.landing_box_id = resp.box_id
         self.landing_target = np.array([float(lp.lat), float(lp.lon), float(lp.elv)], dtype=float)
         self.landing_received = True
         self.hold_position = None  # reset hold position
@@ -647,6 +733,7 @@ class LandingControl(Node):
         p0 = self.curr_xyz.copy()
         p1 = p0 + np.array([0.0, 0.0, 1.0])  # 1 m up
         waypoints = [p0, p1]
+        self.reached_first_waypoint_nonlanding = False
 
         for wp in self.r_waypoints:
             wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
@@ -687,9 +774,6 @@ class LandingControl(Node):
         if self.hold_position is None:
             self.hold_position = self.curr_xyz.copy()
 
-        # set the latest_xyz to current position and publish that unless the drone has moved more than 0.1m
-        # if np.linalg.norm(self.curr_xyz - self.latest_xyz) > 0.1:
-        #     self.latest_xyz = self.curr_xyz.copy()
         self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2])
 
     def _publish_takeoff_sp(self):
@@ -739,8 +823,6 @@ class LandingControl(Node):
         pos_msg.lon = float(self.curr_xyz[1])
         pos_msg.elv = float(self.curr_xyz[2])
         msg.current_position = pos_msg
-        msg.reached_first_waypoint = self.reached_first_waypoint
-        self.reached_first_waypoint = False
         self.pub_status.publish(msg)
 
 
@@ -762,6 +844,13 @@ class LandingControl(Node):
             self.request_sent = False
             self.request_start_wall = now_wall
 
+    def _pause_function(self):
+        """Pause and resume control based on external command"""
+        if not self.resume_allowed:
+            self._publish_hold_here()
+            self.get_logger().info("Control paused, holding position.")
+            return
+
     def _reset_all(self):
         """Reset all internal states for a new mission."""
         self.request_sent = False
@@ -774,7 +863,7 @@ class LandingControl(Node):
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
         self.r_waypoints = []
-        self.reached_first_waypoint = False
+        self.reached_first_waypoint_nonlanding = False
         self.waypoints_ready = False
         self.current_segment_idx = 0
         self.position_tolerance = 0.3

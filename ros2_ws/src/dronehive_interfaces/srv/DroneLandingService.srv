@@ -4,3 +4,4 @@ string drone_id
 PositionMessage drone_pos
 ---
 PositionMessage landing_pos
+string box_id

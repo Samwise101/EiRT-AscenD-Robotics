@@ -49,3 +49,27 @@ class BoxStatus:
 	position: PositionMessage
 	status: BoxStatusEnum = BoxStatusEnum.UNKNOWN
 
+
+class FlightState(Enum):
+    INIT = 0
+    WAIT_OFFBOARD_AND_ARM = 1
+    TAKEOFF = 2
+    LOITER_WAIT_SERVICE = 3
+    EXECUTE_TRAJ = 4
+    LANDING_HOME = 5
+    DONE = 6
+    WAIT_ARM = 7
+    WAIT_OFFBOARD = 8
+    WAIT_AND_PLAN_TRAJ = 9
+    EXECUTE_TEST_TRAJ = 10
+    REQUEST_LANDING = 11
+    WAIT = 12
+
+
+@dataclass
+class DroneLandingStatus:
+	drone_id: str
+	position: PositionMessage
+	landing_position: PositionMessage | None
+	distance_to_landing: float
+
