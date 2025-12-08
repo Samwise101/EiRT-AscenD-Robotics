@@ -442,7 +442,7 @@ class LandingControl(Node):
                 self.isLanding = True
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
-                self.position_tolerance = 0.1
+                self.position_tolerance = 0.05
                 self.hold_position = None  # reset hold position
                 self.state = FlightState.EXECUTE_TRAJ
                 self.get_logger().info("Landing target received. Executing landing trajectory.")
