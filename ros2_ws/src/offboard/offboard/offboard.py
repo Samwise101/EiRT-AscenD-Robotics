@@ -145,7 +145,7 @@ class LandingControl(Node):
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
-        
+
 
         self.pub_status = self.create_publisher(DroneStatusMessage, f"/dronehive/drone_status_{self.drone_id}", 10)
 
@@ -249,18 +249,24 @@ class LandingControl(Node):
 
     def _toggle_execution_cb(self, msg: DroneToggleExecutionMessage):
         my_spot = -1
+        self.get_logger().info(f"Toggle execution message received for drone IDs: {msg.drone_ids}")
+
         if msg.drone_ids.index(self.drone_id) is not ValueError:
+            self.get_logger().info(f"Drone ID {self.drone_id} found in toggle execution message.")
             my_spot = msg.drone_ids.index(self.drone_id)
+
         if my_spot == -1:
             self.get_logger().info("Toggle execution message received, but drone_id not found in list.")
             return
-        if msg.allow[my_spot]:
-            self.get_logger().info("Recieved toggle command")
-            self.resume_allowed = msg.allow[my_spot]
-            self.hold_position = None  # reset hold position
-        elif self.hold_position is None:
-            self.hold_position = self.curr_xyz.copy()
-            self.get_logger().info("Recieved toggle command to pause execution.")
+
+        self.get_logger().info(f"Toggle execution for drone ID {self.drone_id} at index {my_spot} with allow={msg.allow[my_spot]}")
+        self.resume_allowed = msg.allow[my_spot]
+        self.hold_position = None  # reset hold position
+        self.get_logger().info(f"Resume: {self.resume_allowed}")
+
+        # elif self.hold_position is None:
+        #     self.hold_position = self.curr_xyz.copy()
+        #     self.get_logger().info("Recieved toggle command to pause execution.")
 
 
     # -------------------- Main Timer --------------------
@@ -275,7 +281,9 @@ class LandingControl(Node):
         self._publish_status()
 
         # Pause and resume control based on external command
-        self._pause_function()
+        if not self.resume_allowed:
+            self._pause_function()
+            return
 
 
         if self.state == FlightState.INIT:
@@ -835,7 +843,7 @@ class LandingControl(Node):
             # Will retry call as soon as service comes up (handled in LOITER_WAIT_SERVICE)
             self.request_sent = False
             self.request_start_wall = now_wall
-    
+
     def _pause_function(self):
         """Pause and resume control based on external command"""
         if not self.resume_allowed:
