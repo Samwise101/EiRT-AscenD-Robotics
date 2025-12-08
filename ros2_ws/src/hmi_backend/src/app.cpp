@@ -129,9 +129,9 @@ App::~App()
 
 void App::onBoxDroneStatusMessage(const dronehive_interfaces::msg::DroneStatusMessage::SharedPtr msg)
 {
-    std_msgs::msg::String msg2;
-    msg2.data = "Got Box Drone Status message for drone " + msg->drone_id;
-    to_gui_msg_pub_->publish(msg2);
+    // std_msgs::msg::String msg2;
+    // msg2.data = "Got Box Drone Status message for drone " + msg->drone_id;
+    // to_gui_msg_pub_->publish(msg2);
 
     dronehive_interfaces::msg::DroneStatusMessage msg_new;
     msg_new.battery_percentage = msg->battery_percentage;
@@ -349,7 +349,7 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
     }
     if(this->pending_box_responses_ <= 0)
     {
-        
+
         std::string raw = std::string(DRONEHIVE_SOURCE_DIR);
         std::string real_path = get_workspace_root(raw);
 
@@ -359,9 +359,9 @@ void App::onBoxStatusRequestResponse(rclcpp::Client<dronehive_interfaces::srv::S
         {
             MyFile << box_data.box_id << "," << box_data.drone_id << "," << box_data.box_status
             << "," << std::to_string(box_data.position.elv)
-            << "," << std::to_string(box_data.position.lat) 
-            << "," << std::to_string(box_data.position.lon) 
-            << "\n"; 
+            << "," << std::to_string(box_data.position.lat)
+            << "," << std::to_string(box_data.position.lon)
+            << "\n";
         }
 
         // Close the file
