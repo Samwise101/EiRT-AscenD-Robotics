@@ -1014,27 +1014,27 @@ class MasterBoxNode(Node):
 
 
 		# Create a transient node to make the client call
-		# box_client = self.temp_node.create_client(
-		# 	DroneTrajectoryWaypointsService,
-		# 	dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
-		# )
+		box_client = self.temp_node.create_client(
+			DroneTrajectoryWaypointsService,
+			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{box_id}"
+		)
 
-		# # wait for service
-		# if not box_client.wait_for_service(timeout_sec=45.0):
-		# 	self.temp_node.get_logger().error("Target service not available")
-		# 	response.ack = False
-		# 	return response
+		# wait for service
+		if not box_client.wait_for_service(timeout_sec=45.0):
+			self.temp_node.get_logger().error("Target service not available")
+			response.ack = False
+			return response
 
 		if not drone_client.wait_for_service(timeout_sec=45.0):
 			self.temp_node.get_logger().error(f"Target service for drone ID: '{request.drone_id}' not available on slave")
 			response.ack = False
 			return response
 
-		# box_future = box_client.call_async(request)
+		box_future = box_client.call_async(request)
 
 		exec = SingleThreadedExecutor()
 		exec.add_node(self.temp_node)
-		# exec.spin_until_future_complete(box_future)
+		exec.spin_until_future_complete(box_future)
 
 		drone_future = drone_client.call_async(request)
 
@@ -1042,14 +1042,14 @@ class MasterBoxNode(Node):
 		exec.spin_until_future_complete(drone_future)
 		exec.shutdown()
 
-		# if not box_future or not drone_future:
-		# 	msg = f"""
-		# 	Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.
-		# 	Drone result: {drone_future or "None"}, Box result: {box_future or "None"}
-		# 	"""
-		# 	self.get_logger().error(msg)
-		# 	response.ack = False
-		# 	return response
+		if not box_future or not drone_future:
+			msg = f"""
+			Failed to get trajectory waypoints for drone ID: '{request.drone_id}' from box ID: '{box_id}'.
+			Drone result: {drone_future or "None"}, Box result: {box_future or "None"}
+			"""
+			self.get_logger().error(msg)
+			response.ack = False
+			return response
 
 		box_result: DroneTrajectoryWaypointsService.Response | None= DroneTrajectoryWaypointsService.Response() #box_future.result()
 		box_result.ack = True;
