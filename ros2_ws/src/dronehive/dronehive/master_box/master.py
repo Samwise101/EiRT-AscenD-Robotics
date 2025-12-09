@@ -1154,7 +1154,7 @@ class MasterBoxNode(Node):
 			self.client_manager.call_async(
 				AddRemoveDroneService,
 				dh.DRONEHIVE_DRONE_ASSIGN_TO_BOX + f"_{request.drone_id}",
-				AddRemoveDroneService.Request,
+				req,
 				callback,
 			)
 
