@@ -52,6 +52,7 @@ from typing import Dict
 import numpy as np
 import threading
 import time
+from queue import Queue
 
 qos_profile = QoSProfile(
 	reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -73,6 +74,7 @@ class MasterBoxNode(Node):
 		self.drone_subscriptions: Dict[str, Subscription] = {}
 		self.lock = threading.Lock()
 		self.threads: dict[threading.Event, threading.Thread] = {}
+		self.to_remove: Queue[Subscription] = Queue()
 
 
 		# If the box is not initialised (aka setup and cofirmed by the GUI) it will publish its position and ID until it is
@@ -192,7 +194,7 @@ class MasterBoxNode(Node):
 				self.get_logger().warn(f"Drone ID: '{drone_id}' not found in known drones. Cannot remove.")
 				return False
 
-			self.drone_subscriptions[drone_id].destroy()
+			self.to_remove.put(self.drone_subscriptions[drone_id])
 			self.drone_subscriptions.pop(drone_id, None)
 			self.known_drones.discard(drone_id)
 			return True
@@ -338,7 +340,7 @@ class MasterBoxNode(Node):
 		for box in self.linked_slave_boxes.values():
 			self.deinitialise_slave_box_pub.publish(String(data=box.box_id))
 
-		for drone_id in self.known_drones:
+		for drone_id in list(self.known_drones):
 			self._add_remove_drone(drone_id, add=False)
 
 		# The message is for this box, deinitialise it.
@@ -652,6 +654,10 @@ class MasterBoxNode(Node):
 				self.get_logger().info("Cleaning up finished landing coordination thread.")
 				self.threads.pop(event, None)
 
+		while not self.to_remove.empty():
+			sub = self.to_remove.get()
+			self.destroy_subscription(sub)
+
 
 	###################
 	# Create SERVICES #
@@ -841,6 +847,7 @@ class MasterBoxNode(Node):
 				closest_box_id = box_id
 				landing_pos = box_status.position
 				self.get_logger().info(f"Found empty slave box ID: {box_id} for drone ID: {request.drone_id}. Assigning landing position: {box_status.position}")
+				self.notify_gui_drone_landed(box_id, request.drone_id, box_status.position)
 
 		# If no empty box is found, return an empty position.
 		if closest_box_id == None:
@@ -877,6 +884,7 @@ class MasterBoxNode(Node):
 		else:
 			self.open_close_box_via_motor(open=True)
 
+		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
 		response.box_id = closest_box_id
 		return response
