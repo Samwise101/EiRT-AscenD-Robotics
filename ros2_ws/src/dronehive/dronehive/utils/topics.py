@@ -57,6 +57,8 @@ DRONEHIVE_GUI_TOGGLE_TRAJECTORY_EXECUTION = "/dronehive/gui_toggle_trajectory_ex
 DRONEHIVE_DRONE_REACHED_FIRST_WAYPOINT_SERVICE = "/dronehive/drone_reached_first_waypoint_service"
 DRONEHIVE_DRONE_ASSIGN_TO_BOX = "/dronehive/drone_assign_to_box_service"
 
+DRONEHIVE_DRONE_ACTUATE_BOX = "/dronehive/drone_actuate_box"
+
 ###########
 # Actions #
 ###########

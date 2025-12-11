@@ -1,9 +1,11 @@
 # service_client_manager.py
+from rclpy.executors import MultiThreadedExecutor
 from collections import OrderedDict
 import threading
 
 from rclpy.node import ReentrantCallbackGroup
 from rclpy.task import Future
+from rclpy.executors import SingleThreadedExecutor
 import rclpy
 
 class ServiceClientManager:
@@ -75,4 +77,32 @@ class ServiceClientManager:
 		fut = client.call_async(request)
 		fut.add_done_callback(response_callback)
 		return fut
+
+
+	def call_sync(self,
+				srv_type,
+				srv_name,
+				request,
+				timeout_sec: float|None = None) -> object | None:
+		"""
+		Blocking call to service. Spins the node's executor until response is received.
+		Returns the service response, or raises exception on failure.
+		"""
+		if timeout_sec == None:
+			timeout_sec = self.wait_for_service_timeout
+
+		fut = self.call_async(srv_type, srv_name, request, timeout_sec=timeout_sec)
+		exec = MultiThreadedExecutor()
+		exec.add_node(self.node)
+		exec.spin_until_future_complete(fut, timeout_sec=timeout_sec)
+
+		if not fut.done():
+			return None
+
+		result = fut.result()
+		if result is None:
+			result = False
+			return result
+
+		return result
 

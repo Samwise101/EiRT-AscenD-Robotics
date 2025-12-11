@@ -736,10 +736,11 @@ class MasterBoxNode(Node):
 
 		self.create_service(
 			DroneLandingService,
-			dh.DRONEHIVE_DRONE_ASSIGN_TO_BOX,
-			self.handle_request_box_open_service,
+			dh.DRONEHIVE_DRONE_ACTUATE_BOX,
+			self.handle_request_box_open_close_service,
 			callback_group=ReentrantCallbackGroup()
 		)
+
 
 
 	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
@@ -882,7 +883,7 @@ class MasterBoxNode(Node):
 			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
 
 		else:
-			self.open_close_box_via_motor(open=True)
+			response.allow_landing = self.open_close_box_via_motor(open=True)
 
 		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
@@ -995,7 +996,10 @@ class MasterBoxNode(Node):
 				response.ack = False
 				return response
 
-			self.open_close_box_via_motor(open=True, box_id=box_id)
+			if not self.open_close_box_via_motor(open=True, box_id=box_id):
+				self.get_logger().error(f"Failed to open master box ID: '{box_id}' for drone ID: '{request.drone_id}'")
+				response.ack = False
+				return response
 
 			self.get_logger().info(f"Trajectory waypoints request received for drone ID: '{request.drone_id}' in master box ID: '{box_id}'. Acknowledging directly.")
 			drone_future = drone_client.call_async(request)
@@ -1258,18 +1262,37 @@ class MasterBoxNode(Node):
 
 		return response
 
-	def handle_request_box_open_service(self,
+
+	def handle_request_box_open_close_service(self,
 		request: DroneLandingService.Request,
 		response: DroneLandingService.Response) -> DroneLandingService.Response:
 
 		box_id = self.find_box_id_from_drone_id(request.drone_id)
-		if box_id is None:
-			self.get_logger().error(f"Request box open service received for unknown drone ID: '{request.drone_id}'. Cannot open box.")
-			response.landing_pos = PositionMessage()
+
+		if box_id == self.config.box_id:
+			self.get_logger().info(f"Request box open/close service received for master box ID: '{box_id}'. Opening/closing box via motor controller.")
+			open: bool = True if request.drone_pos == PositionMessage(lat=1.0, lon=1.0, elv=1.0) else False
+
+			result = self.client_manager.call_sync(
+				SetBool,
+				f'/{box_id}/motor_0/open_box',
+				SetBool.Request(data=open)
+			)
+				# f'/{config.box_id}/motor_{self.dxl_id}/open_box',
+			if result is  None or  not result.success:
+				self.get_logger().info(f"Box ID: '{box_id}' opened successfully via motor controller.")
+				response.allow_landing = False
+
+			else:
+				self.get_logger().info(f"Box ID: '{box_id}' closed successfully via motor controller.")
+				response.allow_landing = True
+
 			return response
 
-		response.box_id = box_id
+
+
 		return response
+
 
 	##################
 	# Create ACTIONS #
