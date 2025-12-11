@@ -5,3 +5,4 @@ PositionMessage drone_pos
 ---
 PositionMessage landing_pos
 string box_id
+bool allow_landing
