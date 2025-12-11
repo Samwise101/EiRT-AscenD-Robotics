@@ -185,6 +185,7 @@ class LandingControl(Node):
         self.landing_received = False
         self.landing_target = None
         self.isLanding = False
+        self.landing_allowed = False
 
         # Trajectory
         self.traj_segments = []
@@ -438,7 +439,7 @@ class LandingControl(Node):
                 self._call_landing_service(now)
                 self.get_logger().info("Requesting landing target...")
             # Check for landing response
-            if self.landing_received and self.landing_target is not None:
+            if self.landing_received and self.landing_allowed and self.landing_target is not None:
                 self.isLanding = True
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
@@ -661,8 +662,13 @@ class LandingControl(Node):
         self.landing_box_id = resp.box_id
         self.landing_target = np.array([float(lp.lat), float(lp.lon), float(lp.elv)], dtype=float)
         self.landing_received = True
+        la_flag = resp.allow_landing
+        self.landing_allowed = la_flag
         self.hold_position = None  # reset hold position
-        self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
+        if not la_flag:
+            self.get_logger().warn("Landing not allowed by master box.")
+        else:
+            self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
 
     # -------------------- Waypoint readiness check --------------------
     def _are_waypoints_ready(self) -> bool:
