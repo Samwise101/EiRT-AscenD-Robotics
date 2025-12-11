@@ -1,0 +1,22 @@
+{
+    "box_id": "master",
+    "drone_id": "",
+    "initialised": true,
+    "lending_position": {
+        "lat": -0.4099999964237213,
+        "lon": -2.490000009536743,
+        "elv": 0.23000000417232513
+    },
+    "linked_box_ids": []
+}
+{
+    "box_id": "slave",
+    "drone_id": "",
+    "initialised": false,
+    "lending_position": {
+        "lat": 1.1299999952316284,
+        "lon": -2.4100000858306885,
+        "elv": 0.23999999463558197
+    },
+    "linked_box_ids": []
+}
