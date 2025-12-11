@@ -712,20 +712,20 @@ class LandingControl(Node):
             return
         if resp.allow_landing:
             self.box_is_open = resp.allow_landing
-        else if not resp.allow_landing:
+        elif not resp.allow_landing:
             temp = np.zeros(3)
             temp[0] = float(0.0)
             temp[1] = float(0.0)
             temp[2] = float(0.2)
             self.landing_target = temp
             self.isLanding = True
-                self._plan_landing_traj()
-                self.traj_t0_wall = now
-                self.position_tolerance = 0.07
-                self.hold_position = None  # reset hold position
-                self.state = FlightState.EXECUTE_TRAJ
-                self.get_logger().warn("Box failed to open, landing back at (0.0,0.0,0.2).")
-                return
+            self._plan_landing_traj()
+            self.traj_t0_wall = now
+            self.position_tolerance = 0.07
+            self.hold_position = None  # reset hold position
+            self.state = FlightState.EXECUTE_TRAJ
+            self.get_logger().warn("Box failed to open, landing back at (0.0,0.0,0.2).")
+            return
             
 
         
