@@ -32,6 +32,7 @@ from rclpy.qos import (
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
+from std_srvs.srv import SetBool
 
 from dronehive_interfaces.srv import (
     AddRemoveDroneService,
@@ -144,6 +145,8 @@ class LandingControl(Node):
 
         self.cli_landing = self.create_client(DroneLandingService, '/dronehive/drone_land_request')
 
+        self.cli_actuate_box = self.create_client(DroneLandingService,'/dronehive/drone_actuate_box')
+
         self.srv = self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints_{self.drone_id}", self.waypoint_service_cb)
 
 
@@ -185,7 +188,8 @@ class LandingControl(Node):
         self.landing_received = False
         self.landing_target = None
         self.isLanding = False
-        self.landing_allowed = False
+        self.last_position = np.zeros(3)
+        self.box_is_open = False
 
         # Trajectory
         self.traj_segments = []
@@ -439,7 +443,7 @@ class LandingControl(Node):
                 self._call_landing_service(now)
                 self.get_logger().info("Requesting landing target...")
             # Check for landing response
-            if self.landing_received and self.landing_allowed and self.landing_target is not None:
+            if self.landing_received and self.landing_target is not None:
                 self.isLanding = True
                 self._plan_landing_traj()
                 self.traj_t0_wall = now
@@ -465,6 +469,11 @@ class LandingControl(Node):
 
                 self.waypoints_ready = False
                 if self.isLanding:
+                    if box_is_open:
+                        if self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
+                            self._call_actuate_box()
+                            self.get_logger().info("Requesting box to close after landing...")
+                        return
                     self.get_logger().info("Landing trajectory complete, drone is landing.")
                     self.state = FlightState.DONE
                     self._publish_hold_here()
@@ -473,6 +482,18 @@ class LandingControl(Node):
                 self.state = FlightState.REQUEST_LANDING
                 self._publish_hold_here()
 
+                return
+            # If landing and above landing target, hold position and request box to open
+            if self.isLanding and not self.box_is_open and np.linalg.norm(self.curr_xyz[2] - self.landing_target[2]) < 0.1:
+                self.get_logger().info("Above landing target altitude reached. Holding position.")
+                if self.last_position is np.zeros(3):
+                    self.last_position = self.curr_xyz.copy()
+                    self.hold_position = None  # reset hold position
+                self._publish_hold_here()
+                #request box to open
+                if self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
+                    self._call_actuate_box()
+                    self.get_logger().info("Requesting box to open for landing...")
                 return
 
             coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
@@ -528,14 +549,13 @@ class LandingControl(Node):
                         self.reached_first_waypoint_nonlanding = True
                         self.get_logger().info("Reached first waypoint...")
 
-
         elif self.state == FlightState.LANDING_HOME:
             # Go to home XY and descend to initial home altitude)
             self._publish_xyz(self.home_xy[0], self.home_xy[1], self.takeoff_alt)
             self.get_logger().info("Landing back at home position.")
             print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}")
             # Once close to home Z, consider done
-            if linalg.norm(self.curr_xyz[:2] - self.home_xy) < 0.1:
+            if np.linalg.norm(self.curr_xyz[:2] - self.home_xy) < 0.1:
                 self._publish_xyz(self.home_xy[0], self.home_xy[1], self.home_alt0)
                 if self.curr_xyz[2] < self.home_alt0 + 0.1:
                     self.state = FlightState.DONE
@@ -662,13 +682,53 @@ class LandingControl(Node):
         self.landing_box_id = resp.box_id
         self.landing_target = np.array([float(lp.lat), float(lp.lon), float(lp.elv)], dtype=float)
         self.landing_received = True
-        la_flag = resp.allow_landing
-        self.landing_allowed = la_flag
         self.hold_position = None  # reset hold position
-        if not la_flag:
-            self.get_logger().warn("Landing not allowed by master box.")
+        self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
+
+    def _call_actuate_box(self):
+        req = DroneLandingService.Request()
+        req.drone_id = self.drone_id
+        req.drone_pos = PositionMessage()
+        if not self.box_is_open:
+            req.drone_pos.lat = float(1.0)
+            req.drone_pos.lon = float(1.0)
+            req.drone_pos.elv = float(1.0)
         else:
-            self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
+            req.drone_pos.lat = float(0.0)
+            req.drone_pos.lon = float(0.0)
+            req.drone_pos.elv = float(0.0)
+        future = self.cli_actuate_box.call_async(req)
+        future.add_done_callback(self._actuate_box_future_cb)
+    
+    def _actuate_box_future_cb(self, future):
+        try:
+            resp: DroneLandingService.Response = future.result()
+        except Exception as e:
+            self.get_logger().warn(f"Actuate box service call failed: {e}")
+            return
+
+        if resp is None or not hasattr(resp, 'allow_landing') or not resp.allow_landing:
+            self.get_logger().warn("Actuate box service returned no valid ack.")
+            return
+        if resp.allow_landing:
+            self.box_is_open = resp.allow_landing
+        else if not resp.allow_landing:
+            temp = np.zeros(3)
+            temp[0] = float(0.0)
+            temp[1] = float(0.0)
+            temp[2] = float(0.2)
+            self.landing_target = temp
+            self.isLanding = True
+                self._plan_landing_traj()
+                self.traj_t0_wall = now
+                self.position_tolerance = 0.07
+                self.hold_position = None  # reset hold position
+                self.state = FlightState.EXECUTE_TRAJ
+                self.get_logger().warn("Box failed to open, landing back at (0.0,0.0,0.2).")
+                return
+            
+
+        
 
     # -------------------- Waypoint readiness check --------------------
     def _are_waypoints_ready(self) -> bool:
@@ -873,6 +933,7 @@ class LandingControl(Node):
         self.waypoints_ready = False
         self.current_segment_idx = 0
         self.position_tolerance = 0.3
+        self.last_position = np.zeros(3)
 # ------------------------- Main ---------------------------------------
 
 def main():
