@@ -146,21 +146,9 @@ class SlaveBoxNode(Node):
 		)
 
 		self.create_service(
-			DroneTrajectoryWaypointsService,
-			dh.DRONEHIVE_GUI_REQUEST_WAYPOINT_TRAJECTORY_SERVICE + f"_{self.config.box_id}",
-			self.handle_trajectory_waypoints_request
-		)
-
-		self.create_service(
 			RequestBoxOpenService,
-			dh.DRONEHIVE_REQUEST_BOX_OPEN_SERVICE + f"_{self.config.box_id}",
-			self.handle_box_open_request
-		)
-
-		self.create_service(
-			RequestBoxOpenService,
-			dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{self.config.box_id}",
-			self.handle_box_close_request
+			dh.DRONEHIVE_REQUEST_BOX_OPEN_CLOSE_SERVICE + f"_{self.config.box_id}",
+			self.handle_box_open_close_request
 		)
 
 		self.create_service(
@@ -190,61 +178,66 @@ class SlaveBoxNode(Node):
 		self.get_logger().info(f"Responding with landing position: {response.landing_pos} and drone ID: {response.drone_id}")
 		return response
 
-	def open_close_box_via_motor(self, open: bool) -> bool:
+
+	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
+		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
+		if box_id is None:
+			box_id = self.config.box_id
+
 		client = self.temp_node.create_client(
 			SetBool,
-			f"/{self.config.box_id}/motor_1/open_box",
+			f"/{box_id}/motor_1/open_box",
 		)
 
+		self.get_logger().info("Waiting for motor controller service to be available...")
 		if not client.wait_for_service(timeout_sec=1.0):
-			self.get_logger().info("Waiting for motor controller service to be available...")
+			self.get_logger().error("Motor controller service not available.")
 			return False
 
+		self.get_logger().info("Motor controller service available. Sending request...")
 		future: Future = client.call_async(SetBool.Request(data=open))
-		exec = SingleThreadedExecutor()
-		exec.add_node(self.temp_node)
-		exec.spin_until_future_complete(future)
 
-		if not future.result() or not future.result().success:
-			self.get_logger().error("Failed to open box via motor controller.")
-			return False
+		if block:
+			exec = SingleThreadedExecutor()
+			exec.add_node(self.temp_node)
+			exec.spin_until_future_complete(future)
+			exec.shutdown()
+
+			response: SetBool.Response | None = future.result()
+			if response is None or not response.success:
+				self.get_logger().error("Failed to open box via motor controller.")
+				return False
+
+			self.get_logger().info("Box successfully opened/closed via motor controller.")
+		else:
+			future.add_done_callback(
+			lambda f:
+				self.get_logger().info("Box successfully opened/closed via motor controller."
+				if f.result() and f.result().success
+				else "Failed to open box via motor controller."))
 
 		return True
 
 
-	def handle_trajectory_waypoints_request(self,
-										 request: DroneTrajectoryWaypointsService.Request,
-										 response: DroneTrajectoryWaypointsService.Response) -> DroneTrajectoryWaypointsService.Response:
-		self.get_logger().info(f"Received trajectory waypoints request for box ID: {request.drone_id}")
-
-		self.config.drone_id = ""
-		self.config.save()
-
-		response.ack = self.open_close_box_via_motor(open=True)
-		self.get_logger().info("Box opened.")
-
-		return response
-
-
-	def handle_box_open_request(self, request: RequestBoxOpenService.Request,
-								response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
-
-		response.ack = self.open_close_box_via_motor(open=True)
-		if response.ack:
-			self.get_logger().info(f"Box ID: {self.config.box_id} opened successfully.")
-		else:
-			self.get_logger().error(f"Failed to open box ID: {self.config.box_id}.")
-
-		return response
-
-
-	def handle_box_close_request(self,
+	def handle_box_open_close_request(self,
 		request: RequestBoxOpenService.Request,
 		response: RequestBoxOpenService.Response) -> RequestBoxOpenService.Response:
 
-		response.ack = self.open_close_box_via_motor(open=False)
+		action: bool = False
+		if request.action == RequestBoxOpenService.Request.OPEN_BOX:
+			action = True
+		elif request.action == RequestBoxOpenService.Request.CLOSE_BOX:
+			action = False
+		else:
+			self.get_logger().error(f"Invalid action requested: {request.action}. Must be 'open' or 'close'.")
+			response.ack = False
+			return response
+
+		response.ack = self.open_close_box_via_motor(open=action, block=True)
+
 		if response.ack:
-			self.get_logger().info(f"Box ID: {self.config.box_id} closed successfully.")
+			operation: str = "opened" if action else "closed"
+			self.get_logger().info(f"Box ID: {self.config.box_id} '{operation}' successfully.")
 		else:
 			self.get_logger().error(f"Failed to close box ID: {self.config.box_id}.")
 
