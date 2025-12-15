@@ -1,8 +1,9 @@
 import rclpy
 from rclpy.node import Node
 from std_srvs.srv import SetBool
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.callback_groups import ReentrantCallbackGroup
 from .config import Config
+from rclpy.logging import get_logger
 
 from .dynamixel_controller_2 import DynaControl
 
@@ -13,12 +14,20 @@ class DynamixelNode(Node):
 		self.dxl_id = 1  # You can parameterize this as needed
 		self.motor = DynaControl('/dev/ttyUSB0', self.dxl_id)
 		config = Config.load()
+		callback_group = ReentrantCallbackGroup()
 
 		self.create_service(
 			SetBool,
 			f'/{config.box_id}/motor_{self.dxl_id}/open_box',
 			self.handle_open_box,
-			callback_group=MutuallyExclusiveCallbackGroup()
+			callback_group = callback_group
+		)
+
+		self.create_service(
+			SetBool,
+			f'/{config.box_id}/motor_{self.dxl_id}/stop',
+			self.handle_stop,
+			callback_group = callback_group
 		)
 
 
@@ -30,11 +39,19 @@ class DynamixelNode(Node):
 			response.message = f"Failed to {'retract' if request.data else 'extend'} the motor."
 
 		return response
+	
+	def handle_stop(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
+		self.motor.stop()
+		response.success = True
+		get_logger(f"motor_{self.dxl_id}").info("Motor stopped via service call.")
+		return response
 
 
 	def motor_destory(self):
-		# Destroy motor instance properly
-		pass
+		self.motor.stop()
+		self.motor.porthandler.closePort()
+		self.destroy_node()
+		get_logger(f"motor_{self.dxl_id}").info("Port closed")
 
 
 def main(args=None):
@@ -55,5 +72,5 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-	main()
+	pass
 

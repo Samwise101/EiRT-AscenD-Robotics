@@ -10,6 +10,7 @@
 import time
 from dynamixel_sdk import PortHandler, PacketHandler  # Uses Dynamixel SDK library
 import argparse
+from rclpy.logging import get_logger
 
 # -----------------------------
 # USER SETTINGS
@@ -23,6 +24,7 @@ COMM_SUCCESS = 0
 
 ADDR_OPERATING_MODE      = 11   # Operating Mode (1 byte)
 ADDR_TORQUE_ENABLE       = 64   # Torque Enable (1 byte)
+ADDR_GOAL_VELOCITY       = 104  # Goal Velocity (4 bytes)
 ADDR_GOAL_POSITION       = 116  # Goal Position (4 bytes)
 ADDR_PROFILE_VELOCITY    = 112  # Profile Velocity (4 bytes)
 ADDR_PROFILE_ACCEL       = 108  # Profile Acceleration (4 bytes)
@@ -220,6 +222,18 @@ class DynaControl():
         # -----------------------------
         return self.move_and_wait(goal_position=goal_position, mode=mode)
 
+    def stop(self):
+        # Set velocity to zero
+        self.packethandler.write4ByteTxRx(
+            self.porthandler, self.dxl_id, ADDR_GOAL_VELOCITY, 0
+        )
+        # Disable torque
+        self.packethandler.write1ByteTxRx(
+            self.porthandler, self.dxl_id, ADDR_TORQUE_ENABLE, TORQUE_DISABLE
+        )
+        self.flag = 111     
+        get_logger(f"motor_{self.dxl_id}").info("Motor stopped, torque disabled")
+
     def manual_start(self):
         '''
         This code is for testing the system alone.
@@ -227,23 +241,32 @@ class DynaControl():
         '''
         while True:
             print('----------GUIDE----------\n'
+                  'THERE IS NO SAFETY CHECKS HERE! MAKE SURE WHICH DIRECTION THE PLATFORM SHOULD GO\n'
                   'Write in for retracting\n'
                   'Write out for extracting\n'
                   'Write exit for stopping\n'
                   '-------------------------\n')
 
-            inp = input()
+            mode = input()
 
-            if inp == 'in' or inp == 'out':
-                self.extend_or_retract(inp)
+            if mode == 'out':
+                target_ticks = int(-4096 * 6.2)
+                self.flag = 1
 
-            elif inp == 'exit':
+            elif mode == 'in':
+                target_ticks = int(4096 * 6.2)
+                self.flag = 0
+
+            elif mode == 'exit':
                 if self.flag == 1:
                     self.extend_or_retract('in')
                 break
 
             else:
                 print('[WARNING] - Invalid mode argument. Can be either in, out or exit')
+
+            goal_position = target_ticks + self.zero_offset
+            self.move_and_wait(goal_position=goal_position, mode=mode)
 
 
 if __name__ == '__main__':
