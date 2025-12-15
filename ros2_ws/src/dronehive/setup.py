@@ -28,7 +28,7 @@ setup(
             'slave_node = dronehive.slave_box_node:main',
             'dummy_confirm = dronehive.dummy:main',
             'dummy_drone = dronehive.dummy_drone:main',
-			'dynamixel = dronehive.utils.dynamixel_controller:main',
+			'dynamixel = dronehive.utils.dynamixel_node:main',
         ],
     },
 )
