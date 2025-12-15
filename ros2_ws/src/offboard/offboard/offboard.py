@@ -469,7 +469,7 @@ class LandingControl(Node):
 
                 self.waypoints_ready = False
                 if self.isLanding:
-                    if box_is_open:
+                    if self.box_is_open:
                         if self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
                             self._call_actuate_box()
                             self.get_logger().info("Requesting box to close after landing...")
@@ -699,7 +699,7 @@ class LandingControl(Node):
             req.drone_pos.elv = float(0.0)
         future = self.cli_actuate_box.call_async(req)
         future.add_done_callback(self._actuate_box_future_cb)
-    
+
     def _actuate_box_future_cb(self, future):
         try:
             resp: DroneLandingService.Response = future.result()
@@ -720,15 +720,15 @@ class LandingControl(Node):
             self.landing_target = temp
             self.isLanding = True
             self._plan_landing_traj()
-            self.traj_t0_wall = now
+            self.traj_t0_wall = time.time()
             self.position_tolerance = 0.07
             self.hold_position = None  # reset hold position
             self.state = FlightState.EXECUTE_TRAJ
             self.get_logger().warn("Box failed to open, landing back at (0.0,0.0,0.2).")
             return
-            
 
-        
+
+
 
     # -------------------- Waypoint readiness check --------------------
     def _are_waypoints_ready(self) -> bool:

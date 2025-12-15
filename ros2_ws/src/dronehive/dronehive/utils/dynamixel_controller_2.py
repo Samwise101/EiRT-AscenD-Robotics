@@ -212,10 +212,10 @@ class DynaControl():
             goal_position = self.zero_offset
         elif (mode == 'in' and self.flag == 0) or (mode == 'out' and self.flag == 1):
             print(f'[WARNING] - Can not extract/retract two times in a row. Status: mode {mode}, flag: {self.flag}')
-            return 0
+            return False
         else:
             print('[WARNING] - Invalid mode argument. Can be either in or out')
-            return 0
+            return False
 
         # -----------------------------
         # Move motors
@@ -231,7 +231,7 @@ class DynaControl():
         self.packethandler.write1ByteTxRx(
             self.porthandler, self.dxl_id, ADDR_TORQUE_ENABLE, TORQUE_DISABLE
         )
-        self.flag = 111     
+        self.flag = 111
         get_logger(f"motor_{self.dxl_id}").info("Motor stopped, torque disabled")
 
     def manual_start(self):
