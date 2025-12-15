@@ -20,14 +20,17 @@ class DynamixelNode(Node):
 			self.handle_open_box,
 			callback_group=MutuallyExclusiveCallbackGroup()
 		)
+		self.get_logger().info(f"Service '/{config.box_id}/motor_{self.dxl_id}/open_box' is ready.")
 
 
 	def handle_open_box(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
-		mode = "in" if request.data else "out"
+		self.get_logger().info(f"Received request to {'extend' if request.data else 'retract'} the motor.")
+		mode = "out" if request.data else "in"
 		response.success = self.motor.extend_or_retract(mode)
 
 		if not response.success:
 			response.message = f"Failed to {'retract' if request.data else 'extend'} the motor."
+			self.get_logger().error(response.message)
 
 		return response
 
