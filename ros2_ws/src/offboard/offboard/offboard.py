@@ -470,10 +470,11 @@ class LandingControl(Node):
                 self.waypoints_ready = False
                 if self.isLanding:
                     if self.box_is_open:
-                        if self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
+                        if not hasattr(self, "actuating") and self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
                             self._call_actuate_box()
                             self.get_logger().info("Requesting box to close after landing...")
-                        return
+                            return
+
                     self.get_logger().info("Landing trajectory complete, drone is landing.")
                     self.state = FlightState.DONE
                     self._publish_hold_here()
@@ -483,15 +484,17 @@ class LandingControl(Node):
                 self._publish_hold_here()
 
                 return
+
             # If landing and above landing target, hold position and request box to open
-            if self.isLanding and not self.box_is_open and np.linalg.norm(self.curr_xyz[2] - self.landing_target[2]) < 0.1:
-                self.get_logger().info("Above landing target altitude reached. Holding position.")
+            if self.isLanding and not self.box_is_open and np.linalg.norm(self.curr_xyz - self.landing_target) < 1.0:
+                # self.get_logger().info("Above landing target altitude reached. Holding position.")
                 if self.last_position is np.zeros(3):
                     self.last_position = self.curr_xyz.copy()
                     self.hold_position = None  # reset hold position
+                    self.get_logger().warn("Updating hold position to NONE")
                 self._publish_hold_here()
                 #request box to open
-                if self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
+                if not hasattr(self, "actuating") and self.cli_actuate_box.wait_for_service(timeout_sec=0.01):
                     self._call_actuate_box()
                     self.get_logger().info("Requesting box to open for landing...")
                 return
@@ -543,7 +546,7 @@ class LandingControl(Node):
                     if not self.reached_first_waypoint_nonlanding:
                         msg = AddRemoveDroneService.Request()
                         msg.drone_id = self.drone_id
-                        msg.box_id = 'master'
+                        msg.box_id = self.landing_box_id
                         self.landing_future = self.first_waypoint_reached.call_async(msg)
                         self.landing_future.add_done_callback(self._first_waypoint_future_cb)
                         self.reached_first_waypoint_nonlanding = True
@@ -686,6 +689,7 @@ class LandingControl(Node):
         self.get_logger().info(f"Landing target received: x={self.landing_target[0]:.2f}, y={self.landing_target[1]:.2f}, z={self.landing_target[2]:.2f}")
 
     def _call_actuate_box(self):
+        setattr(self, "actuating", True)
         req = DroneLandingService.Request()
         req.drone_id = self.drone_id
         req.drone_pos = PositionMessage()
@@ -710,8 +714,12 @@ class LandingControl(Node):
         if resp is None or not hasattr(resp, 'allow_landing') or not resp.allow_landing:
             self.get_logger().warn("Actuate box service returned no valid ack.")
             return
+
         if resp.allow_landing:
+            self.get_logger().warn
             self.box_is_open = resp.allow_landing
+            delattr(self, "actuating")
+
         elif not resp.allow_landing:
             temp = np.zeros(3)
             temp[0] = float(0.0)
@@ -924,6 +932,7 @@ class LandingControl(Node):
         self.landing_received = False
         self.landing_target = None
         self.isLanding = False
+        self.hold_position = None
         self.traj_segments.clear()
         self.segment_times.clear()
         self.traj_total_T = 0.0
