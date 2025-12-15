@@ -1,4 +1,7 @@
 # Notify a slave box about opening the drower.
+string CLOSE_BOX="close"
+string OPEN_BOX="open"
 
+string action
 ---
 bool ack
