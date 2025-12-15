@@ -471,9 +471,11 @@ class MasterBoxNode(Node):
 
 		elif box is not None:
 			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
+			req.action = RequestBoxOpenService.Request.CLOSE_BOX
+
 			self.client_manager.call_async(
 				RequestBoxOpenService,
-				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
+				dh.DRONEHIVE_REQUEST_BOX_OPEN_CLOSE_SERVICE + f"_{box.box_id}",
 				req,
 				lambda future: self.get_logger().info(
 					f"Requested box close for box ID: {box_id}, Result: {future.result().ack}"
@@ -742,7 +744,6 @@ class MasterBoxNode(Node):
 		)
 
 
-
 	def open_close_box_via_motor(self, open: bool, box_id: str | None = None, block: bool = True) -> bool:
 		self.get_logger().info(f"{'Opening' if open else 'Closing'} box via motor controller for box ID: '{box_id if box_id is not None else self.config.box_id}'...")
 		if box_id is None:
@@ -750,7 +751,7 @@ class MasterBoxNode(Node):
 
 		client = self.temp_node.create_client(
 			SetBool,
-			f"/{box_id}/motor_0/open_box",
+			f"/{box_id}/motor_1/open_box",
 		)
 
 		self.get_logger().info("Waiting for motor controller service to be available...")
@@ -864,26 +865,18 @@ class MasterBoxNode(Node):
 			landing_pos = self.config.landing_position
 		else:
 			req = RequestBoxOpenService.Request()
-			self.client_manager.call_async(
+			req.action = RequestBoxOpenService.Request.OPEN_BOX
+
+			result = self.client_manager.call_sync(
 				RequestBoxOpenService,
-				dh.DRONEHIVE_REQUEST_BOX_OPEN_SERVICE + f"_{closest_box_id}",
+				dh.DRONEHIVE_REQUEST_BOX_OPEN_CLOSE_SERVICE + f"_{closest_box_id}",
 				req,
-				lambda future: self.get_logger().info(
-					f"Requested box open for box ID: {closest_box_id}, Result: {future.result().ack}"
-				),
 			)
+			self.get_logger().info(f"Requested box open for box ID: {closest_box_id}, Result: {result}"),
 
 		# Update the localy kept status of the box.
 		self.linked_slave_boxes[closest_box_id].drone_id = request.drone_id
 		self.linked_slave_boxes[closest_box_id].status = BoxStatusEnum.OCCUPIED
-
-		# Let the slave box know a drone is incoming.
-		if closest_box_id != self.config.box_id:
-			self.get_logger().info(f"Assigning landing position of slave box ID: {closest_box_id} to drone ID: {request.drone_id}")
-			self.slave_box_incoming_dron_pub.publish(String(data=request.drone_id))
-
-		else:
-			response.allow_landing = self.open_close_box_via_motor(open=True)
 
 		self.notify_gui_drone_landed(closest_box_id, request.drone_id, landing_pos)
 		response.landing_pos = landing_pos
@@ -1250,9 +1243,10 @@ class MasterBoxNode(Node):
 
 		else:
 			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
+			req.action = RequestBoxOpenService.Request.CLOSE_BOX
 			self.client_manager.call_async(
 				RequestBoxOpenService,
-				dh.DRONEHIVE_REQUEST_BOX_CLOSE_SERVICE + f"_{box.box_id}",
+				dh.DRONEHIVE_REQUEST_BOX_OPEN_CLOSE_SERVICE + f"_{box.box_id}",
 				req,
 				lambda future: self.get_logger().info(
 					f"Requested box open for box ID: {box.box_id}, Result: {future.result().ack}"
@@ -1267,29 +1261,50 @@ class MasterBoxNode(Node):
 		request: DroneLandingService.Request,
 		response: DroneLandingService.Response) -> DroneLandingService.Response:
 
-		box_id = self.find_box_id_from_drone_id(request.drone_id)
+		box_id: str | None = self.find_box_id_from_drone_id(request.drone_id)
+		if box_id is None:
+			self.get_logger().warn(f"Request box open/close service received for unknown drone ID: '{request.drone_id}'. Cannot process request.")
+			return response
 
+		open: bool = True if request.drone_pos == PositionMessage(lat=1.0, lon=1.0, elv=1.0) else False
 		if box_id == self.config.box_id:
 			self.get_logger().info(f"Request box open/close service received for master box ID: '{box_id}'. Opening/closing box via motor controller.")
-			open: bool = True if request.drone_pos == PositionMessage(lat=1.0, lon=1.0, elv=1.0) else False
-
-			result = self.client_manager.call_sync(
-				SetBool,
-				f'/{box_id}/motor_0/open_box',
-				SetBool.Request(data=open)
-			)
+			result: bool = self.open_close_box_via_motor(open=open, box_id=box_id, block=True)
 				# f'/{config.box_id}/motor_{self.dxl_id}/open_box',
-			if result is  None or  not result.success:
+			if open and result:
 				self.get_logger().info(f"Box ID: '{box_id}' opened successfully via motor controller.")
 				response.allow_landing = False
 
-			else:
+			elif not open and result:
 				self.get_logger().info(f"Box ID: '{box_id}' closed successfully via motor controller.")
 				response.allow_landing = True
+
+			else:
+				string_action = "open" if open else "close"
+				self.get_logger().info(f"Box ID: '{box_id}' failed to '{string_action}' via motor controller.")
+				response.allow_landing = False
 
 			return response
 
 
+		# If the box is a slave box, forward the request to the respective box.
+		try:
+			self.get_logger().info(f"Request box open/close service received for slave box ID: '{box_id}'. Forwarding request to slave box.")
+			req: RequestBoxOpenService.Request = RequestBoxOpenService.Request()
+			req.action = RequestBoxOpenService.Request.OPEN_BOX if open else RequestBoxOpenService.Request.CLOSE_BOX
+
+			self.client_manager.call_async(
+				RequestBoxOpenService,
+				dh.DRONEHIVE_REQUEST_BOX_OPEN_CLOSE_SERVICE + f"_{box_id}",
+				req,
+				lambda future: self.get_logger().info(
+					f"Forwarded box {req.action} request to box ID: '{box_id}', Result: {future.result().ack}"
+				),
+			)
+
+		except KeyError:
+			self.get_logger().warn(f"Request box open/close service received for unknown box ID: '{box_id}'. Cannot process request.")
+			return response
 
 		return response
 
