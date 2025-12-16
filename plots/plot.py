@@ -111,16 +111,21 @@ print("Slave 30 mean, std",np.mean(slave_30_res), np.std(slave_30_res))
 print("Master 30 mean, std", np.mean(master_30_res), np.std(master_30_res))
 
 plt.figure()
-boxplot = sn.boxplot(data=slave_data)
-boxplot.set_title('Memory usage Comparison - Slave')
-boxplot.set_ylabel('Usage (MiB)')
+s = sn.boxplot(data=slave_data)
+s.tick_params(labelsize=15)
+boxplot = s
+
+boxplot.set_title('Memory usage Comparison - Slave', fontsize=20)
+boxplot.set_ylabel('Usage (MiB)', fontsize=20)
 plt.savefig('memory_comparison_slave.png')
 plt.grid()
 
 plt.figure()
-boxplot = sn.boxplot(data=master_data)
-boxplot.set_title('Memory usage Comparison - Master')
-boxplot.set_ylabel('Usage (MiB)')
+s = sn.boxplot(data=master_data)
+s.tick_params(labelsize=15)
+boxplot = s
+boxplot.set_title('Memory usage Comparison - Master', fontsize=20)
+boxplot.set_ylabel('Usage (MiB)', fontsize=20)
 plt.savefig('memory_comparison_master.png')
 plt.grid()
 
