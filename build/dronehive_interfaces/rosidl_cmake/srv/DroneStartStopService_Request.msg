@@ -1,0 +1,4 @@
+# Service to pause, stop and resume the trajectory of the drone
+
+string drone_id
+int8 control_var # 0: resume, 1: pause, 2: stop

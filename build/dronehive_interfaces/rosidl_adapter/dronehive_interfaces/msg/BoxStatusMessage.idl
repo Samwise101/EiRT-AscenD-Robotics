@@ -1,0 +1,21 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from dronehive_interfaces/msg/BoxStatusMessage.msg
+// generated code does not contain a copyright notice
+
+#include "dronehive_interfaces/msg/PositionMessage.idl"
+
+module dronehive_interfaces {
+  module msg {
+    struct BoxStatusMessage {
+      dronehive_interfaces::msg::PositionMessage landing_pos;
+
+      double box_battery_level;
+
+      string box_id;
+
+      string drone_id;
+
+      string status;
+    };
+  };
+};

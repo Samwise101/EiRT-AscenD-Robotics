@@ -1,0 +1,36 @@
+running egg_info
+creating ../../build/offboard/offboard.egg-info
+writing ../../build/offboard/offboard.egg-info/PKG-INFO
+writing dependency_links to ../../build/offboard/offboard.egg-info/dependency_links.txt
+writing entry points to ../../build/offboard/offboard.egg-info/entry_points.txt
+writing requirements to ../../build/offboard/offboard.egg-info/requires.txt
+writing top-level names to ../../build/offboard/offboard.egg-info/top_level.txt
+writing manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+reading manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+writing manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+copying offboard/offboard.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+copying offboard/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+running install
+running install_lib
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard/offboard.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard/offboard.py to offboard.cpython-310.pyc
+byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index/resource_index
+creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index/resource_index/packages
+copying resource/offboard -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index/resource_index/packages
+copying package.xml -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/offboard
+running install_egg_info
+Copying ../../build/offboard/offboard.egg-info to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard-0.0.0-py3.10.egg-info
+running install_scripts
+Installing offboard script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/offboard
+Installing serv script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/offboard
+writing list of installed files to '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log'

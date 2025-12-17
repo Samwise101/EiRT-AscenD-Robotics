@@ -1,0 +1,25 @@
+[0.799s] Invoking command in '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/offboard': AMENT_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/offboard build --build-base /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build install --record /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log --single-version-externally-managed install_data
+[0.958s] running egg_info
+[0.959s] writing ../../build/offboard/offboard.egg-info/PKG-INFO
+[0.959s] writing dependency_links to ../../build/offboard/offboard.egg-info/dependency_links.txt
+[0.959s] writing entry points to ../../build/offboard/offboard.egg-info/entry_points.txt
+[0.959s] writing requirements to ../../build/offboard/offboard.egg-info/requires.txt
+[0.959s] writing top-level names to ../../build/offboard/offboard.egg-info/top_level.txt
+[0.960s] reading manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+[0.961s] writing manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+[0.961s] running build
+[0.961s] running build_py
+[0.961s] copying offboard/offboard.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+[0.962s] running install
+[0.962s] running install_lib
+[0.962s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard/offboard.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+[0.963s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard/offboard.py to offboard.cpython-310.pyc
+[0.964s] running install_data
+[0.964s] running install_egg_info
+[0.965s] removing '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard-0.0.0-py3.10.egg-info' (and everything under it)
+[0.966s] Copying ../../build/offboard/offboard.egg-info to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard-0.0.0-py3.10.egg-info
+[0.967s] running install_scripts
+[0.981s] Installing offboard script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/offboard
+[0.981s] Installing serv script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/offboard
+[0.981s] writing list of installed files to '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log'
+[0.998s] Invoked command in '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/offboard' returned '0': AMENT_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/offboard build --build-base /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build install --record /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log --single-version-externally-managed install_data

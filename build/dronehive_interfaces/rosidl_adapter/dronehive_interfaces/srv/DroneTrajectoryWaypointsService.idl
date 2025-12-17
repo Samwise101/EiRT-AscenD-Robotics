@@ -1,0 +1,20 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/DroneTrajectoryWaypointsService.srv
+// generated code does not contain a copyright notice
+
+#include "dronehive_interfaces/msg/PositionMessage.idl"
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "Service used for the box to send Trajectory waypoints to the drone")
+    struct DroneTrajectoryWaypointsService_Request {
+      string drone_id;
+
+      sequence<dronehive_interfaces::msg::PositionMessage> waypoints;
+    };
+    struct DroneTrajectoryWaypointsService_Response {
+      boolean ack;
+    };
+  };
+};

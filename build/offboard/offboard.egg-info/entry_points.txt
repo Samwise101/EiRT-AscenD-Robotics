@@ -1,0 +1,4 @@
+[console_scripts]
+offboard = offboard.offboard:main
+serv = offboard.mock_landing_service:main
+

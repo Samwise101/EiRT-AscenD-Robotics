@@ -1,0 +1,233 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-49003cf59b74af462fd5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17
+					]
+				},
+				{
+					"build" : "dronehive_interfaces__py",
+					"jsonFile" : "directory-dronehive_interfaces__py-98a782edb91efcccfdbb.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive_interfaces/dronehive_interfaces__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "dronehive_interfaces",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_dronehive_interfaces_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_dronehive_interfaces_egg-9c5eec4445ca67404a7b.json",
+					"name" : "ament_cmake_python_build_dronehive_interfaces_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_dronehive_interfaces::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_dronehive_interfaces-bd0594bf9f4d91539b7e.json",
+					"name" : "ament_cmake_python_copy_dronehive_interfaces",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces-ec0ab8d7f0bb32fa9e43.json",
+					"name" : "dronehive_interfaces",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__cpp-cb8147e49b46eb628e1a.json",
+					"name" : "dronehive_interfaces__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "dronehive_interfaces__py::@668b2b9511ab9489080a",
+					"jsonFile" : "target-dronehive_interfaces__py-3b7690c1d811c4a1f10c.json",
+					"name" : "dronehive_interfaces__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_generator_c-5868c9a41e7cdd1413ab.json",
+					"name" : "dronehive_interfaces__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_generator_py-10350f434f53e5df9f5d.json",
+					"name" : "dronehive_interfaces__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_c-2bb17a3620ddd1432e6d.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_c__pyext-da97fe29b883dcf9833a.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_cpp-aaa3fe4dc0bdb3f47e5e.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_fastrtps_c-0aafef859c985dd2777f.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_fastrtps_c__pyext-718894ca762dc665f767.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_fastrtps_cpp-c548d420013ee97e5752.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_introspection_c-7465b89d5c2272cec011.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_introspection_c__pyext-b15b099ed17d78073a51.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces__rosidl_typesupport_introspection_cpp-56b7e9bf5b0d100a96cd.json",
+					"name" : "dronehive_interfaces__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "dronehive_interfaces_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-dronehive_interfaces_uninstall-37958e309aac0f63d19e.json",
+					"name" : "dronehive_interfaces_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-342356f07ad18dbcfda0.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive_interfaces",
+		"source" : "/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/dronehive_interfaces"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

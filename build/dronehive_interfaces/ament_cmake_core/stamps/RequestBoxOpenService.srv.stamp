@@ -1,0 +1,4 @@
+# Notify a slave box about opening the drower.
+
+---
+bool ack

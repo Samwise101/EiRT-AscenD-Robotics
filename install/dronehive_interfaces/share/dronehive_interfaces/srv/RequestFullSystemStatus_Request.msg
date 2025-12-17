@@ -1,0 +1,3 @@
+# service to ask for the whole system status to update gui on launch
+
+# Request

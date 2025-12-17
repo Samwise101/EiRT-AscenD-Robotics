@@ -1,0 +1,4 @@
+# If drone_id is empty
+
+string drone_id
+string box_id

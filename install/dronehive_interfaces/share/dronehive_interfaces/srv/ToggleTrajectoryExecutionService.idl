@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/ToggleTrajectoryExecutionService.srv
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module srv {
+    struct ToggleTrajectoryExecutionService_Request {
+      boolean start;
+
+      string drone_id;
+    };
+    struct ToggleTrajectoryExecutionService_Response {
+      boolean ack;
+    };
+  };
+};

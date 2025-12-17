@@ -1,0 +1,92 @@
+[1.225s] Invoking command in '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/dronehive': AMENT_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces LD_LIBRARY_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/dronehive build --build-base /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build install --record /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/install.log --single-version-externally-managed install_data
+[1.499s] running egg_info
+[1.500s] creating ../../build/dronehive/dronehive.egg-info
+[1.500s] writing ../../build/dronehive/dronehive.egg-info/PKG-INFO
+[1.501s] writing dependency_links to ../../build/dronehive/dronehive.egg-info/dependency_links.txt
+[1.501s] writing entry points to ../../build/dronehive/dronehive.egg-info/entry_points.txt
+[1.501s] writing requirements to ../../build/dronehive/dronehive.egg-info/requires.txt
+[1.501s] writing top-level names to ../../build/dronehive/dronehive.egg-info/top_level.txt
+[1.502s] writing manifest file '../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+[1.504s] reading manifest file '../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+[1.505s] writing manifest file '../../build/dronehive/dronehive.egg-info/SOURCES.txt'
+[1.505s] running build
+[1.505s] running build_py
+[1.505s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build
+[1.506s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib
+[1.506s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive
+[1.506s] copying dronehive/slave_box_node.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive
+[1.506s] copying dronehive/dummy_drone.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive
+[1.506s] copying dronehive/dummy.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive
+[1.506s] copying dronehive/box_node.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive
+[1.507s] copying dronehive/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive
+[1.507s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.507s] copying dronehive/utils/topics.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.507s] copying dronehive/utils/client_manager.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.508s] copying dronehive/utils/initialiser.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.508s] copying dronehive/utils/transverse_mercator.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.508s] copying dronehive/utils/dynamixel_controller.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.508s] copying dronehive/utils/config.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.508s] copying dronehive/utils/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.509s] copying dronehive/utils/utm.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils
+[1.509s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/slave_box
+[1.509s] copying dronehive/slave_box/slave.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/slave_box
+[1.509s] copying dronehive/slave_box/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/slave_box
+[1.509s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/master_box
+[1.509s] copying dronehive/master_box/master.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/master_box
+[1.510s] copying dronehive/master_box/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/master_box
+[1.510s] running install
+[1.510s] running install_lib
+[1.510s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive
+[1.510s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/slave_box_node.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive
+[1.511s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/dummy_drone.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive
+[1.511s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/dummy.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive
+[1.511s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.511s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/topics.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.511s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/client_manager.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.512s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/initialiser.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.512s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/transverse_mercator.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.512s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/dynamixel_controller.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.512s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/config.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.512s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.512s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/utils/utm.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils
+[1.513s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box
+[1.513s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/slave_box/slave.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box
+[1.513s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/slave_box/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box
+[1.513s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/box_node.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive
+[1.513s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive
+[1.514s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/master_box
+[1.515s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/master_box/master.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/master_box
+[1.515s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build/lib/dronehive/master_box/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/master_box
+[1.515s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box_node.py to slave_box_node.cpython-310.pyc
+[1.515s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/dummy_drone.py to dummy_drone.cpython-310.pyc
+[1.515s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/dummy.py to dummy.cpython-310.pyc
+[1.516s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/topics.py to topics.cpython-310.pyc
+[1.516s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/client_manager.py to client_manager.cpython-310.pyc
+[1.516s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/initialiser.py to initialiser.cpython-310.pyc
+[1.517s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/transverse_mercator.py to transverse_mercator.cpython-310.pyc
+[1.519s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/dynamixel_controller.py to dynamixel_controller.cpython-310.pyc
+[1.521s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/config.py to config.cpython-310.pyc
+[1.521s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/__init__.py to __init__.cpython-310.pyc
+[1.522s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/utils/utm.py to utm.cpython-310.pyc
+[1.523s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box/slave.py to slave.cpython-310.pyc
+[1.525s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/slave_box/__init__.py to __init__.cpython-310.pyc
+[1.525s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/box_node.py to box_node.cpython-310.pyc
+[1.525s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/__init__.py to __init__.cpython-310.pyc
+[1.526s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/master_box/master.py to master.cpython-310.pyc
+[1.532s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive/master_box/__init__.py to __init__.cpython-310.pyc
+[1.532s] running install_data
+[1.532s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/share/ament_index
+[1.532s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/share/ament_index/resource_index
+[1.533s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/share/ament_index/resource_index/packages
+[1.533s] copying resource/dronehive -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/share/ament_index/resource_index/packages
+[1.533s] copying package.xml -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/share/dronehive
+[1.533s] running install_egg_info
+[1.535s] Copying ../../build/dronehive/dronehive.egg-info to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages/dronehive-0.0.0-py3.10.egg-info
+[1.536s] running install_scripts
+[1.559s] Installing box_node script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/dronehive
+[1.560s] Installing dummy_confirm script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/dronehive
+[1.560s] Installing dummy_drone script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/dronehive
+[1.560s] Installing dynamixel script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/dronehive
+[1.560s] Installing slave_node script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/dronehive
+[1.561s] writing list of installed files to '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/install.log'
+[1.605s] Invoked command in '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/dronehive' returned '0': AMENT_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces LD_LIBRARY_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive/lib/python3.10/site-packages:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/dronehive build --build-base /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/build install --record /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/dronehive/install.log --single-version-externally-managed install_data

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NewBoxDialog</class>
+ <widget class="QDialog" name="NewBoxDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>418</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>9</y>
+     <width>401</width>
+     <height>341</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>New Box Settings</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Box Type:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox">
+        <item>
+         <property name="text">
+          <string>Slave</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Master</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="box_id_label">
+        <property name="text">
+         <string>Box ID: </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="boxIdLineEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Box Landing Position Lat:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="boxLatLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Box Landing Position Lon:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="boxLonLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Box Landing Position Alt:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="boxAltLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Cancle</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/resources/icons/cancle.png</normaloff>:/resources/icons/cancle.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>Add</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/resources/icons/tick_mark.png</normaloff>:/resources/icons/tick_mark.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_cancle_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>129</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>146</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_comboBox_currentIndexChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>407</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>401</x>
+     <y>55</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_add_pushButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>407</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxIdLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_boxIdLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>152</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>123</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxLatLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_boxLatLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>302</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxLonLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_boxLonLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxAltLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>NewBoxDialog</receiver>
+   <slot>on_boxAltLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>on_cancle_pushButton_clicked()</slot>
+  <slot>on_add_pushButton_clicked()</slot>
+  <slot>on_comboBox_currentIndexChanged()</slot>
+  <slot>on_boxIdLineEdit_editingFinished()</slot>
+  <slot>on_boxLatLineEdit_editingFinished()</slot>
+  <slot>on_boxLonLineEdit_editingFinished()</slot>
+  <slot>on_boxAltLineEdit_editingFinished()</slot>
+ </slots>
+</ui>

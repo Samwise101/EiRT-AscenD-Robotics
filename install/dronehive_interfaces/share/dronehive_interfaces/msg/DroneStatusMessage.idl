@@ -1,0 +1,25 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from dronehive_interfaces/msg/DroneStatusMessage.msg
+// generated code does not contain a copyright notice
+
+#include "dronehive_interfaces/msg/PositionMessage.idl"
+
+module dronehive_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "Message containning the status of the drone")
+    struct DroneStatusMessage {
+      string drone_id;
+
+      float battery_voltage;
+
+      float battery_percentage;
+
+      string fligt_state;
+
+      boolean reached_first_waypoint;
+
+      dronehive_interfaces::msg::PositionMessage current_position;
+    };
+  };
+};

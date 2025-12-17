@@ -1,0 +1,7 @@
+[ 20%] [34m[1mAutomatic MOC for target backend_node[0m
+[ 20%] Built target backend_node_autogen
+[ 80%] [32mBuilding CXX object CMakeFiles/backend_node.dir/backend_node_autogen/mocs_compilation.cpp.o[0m
+[ 80%] [32mBuilding CXX object CMakeFiles/backend_node.dir/src/main.cpp.o[0m
+[ 80%] [32mBuilding CXX object CMakeFiles/backend_node.dir/src/app.cpp.o[0m
+[100%] [32m[1mLinking CXX executable backend_node[0m
+[100%] Built target backend_node

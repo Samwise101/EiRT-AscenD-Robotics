@@ -1,0 +1,4 @@
+# Service used for the box to send Trajectory waypoints to the drone
+
+string drone_id
+PositionMessage[] waypoints

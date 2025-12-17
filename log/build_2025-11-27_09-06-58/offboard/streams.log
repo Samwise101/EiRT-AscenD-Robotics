@@ -1,0 +1,38 @@
+[1.153s] Invoking command in '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/offboard': AMENT_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces LD_LIBRARY_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/offboard build --build-base /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build install --record /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log --single-version-externally-managed install_data
+[1.492s] running egg_info
+[1.493s] creating ../../build/offboard/offboard.egg-info
+[1.494s] writing ../../build/offboard/offboard.egg-info/PKG-INFO
+[1.494s] writing dependency_links to ../../build/offboard/offboard.egg-info/dependency_links.txt
+[1.494s] writing entry points to ../../build/offboard/offboard.egg-info/entry_points.txt
+[1.494s] writing requirements to ../../build/offboard/offboard.egg-info/requires.txt
+[1.494s] writing top-level names to ../../build/offboard/offboard.egg-info/top_level.txt
+[1.495s] writing manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+[1.498s] reading manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+[1.499s] writing manifest file '../../build/offboard/offboard.egg-info/SOURCES.txt'
+[1.499s] running build
+[1.499s] running build_py
+[1.499s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build
+[1.499s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib
+[1.500s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+[1.500s] copying offboard/offboard.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+[1.501s] copying offboard/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard
+[1.501s] running install
+[1.501s] running install_lib
+[1.502s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+[1.502s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard/offboard.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+[1.502s] copying /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build/lib/offboard/__init__.py -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard
+[1.503s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard/offboard.py to offboard.cpython-310.pyc
+[1.512s] byte-compiling /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard/__init__.py to __init__.cpython-310.pyc
+[1.513s] running install_data
+[1.513s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index
+[1.513s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index/resource_index
+[1.513s] creating /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index/resource_index/packages
+[1.513s] copying resource/offboard -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/ament_index/resource_index/packages
+[1.513s] copying package.xml -> /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/share/offboard
+[1.513s] running install_egg_info
+[1.516s] Copying ../../build/offboard/offboard.egg-info to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages/offboard-0.0.0-py3.10.egg-info
+[1.517s] running install_scripts
+[1.553s] Installing offboard script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/offboard
+[1.554s] Installing serv script to /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/offboard
+[1.554s] writing list of installed files to '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log'
+[1.603s] Invoked command in '/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/offboard' returned '0': AMENT_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces LD_LIBRARY_PATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/offboard/lib/python3.10/site-packages:/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/install/dronehive_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/offboard build --build-base /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/build install --record /home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/offboard/install.log --single-version-externally-managed install_data

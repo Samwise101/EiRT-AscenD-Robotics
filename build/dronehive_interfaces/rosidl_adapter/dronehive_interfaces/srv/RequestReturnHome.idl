@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/RequestReturnHome.srv
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "Service to request drone to land to a box of its choosing")
+    struct RequestReturnHome_Request {
+      string box_id;
+    };
+    struct RequestReturnHome_Response {
+      boolean confirm;
+    };
+  };
+};

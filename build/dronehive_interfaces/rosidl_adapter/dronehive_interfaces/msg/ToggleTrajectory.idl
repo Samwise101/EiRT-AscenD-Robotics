@@ -1,0 +1,14 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from dronehive_interfaces/msg/ToggleTrajectory.msg
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module msg {
+    struct ToggleTrajectory {
+      string drone_id;
+
+      boolean toggle;
+    };
+  };
+};

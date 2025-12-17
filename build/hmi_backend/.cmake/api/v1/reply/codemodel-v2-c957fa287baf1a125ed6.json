@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-0a2dc8701e78d56a985e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "hmi_backend",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "backend_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-backend_node-0f2d51d3e195968e5381.json",
+					"name" : "backend_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "backend_node_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-backend_node_autogen-8601014f7d170f8b7be3.json",
+					"name" : "backend_node_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hmi_backend_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hmi_backend_uninstall-7eb688af30708aa10fa4.json",
+					"name" : "hmi_backend_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-1bb04cc1c628835753b1.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/build/hmi_backend",
+		"source" : "/home/fljv/Desktop/new/off_b/EiRT-AscenD-Robotics/ros2_ws/src/hmi_backend"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

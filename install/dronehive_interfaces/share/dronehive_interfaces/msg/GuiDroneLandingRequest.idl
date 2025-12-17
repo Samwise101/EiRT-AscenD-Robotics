@@ -1,0 +1,14 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from dronehive_interfaces/msg/GuiDroneLandingRequest.msg
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "gui mesage to the backend for requesting a specific drone to land")
+    struct GuiDroneLandingRequest {
+      string drone_id;
+    };
+  };
+};

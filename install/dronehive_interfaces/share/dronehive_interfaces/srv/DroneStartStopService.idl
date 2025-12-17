@@ -1,0 +1,21 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from dronehive_interfaces/srv/DroneStartStopService.srv
+// generated code does not contain a copyright notice
+
+
+module dronehive_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "Service to pause, stop and resume the trajectory of the drone")
+    struct DroneStartStopService_Request {
+      string drone_id;
+
+      @verbatim (language="comment", text=
+        "0: resume, 1: pause, 2: stop")
+      int8 control_var;
+    };
+    struct DroneStartStopService_Response {
+      boolean ack;
+    };
+  };
+};
