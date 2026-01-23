@@ -60,17 +60,26 @@ def quat_to_euler(q):
     # roll (x-axis rotation)
     sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
     cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-    roll = np.atan2(sinr_cosp, cosr_cosp);
+    if hasattr(np, 'arctan2'):
+        roll = np.arctan2(sinr_cosp, cosr_cosp);
+    else:
+        roll = np.atan2(sinr_cosp, cosr_cosp);
 
     # pitch (y-axis rotation)
     sinp = np.sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
     cosp = np.sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
-    pitch = 2 * np.atan2(sinp, cosp) - np.pi / 2;
+    if hasattr(np, 'arctan2'):
+        pitch = 2 * np.arctan2(sinp, cosp) - np.pi / 2;
+    else:
+        pitch = 2 * np.atan2(sinp, cosp) - np.pi / 2;
 
     # yaw (z-axis rotation)
     siny_cosp = 2 * (q.w * q.z + q.x * q.y);
     cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-    yaw = np.atan2(siny_cosp, cosy_cosp);
+    if hasattr(np, 'arctan2'):
+        yaw = np.arctan2(siny_cosp, cosy_cosp);
+    else:
+        yaw = np.atan2(siny_cosp, cosy_cosp);
 
     return roll, pitch, yaw;
 
@@ -403,8 +412,6 @@ class LandingControl(Node):
                 self._publish_xyz(px, py, pz)
                 self.state = FlightState.LOITER_WAIT_SERVICE
                 self.get_logger().info("Test trajectory complete.")
-            else:
-                self._publish_traj_at_time(t)
 
         elif self.state == FlightState.WAIT:
             # Keep publishing hold here while waiting
@@ -439,6 +446,38 @@ class LandingControl(Node):
             # Keep publishing hold here while requesting landing target
             self._publish_hold_here()
             self.get_logger().info("Requesting landing target...")
+            if hasattr(self, 'landing_request_init_time') and (now - self.landing_request_init_time) > self.landing_timeout:
+
+                request: DroneTrajectoryWaypointsService.Request = DroneTrajectoryWaypointsService.Request()
+                response: DroneTrajectoryWaypointsService.Response = DroneTrajectoryWaypointsService.Response()
+
+                landing: PositionMessage = PositionMessage()
+                if hasattr(self, "starting_position"):
+                    self.get_logger().info(f"Using starting position for landing: {self.starting_position}")
+                    landing.lat = float(self.starting_position[0])
+                    landing.lon = float(self.starting_position[1])
+                    landing.elv = float(self.starting_position[2])
+                else:
+                    landing = self.r_waypoints[0]
+                self.get_logger().info(f"Landing waypoint: {landing}")
+
+                request.waypoints = [ landing ]
+                self.waypoint_service_cb(request, response)
+
+                self.landing_target = np.array([float(landing.lat), float(landing.lon), float(landing.elv)+0.05], dtype=float)
+
+                self.isLanding = True
+                self._plan_landing_traj()
+
+                self.traj_t0_wall = now
+                self.position_tolerance = 0.1
+                self.hold_position = None  # reset hold position
+                self.box_is_open = True
+
+                self.state = FlightState.EXECUTE_TRAJ
+                self.get_logger().info("Landing target received. Executing landing trajectory.")
+                return
+
             if not self.request_sent and self.cli_landing.wait_for_service(timeout_sec=0.01):
                 self._call_landing_service(now)
                 self.get_logger().info("Requesting landing target...")
@@ -481,6 +520,8 @@ class LandingControl(Node):
                     return
                 self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
                 self.state = FlightState.REQUEST_LANDING
+                self.landing_request_init_time = time.time()
+
                 self._publish_hold_here()
 
                 return
@@ -757,6 +798,7 @@ class LandingControl(Node):
         Each axis planned independently; durations scale with distance (slow descent ~0.5 m/s).
         """
         if self.landing_target is None or not self.have_pose:
+            self.get_logger().warn("No valid landing target or pose, cannot plan landing trajectory.")
             return
 
         self.current_segment_idx = 0
@@ -764,10 +806,13 @@ class LandingControl(Node):
         above = self.landing_target.copy()
         above[2] += 1.0  # 1 m above
 
+        self.get_logger().info(f"The distance from current position to landing target is {np.linalg.norm(above - p0)} m")
         if np.linalg.norm(above - p0) < 0.1:
             waypoints = [p0, self.landing_target]
+            self.get_logger().info(f"Landing target very close, planning direct descent. {waypoints}")
         else:
             waypoints = [p0, above, self.landing_target]
+            self.get_logger().info(f"Planning landing trajectory with waypoints: {waypoints}")
 
         self.traj_segments.clear()
         self.segment_times.clear()
@@ -805,6 +850,7 @@ class LandingControl(Node):
 
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints for test trajectory.")
         p0 = self.curr_xyz.copy()
+        self.starting_position = p0.copy()
         p1 = p0 + np.array([0.0, 0.0, 1.0])  # 1 m up
         waypoints = [p0, p1]
         self.reached_first_waypoint_nonlanding = False
