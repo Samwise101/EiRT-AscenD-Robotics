@@ -368,7 +368,7 @@ class LandingControl(Node):
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
-        self.create_subscription(Bool, "/dronehive/drone_toggle_trajectory_execution", self._toggle_execution_cb, qos_profile)
+        self.create_subscription(Bool, "/dronehive/pause_trajectory", self._pause_trajectory_execution_cb, qos_profile)
 
         cli_mode = self.create_client(SetMode, '/mavros/set_mode')
         self.create_service(DroneTrajectoryWaypointsService, f"/dronehive/drone_waypoints", self.waypoint_service_cb)
@@ -387,7 +387,7 @@ class LandingControl(Node):
         self.home_alt0 = None
         self.last_requested_pose = np.zeros(3)
         self.hold_position = None
-        self.resume_allowed = True
+        self.pause_trajectory = False
 
         # Landing
         self.landing_target: np.ndarray | None = None
@@ -469,8 +469,8 @@ class LandingControl(Node):
             response.ack = True
         return response
 
-    def _toggle_execution_cb(self, msg: Bool):
-        self.resume_allowed = msg.data
+    def _pause_trajectory_execution_cb(self, msg: Bool):
+        self.pause_trajectory = msg.data
         self.hold_position = None
         state_str = "Resuming" if msg.data else "Pausing"
         self.get_logger().info(f"Toggle execution {state_str} command received.")
@@ -479,7 +479,7 @@ class LandingControl(Node):
 
     def _timer_cb(self):
         """Main loop – delegates entirely to the active state object."""
-        if not self.resume_allowed:
+        if self.pause_trajectory:
             self._publish_hold_here()
             self.get_logger().info("Control paused, holding position.")
             return
@@ -493,7 +493,7 @@ class LandingControl(Node):
 
     # -------------------- Trajectory planning & execution --------------------
 
-    def _calculate_trajectory_coefficients(self, waypoints):
+    def _calculate_trajectory_coefficients(self, waypoints: list[np.ndarray]):
         self.current_segment_idx = 0
         self.traj_segments.clear()
         self.segment_times.clear()
