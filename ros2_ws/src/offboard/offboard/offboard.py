@@ -538,12 +538,12 @@ class LandingControl(Node):
         above[2] += 1.0  # 1 m above
 
         self.get_logger().info(f"The distance from current position to landing target is {np.linalg.norm(above - p0)} m")
-        if np.linalg.norm(above - p0) < 0.1:
-            waypoints = [p0, self.landing_target]
-            self.get_logger().info(f"Landing target very close, planning direct descent. {waypoints}")
-        else:
-            waypoints = [p0, above, self.landing_target]
-            self.get_logger().info(f"Planning landing trajectory with waypoints: {waypoints}")
+        waypoints: list[np.ndarray] = [p0]
+        if np.linalg.norm(above - p0) > 0.1:
+            waypoints.append(above)
+
+        waypoints.append(self.landing_target)
+        self.get_logger().info(f"Planning landing trajectory with waypoints: {waypoints}")
 
         self._calculate_trajectory_coefficients(waypoints)
 
