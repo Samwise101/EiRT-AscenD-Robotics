@@ -423,7 +423,9 @@ class LandingControl(Node):
     # -------------------- State machine helpers --------------------
 
     def transition_to(self, new_state: FlightState):
-        """Exit the current state and enter the new one."""
+        """
+        Exit the current state and enter the new one.
+        """
         self._active_state.exit()
         self._current_flight_state = new_state
         self._active_state = self._state_map[new_state]
@@ -432,6 +434,13 @@ class LandingControl(Node):
     # -------------------- HELPERS --------------------
 
     def setup_waypints(self, waypoints):
+        """
+        Make sure waypoints are in the expected format and store them for trajectory planning.
+
+        Args:
+            waypoints (list[PositionMessage]): List of waypoints received from the waypoint service, each containing x, y, z,
+            and yaw fields.
+        """
         self.r_waypoints = waypoints
         self.waypoints_ready = True
         self.hold_position = None  # reset hold position
@@ -439,12 +448,26 @@ class LandingControl(Node):
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service: {self.r_waypoints}")
         self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
 
+
     # -------------------- Callbacks --------------------
 
     def _state_cb(self, msg: State):
+        """
+        Mavros state callback to keep track of arming and mode status for state transitions.
+
+        Args:
+            msg: Mavros State message containing current arming and mode information.
+        """
         self.mav_state = msg
 
+
     def _pose_cb(self, msg: PoseStamped):
+        """
+        Mavros local position callback to update current pose and heading information.
+
+        Args:
+            msg: PoseStamped message containing current local position and orientation of the drone.
+        """
         self.have_pose = True
 
         self.curr_heading = quat_to_euler(msg.pose.orientation)
@@ -456,23 +479,50 @@ class LandingControl(Node):
         if self.home_alt0 is None:
             self.home_alt0 = float(self.curr_xyzw[2])
 
-    def waypoint_service_cb(self, request, response):
+
+    def waypoint_service_cb(
+        self,
+        request: DroneTrajectoryWaypointsService.Request,
+        response: DroneTrajectoryWaypointsService.Response
+    ) -> DroneTrajectoryWaypointsService.Response:
+        """
+        Offboard service callback to receive waypoints from the master box and prepare for trajectory execution.
+
+        Args:
+            request (DroneTrajectoryWaypointsService.Request): Service request containing a list of waypoints
+            (PositionMessage) for the drone to follow.
+            response (DroneTrajectoryWaypointsService.Response): Service response to acknowledge receipt of waypoints and
+            readiness for trajectory execution.
+
+        Returns:
+            DroneTrajectoryWaypointsService.Response: Service response indicating acknowledgment and readiness status.
+        """
         self.get_logger().info(f"Waypoint service called with waypoints: {request.waypoints}")
         if request.waypoints is not None:
             self.setup_waypints(request.waypoints)
             response.ack = True
         return response
 
+
     def _pause_trajectory_execution_cb(self, msg: Bool):
+        """
+        Callback to handle pause/resume commands for trajectory execution.
+
+        Args:
+            msg: Bool message indicating whether to pause (True) or resume (False) trajectory execution.
+        """
         self.pause_trajectory = msg.data
         self.hold_position = None
         state_str = "Resuming" if msg.data else "Pausing"
         self.get_logger().info(f"Toggle execution {state_str} command received.")
 
+
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
-        """Main loop – delegates entirely to the active state object."""
+        """
+        Main loop – delegates entirely to the active state object.
+        """
         if self.pause_trajectory:
             self._publish_hold_here()
             self.get_logger().info("Control paused, holding position.")
@@ -480,14 +530,16 @@ class LandingControl(Node):
 
         self._active_state.tick()
 
-    # -------------------- Waypoint readiness check --------------------
-
-    def _are_waypoints_ready(self) -> bool:
-        return self.waypoints_ready
 
     # -------------------- Trajectory planning & execution --------------------
 
     def _calculate_trajectory_coefficients(self, waypoints: list[np.ndarray]):
+        """
+        Helper function to calculate cubic trajectory coefficients for a list of waypoints.
+
+        Args:
+            waypoints: List of waypoints (numpy arrays of shape (4,)) representing the desired positions and yaw angles
+        """
         self.current_segment_idx = 0
         self.traj_segments.clear()
         self.segment_times.clear()
@@ -543,7 +595,14 @@ class LandingControl(Node):
 
 
     def _plan_trajectory(self):
-        """Plan a trajectory with n-segments; waypoints received from the waypoint service."""
+        """
+        Build a N-segment trajectory with each segment being a cubic polynomial between two consecutive waypoints:
+          1) current position -> 1 m above current position
+          2) 1 m above current position -> first waypoint
+          3) first waypoint -> second waypoint
+          ...
+        Each axis planned independently; durations scale with distance (slow descent ~0.5 m/s).
+        """
         if not self.have_pose:
             self.get_logger().warn("No valid pose, cannot plan test trajectory.")
             return
@@ -565,7 +624,12 @@ class LandingControl(Node):
     # -------------------- publishers --------------------
 
     def _publish_hold_here(self):
-        """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
+        """
+        Publish a setpoint to hold current position (keeps OFFBOARD happy).
+        If hold_position is None, capture the current position as the hold point.
+        This ensures we don't drift while waiting for OFFBOARD or waypoints.
+        Once captured, it will keep publishing the same hold_position until we transition states or receive new waypoints.
+        """
         if not self.have_pose:
             self.get_logger().warn("No valid pose, cannot publish hold position.")
             return
@@ -574,11 +638,13 @@ class LandingControl(Node):
             self.hold_position = self.curr_xyzw.copy()
             self.get_logger().info(f"Capturing hold position at current location: {self.hold_position}")
 
-        self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2])
+        self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2], self.hold_position[3])
 
 
     def _publish_xyz(self, x: float, y: float, z: float, yaw: float = 0.0):
-        """Publish a simple position setpoint with yaw (roll/pitch=0)."""
+        """
+        Publish a simple position setpoint with yaw (roll/pitch=0).
+        """
         self.sp.header.stamp = self.get_clock().now().to_msg()
         qx, qy, qz, qw = yaw_to_quaternion(yaw)
         self.sp.pose.position.x = float(x)
@@ -599,7 +665,9 @@ class LandingControl(Node):
         return self.mav_state.mode == "OFFBOARD"
 
     def _reset_all(self):
-        """Reset all internal states for a new mission."""
+        """
+        Reset all internal states for a new mission.
+        """
         self.landing_target = None
         self.isLanding = False
         self.hold_position = None
