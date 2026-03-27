@@ -1,1 +1,0 @@
-string drone_id

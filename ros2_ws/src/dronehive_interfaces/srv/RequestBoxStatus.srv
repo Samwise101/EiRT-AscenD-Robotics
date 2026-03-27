@@ -1,9 +1,0 @@
-# Request status of a slave box
-
-string box_id
-
----
-
-string drone_id
-PositionMessage landing_pos
-
