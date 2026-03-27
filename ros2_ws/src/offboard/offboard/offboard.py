@@ -35,7 +35,7 @@ from mavros_msgs.srv import SetMode
 from std_msgs.msg import Bool
 
 from dronehive_interfaces.srv import (
-    DroneTrajectoryWaypointsService,
+    TrajectoryWaypointsService,
 )
 
 from dronehive_interfaces.msg import (
@@ -47,6 +47,11 @@ qos_profile = QoSProfile(
     history=QoSHistoryPolicy.KEEP_LAST,
     depth=1
 )
+
+
+BUFFER_WARNING_THRESHOLD = 0.3  # seconds, for logging warnings if we're too far behind real time
+MAX_CROSS_TRACK_ERROR = 0.5  # meters, for logging warnings during trajectory execution
+ABORT_THRESHOLD = 1.5  # metres
 
 # ---------------------- helpers ---------------------------------
 
@@ -261,12 +266,13 @@ class ExecuteTrajState(BaseState):
     """
 
     def init(self):
-        self.seg_t0_wall = time.time()
+        self.segment_start_time = time.time()
         self.now = time.time()
         self.node.get_logger().info("ExecuteTrajState: trajectory started.")
 
     def run(self):
         node = self.node
+        self.now = time.time()
 
         if node.current_segment_idx >= len(node.traj_segments):
             # All segments completed
@@ -294,9 +300,8 @@ class ExecuteTrajState(BaseState):
         coeffs_x, coeffs_y, coeffs_z, coeffs_yaw = node.traj_segments[node.current_segment_idx]
         T = node.segment_times[node.current_segment_idx]
 
-        t_in_seg = self.now - self.seg_t0_wall
-        if t_in_seg > T:
-            t_in_seg = T
+        t_in_seg = self.now - self.segment_start_time
+        t_in_seg = min(t_in_seg, T)
 
         px, _, _ = eval_cubic(coeffs_x, t_in_seg)
         py, _, _ = eval_cubic(coeffs_y, t_in_seg)
@@ -311,6 +316,23 @@ class ExecuteTrajState(BaseState):
             f"at t={t_in_seg}/{T}, pos=({px}, {py}, {pz}), yaw={pyaw}"
         )
 
+        cross_track_error = np.linalg.norm(node.curr_xyzw[:3] - np.array([px, py, pz]))
+        if cross_track_error > ABORT_THRESHOLD:
+            node.get_logger().error("Cross-track error too large, aborting trajectory.")
+            node.pause_trajectory = True  # triggers hold in the main timer
+            node.hold_position = None
+            node.transition_to(FlightState.REQUEST_LANDING)
+            return
+
+        if cross_track_error > MAX_CROSS_TRACK_ERROR:
+            node.get_logger().warn("Drone off track, pausing trajectory.")
+            self.segment_start_time += node.publish_dt
+
+        if cross_track_error > BUFFER_WARNING_THRESHOLD:
+            node.get_logger().warn(
+                f"Cross-track error {cross_track_error:.2f} m on segment {node.current_segment_idx}"
+            )
+
         target_point = np.array([px, py, pz, pyaw])
         dist = np.linalg.norm(target_point - node.curr_xyzw)
         node.get_logger().info(f"Seg {node.current_segment_idx}: dist={dist}")
@@ -320,20 +342,12 @@ class ExecuteTrajState(BaseState):
             f"target: {px} {py} {pz} T: {T} now: {self.now} t_in_seg: {t_in_seg}"
         )
 
-        if dist < node.position_tolerance:
-            if node.current_segment_idx + 1 >= len(node.traj_segments):
-                self.now += 0.05
-                node.position_tolerance = 0.1
-            else:
-                self.now += 0.1
-
-            if t_in_seg >= T:
-                node.current_segment_idx += 1
-                self.seg_t0_wall = time.time()
-                self.now = time.time()
-                node.get_logger().info(
-                    f"Segment {node.current_segment_idx} reached, moving to next."
-                )
+        if t_in_seg >= T and dist < node.position_tolerance:
+            node.current_segment_idx += 1
+            self.segment_start_time = time.time()
+            node.get_logger().info(
+                f"Segment {node.current_segment_idx} reached, moving to next."
+            )
 
 
 class DoneState(BaseState):
@@ -365,7 +379,7 @@ class LandingControl(Node):
         self.create_subscription(Bool, "/dronehive/pause_trajectory", self._pause_trajectory_execution_cb, qos_profile)
 
         cli_mode = self.create_client(SetMode, '/mavros/set_mode')
-        self.create_service(DroneTrajectoryWaypointsService, f"/dronehive/drone_waypoints", self.waypoint_service_cb)
+        self.create_service(TrajectoryWaypointsService, f"/dronehive/drone_waypoints", self.waypoint_service_cb)
 
         # Wait for MAVROS
         self.get_logger().info("Waiting for MAVROS services...")
@@ -394,6 +408,7 @@ class LandingControl(Node):
         self.traj_t0_wall: float | None = None
         self.r_waypoints = []
         self.waypoints_ready = False
+        self.max_speed = 0.1  # m/s, for time scaling of trajectory segments
 
         # Pre-allocate SP
         self.sp = PoseStamped()
@@ -482,20 +497,20 @@ class LandingControl(Node):
 
     def waypoint_service_cb(
         self,
-        request: DroneTrajectoryWaypointsService.Request,
-        response: DroneTrajectoryWaypointsService.Response
-    ) -> DroneTrajectoryWaypointsService.Response:
+        request: TrajectoryWaypointsService.Request,
+        response: TrajectoryWaypointsService.Response
+    ) -> TrajectoryWaypointsService.Response:
         """
         Offboard service callback to receive waypoints from the master box and prepare for trajectory execution.
 
         Args:
-            request (DroneTrajectoryWaypointsService.Request): Service request containing a list of waypoints
+            request (TrajectoryWaypointsService.Request): Service request containing a list of waypoints
             (PositionMessage) for the drone to follow.
-            response (DroneTrajectoryWaypointsService.Response): Service response to acknowledge receipt of waypoints and
+            response (TrajectoryWaypointsService.Response): Service response to acknowledge receipt of waypoints and
             readiness for trajectory execution.
 
         Returns:
-            DroneTrajectoryWaypointsService.Response: Service response indicating acknowledgment and readiness status.
+            TrajectoryWaypointsService.Response: Service response indicating acknowledgment and readiness status.
         """
         self.get_logger().info(f"Waypoint service called with waypoints: {request.waypoints}")
         if request.waypoints is not None:
@@ -513,7 +528,7 @@ class LandingControl(Node):
         """
         self.pause_trajectory = msg.data
         self.hold_position = None
-        state_str = "Resuming" if msg.data else "Pausing"
+        state_str = "Pausing" if msg.data else "Resuming"
         self.get_logger().info(f"Toggle execution {state_str} command received.")
 
 
@@ -552,7 +567,7 @@ class LandingControl(Node):
             A = waypoints[i]
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
-            T = max(1.0, d / 0.5)
+            T = max(1.0, d / self.max_speed)
 
             self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
             coeffs_xyzw = []
