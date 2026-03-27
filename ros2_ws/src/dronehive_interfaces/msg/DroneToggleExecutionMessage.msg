@@ -1,2 +1,1 @@
-string[] drone_ids
-bool[] allow
+bool allow
