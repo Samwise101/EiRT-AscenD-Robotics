@@ -493,30 +493,8 @@ class LandingControl(Node):
 
     # -------------------- Trajectory planning & execution --------------------
 
-    def _plan_landing_traj(self):
-        """
-        Build a two-segment cubic trajectory:
-          1) current position -> 1 m above landing target
-          2) 1 m above landing target -> landing target
-        Each axis planned independently; durations scale with distance (slow descent ~0.5 m/s).
-        """
-        if self.landing_target is None or not self.have_pose:
-            self.get_logger().warn("No valid landing target or pose, cannot plan landing trajectory.")
-            return
-
+    def _calculate_trajectory_coefficients(self, waypoints):
         self.current_segment_idx = 0
-        p0 = self.curr_xyzw.copy()
-        above = self.landing_target.copy()
-        above[2] += 1.0  # 1 m above
-
-        self.get_logger().info(f"The distance from current position to landing target is {np.linalg.norm(above - p0)} m")
-        if np.linalg.norm(above - p0) < 0.1:
-            waypoints = [p0, self.landing_target]
-            self.get_logger().info(f"Landing target very close, planning direct descent. {waypoints}")
-        else:
-            waypoints = [p0, above, self.landing_target]
-            self.get_logger().info(f"Planning landing trajectory with waypoints: {waypoints}")
-
         self.traj_segments.clear()
         self.segment_times.clear()
 
@@ -544,6 +522,32 @@ class LandingControl(Node):
         self.get_logger().info(f"Planned landing trajectory: {len(self.traj_segments)} segments, total {self.traj_total_T:.2f}s")
 
 
+    def _plan_landing_traj(self):
+        """
+        Build a two-segment cubic trajectory:
+          1) current position -> 1 m above landing target
+          2) 1 m above landing target -> landing target
+        Each axis planned independently; durations scale with distance (slow descent ~0.5 m/s).
+        """
+        if self.landing_target is None or not self.have_pose:
+            self.get_logger().warn("No valid landing target or pose, cannot plan landing trajectory.")
+            return
+
+        p0 = self.curr_xyzw.copy()
+        above = self.landing_target.copy()
+        above[2] += 1.0  # 1 m above
+
+        self.get_logger().info(f"The distance from current position to landing target is {np.linalg.norm(above - p0)} m")
+        if np.linalg.norm(above - p0) < 0.1:
+            waypoints = [p0, self.landing_target]
+            self.get_logger().info(f"Landing target very close, planning direct descent. {waypoints}")
+        else:
+            waypoints = [p0, above, self.landing_target]
+            self.get_logger().info(f"Planning landing trajectory with waypoints: {waypoints}")
+
+        self._calculate_trajectory_coefficients(waypoints)
+
+
     def _plan_trajectory(self):
         """Plan a trajectory with n-segments; waypoints received from the waypoint service."""
         if not self.have_pose:
@@ -551,8 +555,9 @@ class LandingControl(Node):
             return
 
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints for test trajectory.")
+        self.starting_position = self.curr_xyzw.copy()
+
         p0 = self.curr_xyzw.copy()
-        self.starting_position = p0.copy()
         p1 = p0 + np.array([0.0, 0.0, 1.0, 0.0])  # 1 m up
         waypoints = [p0, p1]
 
@@ -560,32 +565,8 @@ class LandingControl(Node):
             wp_array = np.array([wp.x, wp.y, wp.z, wp.yaw], dtype=float)
             waypoints.append(wp_array)
 
-        self.traj_segments.clear()
-        self.segment_times.clear()
-        total_T = 0.0
-        v0 = np.zeros(len(waypoints[0]))
-        a0 = np.zeros(len(waypoints[0]))
+        self._calculate_trajectory_coefficients(waypoints)
 
-        for i in range(len(waypoints) - 1):
-            A = waypoints[i]
-            B = waypoints[i + 1]
-            d = float(np.linalg.norm(B - A))
-            T = max(1.0, d / 0.5)
-
-            self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
-
-            coeffs_xyzw = []
-            for axis in range(len(A)):
-                coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
-                coeffs_xyzw.append(coeffs)
-
-            self.traj_segments.append(coeffs_xyzw)
-            self.segment_times.append(T)
-            self.current_segment_idx = 0
-            total_T += T
-
-        self.traj_total_T = total_T
-        self.get_logger().info(f"Planned test trajectory: {len(self.traj_segments)} segments, total {self.traj_total_T:.2f}s")
 
     # -------------------- publishers --------------------
 
