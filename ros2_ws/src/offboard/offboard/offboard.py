@@ -24,19 +24,17 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.qos import (
-	QoSProfile,
-	QoSReliabilityPolicy,
-	QoSHistoryPolicy,
+    QoSProfile,
+    QoSReliabilityPolicy,
+    QoSHistoryPolicy,
 )
 
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
-from mavros_msgs.srv import SetMode, CommandBool
-from std_srvs.srv import SetBool
+from mavros_msgs.srv import SetMode
 from std_msgs.msg import Bool
 
 from dronehive_interfaces.srv import (
-    DroneLandingService,
     DroneTrajectoryWaypointsService,
 )
 
@@ -45,39 +43,40 @@ from dronehive_interfaces.msg import (
 )
 
 qos_profile = QoSProfile(
-	reliability=QoSReliabilityPolicy.BEST_EFFORT,
-	history=QoSHistoryPolicy.KEEP_LAST,
-	depth=1
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,
+    history=QoSHistoryPolicy.KEEP_LAST,
+    depth=1
 )
 
 # ---------------------- helpers ---------------------------------
 
 def quat_to_euler(q):
     # roll (x-axis rotation)
-    sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-    cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+    sinr_cosp = 2 * (q.w * q.x + q.y * q.z)
+    cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y)
     if hasattr(np, 'arctan2'):
-        roll = np.arctan2(sinr_cosp, cosr_cosp);
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
     else:
-        roll = np.atan2(sinr_cosp, cosr_cosp);
+        roll = np.atan2(sinr_cosp, cosr_cosp)
 
     # pitch (y-axis rotation)
-    sinp = np.sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
-    cosp = np.sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+    sinp = np.sqrt(1 + 2 * (q.w * q.y - q.x * q.z))
+    cosp = np.sqrt(1 - 2 * (q.w * q.y - q.x * q.z))
     if hasattr(np, 'arctan2'):
-        pitch = 2 * np.arctan2(sinp, cosp) - np.pi / 2;
+        pitch = 2 * np.arctan2(sinp, cosp) - np.pi / 2
     else:
-        pitch = 2 * np.atan2(sinp, cosp) - np.pi / 2;
+        pitch = 2 * np.atan2(sinp, cosp) - np.pi / 2
 
     # yaw (z-axis rotation)
-    siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-    cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+    siny_cosp = 2 * (q.w * q.z + q.x * q.y)
+    cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
     if hasattr(np, 'arctan2'):
-        yaw = np.arctan2(siny_cosp, cosy_cosp);
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
     else:
-        yaw = np.atan2(siny_cosp, cosy_cosp);
+        yaw = np.atan2(siny_cosp, cosy_cosp)
 
-    return roll, pitch, yaw;
+    return roll, pitch, yaw
+
 
 def yaw_to_quaternion(yaw_rad: float):
     qz = math.sin(yaw_rad / 2.0)
@@ -101,15 +100,249 @@ def eval_cubic(coeffs, t):
     return p, v, a
 
 
-# ---------------------- node ----------------------------------
+# ---------------------- Flight State Enum ----------------------------------
 
 class FlightState(Enum):
     INIT = 0
-    EXECUTE_TRAJ = 4
-    DONE = 6
-    WAIT_ARM = 7
-    WAIT_OFFBOARD = 8
-    REQUEST_LANDING = 11
+    WAIT_ARM = 1
+    WAIT_OFFBOARD = 2
+    EXECUTE_TRAJ = 3
+    REQUEST_LANDING = 4
+    DONE = 5
+
+
+# ---------------------- State base class -----------------------------------
+
+class BaseState:
+    """
+    Base class for all flight states.
+
+    Subclasses override init(), run(), and deinit() as needed.
+    - init()   is called once when the state is first entered.
+    - run()    is called every timer tick while in this state.
+    - deinit() is called once when the state is exited.
+    """
+
+    def __init__(self, node: "LandingControl"):
+        self.node = node
+        self._initialized = False
+
+    def tick(self):
+        """Called by the timer. Handles the init/run lifecycle."""
+        if not self._initialized:
+            self.init()
+            self._initialized = True
+        self.run()
+
+    def reset(self):
+        """Call this before re-entering a state so init() fires again."""
+        self._initialized = False
+
+    def exit(self):
+        """Call this when leaving the state."""
+        self.deinit()
+        self._initialized = False
+
+    # ---- override in subclasses ----
+
+    def init(self):
+        pass
+
+    def run(self):
+        pass
+
+    def deinit(self):
+        pass
+
+
+# ---------------------- Concrete state classes ----------------------------
+
+class InitState(BaseState):
+    """
+    Waits until a valid pose is available, then transitions to WAIT_ARM.
+    """
+
+    def run(self):
+        if not self.node.have_pose:
+            self.node._publish_hold_here()
+            return
+        self.node.get_logger().info("State -> WAIT_ARM (real)")
+        self.node.transition_to(FlightState.WAIT_ARM)
+
+
+class WaitArmState(BaseState):
+    """
+    Waits until MAVROS reports the vehicle as armed.
+    """
+
+    def run(self):
+        if self.node._is_armed():
+            if self.node.home_xy is None:
+                self.node.home_xy = self.node.curr_xyz[:2].copy()
+            if self.node.home_alt0 is None:
+                self.node.home_alt0 = float(self.node.curr_xyz[2])
+            self.node.get_logger().info("Operator set ARMED. Waiting for OFFBOARD...")
+            self.node.transition_to(FlightState.WAIT_OFFBOARD)
+
+
+class WaitOffboardState(BaseState):
+    """
+    Holds position and waits until OFFBOARD mode is active and waypoints are ready.
+    """
+
+    def init(self):
+        # hold_position will be captured on the first call to _publish_hold_here
+        self.node.hold_position = None
+
+    def run(self):
+        self.node._publish_hold_here()
+
+        if not self.node._is_armed():
+            self.node.get_logger().info("Disarmed, returning to WAIT_ARM.")
+            self.node.transition_to(FlightState.WAIT_ARM)
+            return
+
+        if self.node._is_offboard() and self.node.waypoints_ready:
+            self.node.get_logger().info("Waypoints ready. Planning and executing trajectory.")
+            self.node._plan_trajectory()
+            self.node.traj_t0_wall = time.time()
+            self.node.position_tolerance = 0.3
+            self.node.transition_to(FlightState.EXECUTE_TRAJ)
+
+
+class RequestLandingState(BaseState):
+    """
+    Holds position while setting up a landing trajectory back to the starting position,
+    then transitions to EXECUTE_TRAJ.
+    """
+
+    def init(self):
+        # Capture hold position once on entry so we don't drift during setup
+        self.node.hold_position = None
+
+    def run(self):
+        self.node._publish_hold_here()
+
+        now = time.time()
+        self.node.get_logger().info(f"Using starting position for landing: {self.node.starting_position}")
+
+        landing = PositionMessage()
+        landing.lat = float(self.node.starting_position[0])
+        landing.lon = float(self.node.starting_position[1])
+        landing.elv = float(self.node.starting_position[2])
+
+        self.node.setup_waypints([landing])
+
+        self.node.landing_target = np.array(
+            [float(landing.lat), float(landing.lon), float(landing.elv) + 0.05],
+            dtype=float,
+        )
+
+        self.node.isLanding = True
+        self.node._plan_landing_traj()
+
+        self.node.traj_t0_wall = now
+        self.node.position_tolerance = 0.1
+        self.node.hold_position = None
+
+        self.node.get_logger().info("Landing target received. Executing landing trajectory.")
+        self.node.transition_to(FlightState.EXECUTE_TRAJ)
+
+
+class ExecuteTrajState(BaseState):
+    """
+    Follows a pre-planned cubic trajectory segment by segment.
+    When all segments are done:
+      - if landing -> DONE
+      - otherwise  -> REQUEST_LANDING
+    """
+
+    def init(self):
+        self.seg_t0_wall = time.time()
+        self.now = time.time()
+        self.node.get_logger().info("ExecuteTrajState: trajectory started.")
+
+    def run(self):
+        node = self.node
+
+        if node.current_segment_idx >= len(node.traj_segments):
+            # All segments completed
+            node.get_logger().info("All trajectory segments completed, holding last position.")
+            node._publish_xyz(
+                node.last_requested_pose[0],
+                node.last_requested_pose[1],
+                node.last_requested_pose[2],
+            )
+            node.waypoints_ready = False
+
+            if node.isLanding:
+                node.get_logger().info("Landing trajectory complete, drone is landing.")
+                node._publish_hold_here()
+                node.transition_to(FlightState.DONE)
+            else:
+                node.get_logger().info(
+                    "Reached end of trajectory, holding and requesting landing position."
+                )
+                node._publish_hold_here()
+                node.transition_to(FlightState.REQUEST_LANDING)
+            return
+
+        coeffs_x, coeffs_y, coeffs_z = node.traj_segments[node.current_segment_idx]
+        T = node.segment_times[node.current_segment_idx]
+
+        t_in_seg = self.now - self.seg_t0_wall
+        if t_in_seg > T:
+            t_in_seg = T
+
+        px, _, _ = eval_cubic(coeffs_x, t_in_seg)
+        py, _, _ = eval_cubic(coeffs_y, t_in_seg)
+        pz, _, _ = eval_cubic(coeffs_z, t_in_seg)
+        node.last_requested_pose = np.array([px, py, pz])
+
+        node._publish_xyz(px, py, pz, node.curr_heading[2])
+
+        node.get_logger().info(
+            f"Generating setpoint for segment {node.current_segment_idx} "
+            f"at t={t_in_seg}/{T}, pos=({px}, {py}, {pz})"
+        )
+
+        target_point = np.array([px, py, pz])
+        dist = np.linalg.norm(target_point - node.curr_xyz)
+        node.get_logger().info(f"Seg {node.current_segment_idx}: dist={dist}")
+
+        print(
+            f"Curr: {node.curr_xyz[0]} {node.curr_xyz[1]} {node.curr_xyz[2]} "
+            f"target: {px} {py} {pz} T: {T} now: {self.now} t_in_seg: {t_in_seg}"
+        )
+
+        if dist < node.position_tolerance:
+            if node.current_segment_idx + 1 >= len(node.traj_segments):
+                self.now += 0.05
+                node.position_tolerance = 0.1
+            else:
+                self.now += 0.1
+
+            if t_in_seg >= T:
+                node.current_segment_idx += 1
+                self.seg_t0_wall = time.time()
+                self.now = time.time()
+                node.get_logger().info(
+                    f"Segment {node.current_segment_idx} reached, moving to next."
+                )
+
+
+class DoneState(BaseState):
+    """
+    Mission complete. Resets all state and returns to WAIT_ARM.
+    """
+
+    def run(self):
+        self.node.get_logger().info("Mission complete. Resetting.")
+        self.node._reset_all()
+        self.node.transition_to(FlightState.WAIT_ARM)
+
+
+# ---------------------- node ----------------------------------
 
 class LandingControl(Node):
     def __init__(self,
@@ -130,20 +363,17 @@ class LandingControl(Node):
         self.pub_sp = self.create_publisher(PoseStamped, '/mavros/setpoint_position/local', 10)
         self.create_subscription(State, '/mavros/state', self._state_cb, 10)
         self.create_subscription(PoseStamped, '/mavros/local_position/pose', self._pose_cb, qos_profile_sensor_data)
-
         self.create_subscription(Bool, "/dronehive/drone_toggle_trajectory_execution", self._toggle_execution_cb, qos_profile)
+
         cli_mode = self.create_client(SetMode, '/mavros/set_mode')
-
-        self.create_service(DroneTrajectoryWaypointsService,f"/dronehive/drone_waypoints", self.waypoint_service_cb)
-
+        self.create_service(DroneTrajectoryWaypointsService, f"/dronehive/drone_waypoints", self.waypoint_service_cb)
 
         # Wait for MAVROS
         self.get_logger().info("Waiting for MAVROS services...")
         cli_mode.wait_for_service()
         self.get_logger().info("MAVROS services available.")
 
-        # ---------------- State ----------------
-        self.state = FlightState.INIT
+        # ---------------- Flight data ----------------
         self.mav_state = State()
         self.have_pose = False
         self.curr_xyz = np.zeros(3)
@@ -154,7 +384,7 @@ class LandingControl(Node):
         self.hold_position = None
         self.resume_allowed = True
 
-        # Landing service
+        # Landing
         self.landing_target = None
         self.isLanding = False
 
@@ -164,10 +394,7 @@ class LandingControl(Node):
         self.traj_total_T = 0.0
         self.traj_t0_wall = None
         self.r_waypoints = []
-
-        # Waypoint readiness
         self.waypoints_ready = False
-
 
         # Pre-allocate SP
         self.sp = PoseStamped()
@@ -177,11 +404,31 @@ class LandingControl(Node):
         self.sp.pose.orientation.w = qw
 
         self.current_segment_idx = 0
-        self.position_tolerance = 0.3  # meters
+        self.position_tolerance = 0.3
+
+        # ---------------- State machine ----------------
+        self._state_map: dict[FlightState, BaseState] = {
+            FlightState.INIT:            InitState(self),
+            FlightState.WAIT_ARM:        WaitArmState(self),
+            FlightState.WAIT_OFFBOARD:   WaitOffboardState(self),
+            FlightState.REQUEST_LANDING: RequestLandingState(self),
+            FlightState.EXECUTE_TRAJ:    ExecuteTrajState(self),
+            FlightState.DONE:            DoneState(self),
+        }
+        self._current_flight_state = FlightState.INIT
+        self._active_state: BaseState = self._state_map[self._current_flight_state]
 
         # Timers
         self.timer = self.create_timer(self.publish_dt, self._timer_cb)
 
+    # -------------------- State machine helpers --------------------
+
+    def transition_to(self, new_state: FlightState):
+        """Exit the current state and enter the new one."""
+        self._active_state.exit()
+        self._current_flight_state = new_state
+        self._active_state = self._state_map[new_state]
+        self._active_state.reset()  # ensure init() fires on next tick
 
     # -------------------- HELPERS --------------------
 
@@ -189,7 +436,6 @@ class LandingControl(Node):
         self.r_waypoints = waypoints
         self.waypoints_ready = True
         self.hold_position = None  # reset hold position
-
         self.current_segment_idx = 0
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints from waypoint service: {self.r_waypoints}")
         self.get_logger().info(f"Waypoints ready: {self.waypoints_ready}")
@@ -201,190 +447,42 @@ class LandingControl(Node):
 
     def _pose_cb(self, msg: PoseStamped):
         self.have_pose = True
-        # self.get_logger().info(f"Pose received: x={msg.pose.position.x}, y={msg.pose.position.y}, z={msg.pose.position.z}")
-        self.curr_xyz = np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z], dtype=float)
+        self.curr_xyz = np.array(
+            [msg.pose.position.x, msg.pose.position.y, msg.pose.position.z], dtype=float
+        )
         self.curr_heading = quat_to_euler(msg.pose.orientation)
 
         if self.home_alt0 is None:
             self.home_alt0 = float(self.curr_xyz[2])
 
     def waypoint_service_cb(self, request, response):
-
         self.get_logger().info(f"Waypoint service called with waypoints: {request.waypoints}")
-
         if request.waypoints is not None:
             self.setup_waypints(request.waypoints)
             response.ack = True
-
         return response
-
 
     def _toggle_execution_cb(self, msg: Bool):
         self.resume_allowed = msg.data
         self.hold_position = None
-
         state_str = "Resuming" if msg.data else "Pausing"
         self.get_logger().info(f"Toggle execution {state_str} command received.")
-
 
     # -------------------- Main Timer --------------------
 
     def _timer_cb(self):
-        """
-        Main loop - Publishes setpoints continuously (required by MAVROS OFFBOARD)
-        """
-        now = time.time()
-
-        # Pause and resume control based on external command
+        """Main loop – delegates entirely to the active state object."""
         if not self.resume_allowed:
-            self._pause_function()
+            self._publish_hold_here()
+            self.get_logger().info("Control paused, holding position.")
             return
 
-
-        if self.state == FlightState.INIT:
-            # Need valid pose before proceeding
-            if not self.have_pose:
-                self._publish_hold_here()
-                return
-
-            # wait for ARMED
-            self.state = FlightState.WAIT_ARM
-            self.get_logger().info("State -> WAIT_ARM (real)")
-
-        elif self.state == FlightState.WAIT_ARM:
-            if self._is_armed():
-                #record "home" where we first see armed
-                if self.home_xy is None:
-                    self.home_xy = self.curr_xyz[:2].copy()
-                if self.home_alt0 is None:
-                    self.home_alt0 = float(self.curr_xyz[2])
-                self.get_logger().info("Operator set ARMED. Waiting for OFFBOARD...")
-                self.state = FlightState.WAIT_OFFBOARD
-
-        elif self.state == FlightState.WAIT_OFFBOARD:
-            # Keep feeding setpoints so offboard won't drop if operator switches
-            self._publish_hold_here()
-
-            # If taken out of armed, return to WAIT_ARM
-            if not self._is_armed():
-                self.get_logger().info("Disarmed, returning to WAIT_ARM.")
-                self.state = FlightState.WAIT_ARM
-
-            if self._is_offboard() and self.waypoints_ready:
-                self.get_logger().info("Waypoints ready. Planning and executing trajectory.")
-                self._plan_trajectory()
-                self.traj_t0_wall = now
-                self.position_tolerance = 0.3
-                self.hold_position = None  # reset hold position
-                self.state = FlightState.EXECUTE_TRAJ
-
-
-        elif self.state == FlightState.REQUEST_LANDING:
-            # Keep publishing hold here while requesting landing target
-            self._publish_hold_here()
-
-            self.get_logger().info(f"Using starting position for landing: {self.starting_position}")
-            landing: PositionMessage = PositionMessage()
-            landing.lat = float(self.starting_position[0])
-            landing.lon = float(self.starting_position[1])
-            landing.elv = float(self.starting_position[2])
-
-            self.setup_waypints([ landing ])
-
-            self.landing_target = np.array([float(landing.lat), float(landing.lon), float(landing.elv)+0.05], dtype=float)
-
-            self.isLanding = True
-            self._plan_landing_traj()
-
-            self.traj_t0_wall = now
-            self.position_tolerance = 0.1
-            self.hold_position = None
-
-            self.state = FlightState.EXECUTE_TRAJ
-            self.get_logger().info("Landing target received. Executing landing trajectory.")
-            return
-
-
-        elif self.state == FlightState.EXECUTE_TRAJ:
-            # Feedback-based trajectory following
-            if self.current_segment_idx >= len(self.traj_segments):
-                # Already finished all segments
-                self.get_logger().info("All trajectory segments completed, holding last position.")
-                self._publish_xyz(self.last_requested_pose[0], self.last_requested_pose[1], self.last_requested_pose[2])
-
-                self.waypoints_ready = False
-                if self.isLanding:
-                    self.get_logger().info("Landing trajectory complete, drone is landing.")
-                    self.state = FlightState.DONE
-                    self._publish_hold_here()
-                    return
-
-                self.get_logger().info("Reached the end of the trajectory holding and requesting landing position.")
-                self.state = FlightState.REQUEST_LANDING
-                self.landing_request_init_time = time.time()
-
-                self._publish_hold_here()
-
-                return
-
-
-            coeffs_x, coeffs_y, coeffs_z = self.traj_segments[self.current_segment_idx]
-            T = self.segment_times[self.current_segment_idx]
-
-            # Compute desired point for current segment (using elapsed time in this segment)
-            if not hasattr(self, 'seg_t0_wall'):
-                self.seg_t0_wall = time.time()
-                self.get_logger().info("Setting time start")
-                self.now = time.time()
-
-            t_in_seg = self.now - self.seg_t0_wall
-            if t_in_seg > T:
-                t_in_seg = T
-
-            px, _, _ = eval_cubic(coeffs_x, t_in_seg)
-            py, _, _ = eval_cubic(coeffs_y, t_in_seg)
-            pz, _, _ = eval_cubic(coeffs_z, t_in_seg)
-            self.last_requested_pose = np.array([px, py, pz])
-
-            # Publish current target
-            self._publish_xyz(px, py, pz, self.curr_heading[2])
-
-            self.get_logger().info(f"Generating setpoint for segment {self.current_segment_idx} at t={t_in_seg}/{T}, pos=({px}, {py}, {pz})")
-            # Check distance to target
-            target_point = np.array([px, py, pz])
-            dist = np.linalg.norm(target_point - self.curr_xyz)
-            self.get_logger().info(f"Seg {self.current_segment_idx}: dist={dist}")
-
-            # self.get_logger().info(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz}, T: {T}, now: {self.now}, t_in_seg: {t_in_seg}")
-            print(f"Curr: {self.curr_xyz[0]} {self.curr_xyz[1]} {self.curr_xyz[2]} target: {px} {py} {pz} T: {T} now: {self.now} t_in_seg: {t_in_seg}")
-
-            if dist < self.position_tolerance:
-                # Advance to next trajectory segment.
-                # The descend to the last position is slower.
-                if self.current_segment_idx + 1 >= len(self.traj_segments):
-                    self.now += 0.05
-                    self.position_tolerance = 0.1
-                else:
-                    self.now += 0.1
-
-                if t_in_seg >= T:
-                    self.current_segment_idx += 1
-                    self.seg_t0_wall = time.time()
-                    self.now = time.time()
-                    self.get_logger().info(f"Segment {self.current_segment_idx} reached, moving to next.")
-
-        elif self.state == FlightState.DONE:
-            # Keep publishing last SP for a short while to avoid offboard drops
-            #self._publish_hold_here()
-            self.get_logger().info("Mission complete. Resetting.")
-            self.state = FlightState.WAIT_ARM
-            self._reset_all()
-
+        self._active_state.tick()
 
     # -------------------- Waypoint readiness check --------------------
+
     def _are_waypoints_ready(self) -> bool:
         return self.waypoints_ready
-
 
     # -------------------- Trajectory planning & execution --------------------
 
@@ -415,7 +513,6 @@ class LandingControl(Node):
         self.traj_segments.clear()
         self.segment_times.clear()
         total_T = 0.0
-
         v0 = np.zeros(3)
         a0 = np.zeros(3)
 
@@ -423,7 +520,7 @@ class LandingControl(Node):
             A = waypoints[i]
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
-            T = max(1.0, d / 0.5)  # ~0.5 m/s nominal
+            T = max(1.0, d / 0.5)
             self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
             coeffs_xyz = []
             for axis in range(3):
@@ -438,10 +535,7 @@ class LandingControl(Node):
 
 
     def _plan_trajectory(self):
-        """
-        Plan a trajectory with n-segments
-        waypoints are received from the waypoint service
-        """
+        """Plan a trajectory with n-segments; waypoints received from the waypoint service."""
         if not self.have_pose:
             self.get_logger().warn("No valid pose, cannot plan test trajectory.")
             return
@@ -454,7 +548,6 @@ class LandingControl(Node):
 
         for wp in self.r_waypoints:
             wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
-            #self.get_logger().info(f"Planning to waypoint: x={wp_array[0]:.2f}, y={wp_array[1]:.2f}, z={wp_array[2]:.2f}")
             waypoints.append(wp_array)
 
         self.traj_segments.clear()
@@ -467,7 +560,7 @@ class LandingControl(Node):
             A = waypoints[i]
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
-            T = max(1.0, d / 0.5)  # ~0.5 m/s nominal
+            T = max(1.0, d / 0.5)
             self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
             coeffs_xyz = []
             for axis in range(3):
@@ -481,15 +574,18 @@ class LandingControl(Node):
         self.traj_total_T = total_T
         self.get_logger().info(f"Planned test trajectory: {len(self.traj_segments)} segments, total {self.traj_total_T:.2f}s")
 
-
     # -------------------- publishers --------------------
 
     def _publish_hold_here(self):
         """Publish a setpoint to hold current position (keeps OFFBOARD happy)."""
         if not self.have_pose:
+            self.get_logger().warn("No valid pose, cannot publish hold position.")
             return
+
         if self.hold_position is None:
             self.hold_position = self.curr_xyz.copy()
+            self.get_logger().info(f"Capturing hold position at current location: {self.hold_position}")
+
 
         self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2])
 
@@ -507,7 +603,6 @@ class LandingControl(Node):
         self.sp.pose.orientation.w = qw
         self.pub_sp.publish(self.sp)
 
-
     # -------------------- Utilities --------------------
 
     def _is_armed(self) -> bool:
@@ -515,13 +610,6 @@ class LandingControl(Node):
 
     def _is_offboard(self) -> bool:
         return self.mav_state.mode == "OFFBOARD"
-
-    def _pause_function(self):
-        """Pause and resume control based on external command"""
-        if not self.resume_allowed:
-            self._publish_hold_here()
-            self.get_logger().info("Control paused, holding position.")
-            return
 
     def _reset_all(self):
         """Reset all internal states for a new mission."""
@@ -536,6 +624,12 @@ class LandingControl(Node):
         self.waypoints_ready = False
         self.current_segment_idx = 0
         self.position_tolerance = 0.3
+
+        # Reset all state objects so their init() fires again on next entry
+        for s in self._state_map.values():
+            s.reset()
+
+
 # ------------------------- Main ---------------------------------------
 
 def main():
@@ -555,7 +649,8 @@ def main():
         takeoff_alt=args.takeoff_alt,
         loiter_radius=args.loiter_radius,
         landing_timeout=args.landing_timeout,
-        publish_hz=args.publish_hz)
+        publish_hz=args.publish_hz,
+    )
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
@@ -567,4 +662,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
