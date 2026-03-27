@@ -29,18 +29,17 @@ from rclpy.qos import (
     QoSHistoryPolicy,
 )
 
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import (
+    Quaternion,
+    PoseStamped
+)
+
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode
 from std_msgs.msg import Bool
 
-from dronehive_interfaces.srv import (
-    TrajectoryWaypointsService,
-)
-
-from dronehive_interfaces.msg import (
-    PositionMessage,
-)
+from dronehive_interfaces.srv import TrajectoryWaypointsService
+from dronehive_interfaces.msg import PositionMessage
 
 qos_profile = QoSProfile(
     reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -50,12 +49,12 @@ qos_profile = QoSProfile(
 
 
 BUFFER_WARNING_THRESHOLD = 0.3  # seconds, for logging warnings if we're too far behind real time
-MAX_CROSS_TRACK_ERROR = 0.5  # meters, for logging warnings during trajectory execution
-ABORT_THRESHOLD = 1.5  # metres
+MAX_CROSS_TRACK_ERROR = 0.4  # meters, for logging warnings during trajectory execution
+ABORT_THRESHOLD = 1.0  # metres
 
 # ---------------------- helpers ---------------------------------
 
-def quat_to_euler(q):
+def quat_to_euler(q: Quaternion) -> np.ndarray:
     # roll (x-axis rotation)
     sinr_cosp = 2 * (q.w * q.x + q.y * q.z)
     cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y)
@@ -80,16 +79,16 @@ def quat_to_euler(q):
     else:
         yaw = np.atan2(siny_cosp, cosy_cosp)
 
-    return roll, pitch, yaw
+    return np.array([roll, pitch, yaw])
 
 
-def yaw_to_quaternion(yaw_rad: float):
+def yaw_to_quaternion(yaw_rad: float) -> tuple[float, float, float, float]:
     qz = math.sin(yaw_rad / 2.0)
     qw = math.cos(yaw_rad / 2.0)
     return (0.0, 0.0, qz, qw)
 
 
-def cubic_coeffs_from_boundary(p0, p1, v0, a0, T):
+def cubic_coeffs_from_boundary(p0, p1, v0, a0, T) -> np.ndarray:
     c0 = p0
     c1 = v0
     c2 = a0 / 2.0
@@ -97,7 +96,7 @@ def cubic_coeffs_from_boundary(p0, p1, v0, a0, T):
     return np.array([c0, c1, c2, c3], dtype=float)
 
 
-def eval_cubic(coeffs, t):
+def eval_cubic(coeffs, t) -> tuple[float, float, float]:
     c0, c1, c2, c3 = coeffs
     p = c0 + c1*t + c2*t**2 + c3*t**3
     v = c1 + 2*c2*t + 3*c3*t**2
@@ -387,28 +386,28 @@ class LandingControl(Node):
         self.get_logger().info("MAVROS services available.")
 
         # ---------------- Flight data ----------------
-        self.mav_state = State()
-        self.have_pose = False
-        self.curr_xyzw = np.zeros(4)
-        self.curr_heading = np.zeros(3)  # roll, pitch, yaw
-        self.home_xy = None
-        self.home_alt0 = None
-        self.last_requested_pose = np.zeros(3)
-        self.hold_position = None
-        self.pause_trajectory = False
+        self.mav_state: State = State()
+        self.have_pose: bool = False
+        self.curr_xyzw: np.ndarray = np.zeros(4)
+        self.curr_heading: np.ndarray = np.zeros(3)  # roll, pitch, yaw
+        self.home_xy: np.ndarray | None = None
+        self.home_alt0: float | None = None
+        self.last_requested_pose: np.ndarray = np.zeros(3)
+        self.hold_position: np.ndarray | None = None
+        self.pause_trajectory: bool = False
 
         # Landing
         self.landing_target: np.ndarray | None = None
-        self.isLanding = False
+        self.isLanding: bool = False
 
         # Trajectory
-        self.traj_segments = []
-        self.segment_times = []
+        self.traj_segments: list[list[np.ndarray]] = []
+        self.segment_times: list[float] = []
         self.traj_total_T = 0.0
         self.traj_t0_wall: float | None = None
-        self.r_waypoints = []
+        self.r_waypoints: list[PositionMessage] = []
         self.waypoints_ready = False
-        self.max_speed = 0.1  # m/s, for time scaling of trajectory segments
+        self.max_speed = 0.5  # m/s, for time scaling of trajectory segments
 
         # Pre-allocate SP
         self.sp = PoseStamped()
@@ -448,7 +447,7 @@ class LandingControl(Node):
 
     # -------------------- HELPERS --------------------
 
-    def setup_waypints(self, waypoints):
+    def setup_waypints(self, waypoints: list[PositionMessage]):
         """
         Make sure waypoints are in the expected format and store them for trajectory planning.
 
@@ -514,7 +513,7 @@ class LandingControl(Node):
         """
         self.get_logger().info(f"Waypoint service called with waypoints: {request.waypoints}")
         if request.waypoints is not None:
-            self.setup_waypints(request.waypoints)
+            self.setup_waypints(list[PositionMessage](request.waypoints))
             response.ack = True
         return response
 
@@ -548,7 +547,7 @@ class LandingControl(Node):
 
     # -------------------- Trajectory planning & execution --------------------
 
-    def _calculate_trajectory_coefficients(self, waypoints: list[np.ndarray]):
+    def _calculate_trajectory_coefficients(self, waypoints: list[np.ndarray], speeds: list[float]):
         """
         Helper function to calculate cubic trajectory coefficients for a list of waypoints.
 
@@ -567,10 +566,12 @@ class LandingControl(Node):
             A = waypoints[i]
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
-            T = max(1.0, d / self.max_speed)
+
+            speed = speeds[i] if i < len(speeds) else self.max_speed
+            T = max(1.0, d / speed)
 
             self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
-            coeffs_xyzw = []
+            coeffs_xyzw: list[np.ndarray] = []
             for axis in range(len(A)):
                 coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
                 coeffs_xyzw.append(coeffs)
@@ -606,7 +607,9 @@ class LandingControl(Node):
         waypoints.append(self.landing_target)
         self.get_logger().info(f"Planning landing trajectory with waypoints: {waypoints}")
 
-        self._calculate_trajectory_coefficients(waypoints)
+        speeds = [ 0.3 ] * (len(waypoints) - 1)
+        speeds[-1] = 0.1
+        self._calculate_trajectory_coefficients(waypoints, speeds)
 
 
     def _plan_trajectory(self):
@@ -628,12 +631,14 @@ class LandingControl(Node):
         p0 = self.curr_xyzw.copy()
         p1 = p0 + np.array([0.0, 0.0, 1.0, 0.0])  # 1 m up
         waypoints = [p0, p1]
+        speeds = [0.1]
 
         for wp in self.r_waypoints:
             wp_array = np.array([wp.x, wp.y, wp.z, wp.yaw], dtype=float)
+            speeds.append(wp.max_speed)
             waypoints.append(wp_array)
 
-        self._calculate_trajectory_coefficients(waypoints)
+        self._calculate_trajectory_coefficients(waypoints, speeds)
 
 
     # -------------------- publishers --------------------
