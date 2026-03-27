@@ -178,9 +178,11 @@ class WaitArmState(BaseState):
     def run(self):
         if self.node._is_armed():
             if self.node.home_xy is None:
-                self.node.home_xy = self.node.curr_xyz[:2].copy()
+                self.node.home_xy = self.node.curr_xyzw[:2].copy()
+
             if self.node.home_alt0 is None:
-                self.node.home_alt0 = float(self.node.curr_xyz[2])
+                self.node.home_alt0 = float(self.node.curr_xyzw[2])
+
             self.node.get_logger().info("Operator set ARMED. Waiting for OFFBOARD...")
             self.node.transition_to(FlightState.WAIT_OFFBOARD)
 
@@ -227,14 +229,15 @@ class RequestLandingState(BaseState):
         self.node.get_logger().info(f"Using starting position for landing: {self.node.starting_position}")
 
         landing = PositionMessage()
-        landing.lat = float(self.node.starting_position[0])
-        landing.lon = float(self.node.starting_position[1])
-        landing.elv = float(self.node.starting_position[2])
+        landing.x = float(self.node.starting_position[0])
+        landing.y = float(self.node.starting_position[1])
+        landing.z = float(self.node.starting_position[2])
+        landing.yaw = float(self.node.starting_position[3])
 
         self.node.setup_waypints([landing])
 
         self.node.landing_target = np.array(
-            [float(landing.lat), float(landing.lon), float(landing.elv) + 0.05],
+            [float(landing.x), float(landing.y), float(landing.z) + 0.05, float(landing.yaw)],
             dtype=float,
         )
 
@@ -272,6 +275,7 @@ class ExecuteTrajState(BaseState):
                 node.last_requested_pose[0],
                 node.last_requested_pose[1],
                 node.last_requested_pose[2],
+                node.last_requested_pose[3],
             )
             node.waypoints_ready = False
 
@@ -287,7 +291,7 @@ class ExecuteTrajState(BaseState):
                 node.transition_to(FlightState.REQUEST_LANDING)
             return
 
-        coeffs_x, coeffs_y, coeffs_z = node.traj_segments[node.current_segment_idx]
+        coeffs_x, coeffs_y, coeffs_z, coeffs_yaw = node.traj_segments[node.current_segment_idx]
         T = node.segment_times[node.current_segment_idx]
 
         t_in_seg = self.now - self.seg_t0_wall
@@ -297,21 +301,22 @@ class ExecuteTrajState(BaseState):
         px, _, _ = eval_cubic(coeffs_x, t_in_seg)
         py, _, _ = eval_cubic(coeffs_y, t_in_seg)
         pz, _, _ = eval_cubic(coeffs_z, t_in_seg)
-        node.last_requested_pose = np.array([px, py, pz])
+        pyaw, _, _ = eval_cubic(coeffs_yaw, t_in_seg)
+        node.last_requested_pose = np.array([px, py, pz, pyaw], dtype=float)
 
-        node._publish_xyz(px, py, pz, node.curr_heading[2])
+        node._publish_xyz(px, py, pz, pyaw)
 
         node.get_logger().info(
             f"Generating setpoint for segment {node.current_segment_idx} "
-            f"at t={t_in_seg}/{T}, pos=({px}, {py}, {pz})"
+            f"at t={t_in_seg}/{T}, pos=({px}, {py}, {pz}), yaw={pyaw}"
         )
 
-        target_point = np.array([px, py, pz])
-        dist = np.linalg.norm(target_point - node.curr_xyz)
+        target_point = np.array([px, py, pz, pyaw])
+        dist = np.linalg.norm(target_point - node.curr_xyzw)
         node.get_logger().info(f"Seg {node.current_segment_idx}: dist={dist}")
 
         print(
-            f"Curr: {node.curr_xyz[0]} {node.curr_xyz[1]} {node.curr_xyz[2]} "
+            f"Curr: {node.curr_xyzw[0]} {node.curr_xyzw[1]} {node.curr_xyzw[2]} "
             f"target: {px} {py} {pz} T: {T} now: {self.now} t_in_seg: {t_in_seg}"
         )
 
@@ -376,7 +381,7 @@ class LandingControl(Node):
         # ---------------- Flight data ----------------
         self.mav_state = State()
         self.have_pose = False
-        self.curr_xyz = np.zeros(3)
+        self.curr_xyzw = np.zeros(4)
         self.curr_heading = np.zeros(3)  # roll, pitch, yaw
         self.home_xy = None
         self.home_alt0 = None
@@ -385,14 +390,14 @@ class LandingControl(Node):
         self.resume_allowed = True
 
         # Landing
-        self.landing_target = None
+        self.landing_target: np.ndarray | None = None
         self.isLanding = False
 
         # Trajectory
         self.traj_segments = []
         self.segment_times = []
         self.traj_total_T = 0.0
-        self.traj_t0_wall = None
+        self.traj_t0_wall: float | None = None
         self.r_waypoints = []
         self.waypoints_ready = False
 
@@ -447,13 +452,15 @@ class LandingControl(Node):
 
     def _pose_cb(self, msg: PoseStamped):
         self.have_pose = True
-        self.curr_xyz = np.array(
-            [msg.pose.position.x, msg.pose.position.y, msg.pose.position.z], dtype=float
-        )
+
         self.curr_heading = quat_to_euler(msg.pose.orientation)
 
+        self.curr_xyzw = np.array(
+            [msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, self.curr_heading[2]], dtype=float
+        )
+
         if self.home_alt0 is None:
-            self.home_alt0 = float(self.curr_xyz[2])
+            self.home_alt0 = float(self.curr_xyzw[2])
 
     def waypoint_service_cb(self, request, response):
         self.get_logger().info(f"Waypoint service called with waypoints: {request.waypoints}")
@@ -498,7 +505,7 @@ class LandingControl(Node):
             return
 
         self.current_segment_idx = 0
-        p0 = self.curr_xyz.copy()
+        p0 = self.curr_xyzw.copy()
         above = self.landing_target.copy()
         above[2] += 1.0  # 1 m above
 
@@ -512,21 +519,24 @@ class LandingControl(Node):
 
         self.traj_segments.clear()
         self.segment_times.clear()
+
         total_T = 0.0
-        v0 = np.zeros(3)
-        a0 = np.zeros(3)
+        v0 = np.zeros(len(waypoints[0]))
+        a0 = np.zeros(len(waypoints[0]))
 
         for i in range(len(waypoints) - 1):
             A = waypoints[i]
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
             T = max(1.0, d / 0.5)
+
             self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
-            coeffs_xyz = []
-            for axis in range(3):
+            coeffs_xyzw = []
+            for axis in range(len(A)):
                 coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
-                coeffs_xyz.append(coeffs)
-            self.traj_segments.append(coeffs_xyz)
+                coeffs_xyzw.append(coeffs)
+
+            self.traj_segments.append(coeffs_xyzw)
             self.segment_times.append(T)
             total_T += T
 
@@ -541,32 +551,35 @@ class LandingControl(Node):
             return
 
         self.get_logger().info(f"Received {len(self.r_waypoints)} waypoints for test trajectory.")
-        p0 = self.curr_xyz.copy()
+        p0 = self.curr_xyzw.copy()
         self.starting_position = p0.copy()
-        p1 = p0 + np.array([0.0, 0.0, 1.0])  # 1 m up
+        p1 = p0 + np.array([0.0, 0.0, 1.0, 0.0])  # 1 m up
         waypoints = [p0, p1]
 
         for wp in self.r_waypoints:
-            wp_array = np.array([wp.lat, wp.lon, wp.elv], dtype=float)
+            wp_array = np.array([wp.x, wp.y, wp.z, wp.yaw], dtype=float)
             waypoints.append(wp_array)
 
         self.traj_segments.clear()
         self.segment_times.clear()
         total_T = 0.0
-        v0 = np.zeros(3)
-        a0 = np.zeros(3)
+        v0 = np.zeros(len(waypoints[0]))
+        a0 = np.zeros(len(waypoints[0]))
 
         for i in range(len(waypoints) - 1):
             A = waypoints[i]
             B = waypoints[i + 1]
             d = float(np.linalg.norm(B - A))
             T = max(1.0, d / 0.5)
+
             self.get_logger().info(f"Planning segment {i}: from {A} to {B}, distance={d} m, time={T} s")
-            coeffs_xyz = []
-            for axis in range(3):
+
+            coeffs_xyzw = []
+            for axis in range(len(A)):
                 coeffs = cubic_coeffs_from_boundary(A[axis], B[axis], v0[axis], a0[axis], T)
-                coeffs_xyz.append(coeffs)
-            self.traj_segments.append(coeffs_xyz)
+                coeffs_xyzw.append(coeffs)
+
+            self.traj_segments.append(coeffs_xyzw)
             self.segment_times.append(T)
             self.current_segment_idx = 0
             total_T += T
@@ -583,9 +596,8 @@ class LandingControl(Node):
             return
 
         if self.hold_position is None:
-            self.hold_position = self.curr_xyz.copy()
+            self.hold_position = self.curr_xyzw.copy()
             self.get_logger().info(f"Capturing hold position at current location: {self.hold_position}")
-
 
         self._publish_xyz(self.hold_position[0], self.hold_position[1], self.hold_position[2])
 
