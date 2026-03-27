@@ -351,15 +351,9 @@ class DoneState(BaseState):
 
 class LandingControl(Node):
     def __init__(self,
-                 takeoff_alt: float = 2.0,
-                 loiter_radius: float = 2.0,
-                 landing_timeout: float = 15.0,
                  publish_hz: float = 60.0):
         super().__init__('landing_control')
 
-        self.takeoff_alt = float(takeoff_alt)
-        self.loiter_radius = float(loiter_radius)
-        self.landing_timeout = float(landing_timeout)
         self.publish_dt = 1.0 / float(publish_hz)
         self.landing_box_id: str = ""
         self.landing_future = None
@@ -627,21 +621,12 @@ class LandingControl(Node):
 
 def main():
     parser = argparse.ArgumentParser(description="Unified Landing Control (simulation or real).")
-    parser.add_argument("--takeoff-alt", type=float, default=2.0,
-                        help="Takeoff altitude in meters (simulation mode).")
-    parser.add_argument("--loiter-radius", type=float, default=2.0,
-                        help="Loiter circle radius in meters.")
-    parser.add_argument("--landing-timeout", type=float, default=15.0,
-                        help="Seconds to wait for landing position before landing at home.")
     parser.add_argument("--publish-hz", type=float, default=60.0,
                         help="Setpoint publish rate (Hz).")
     args = parser.parse_args()
 
     rclpy.init()
     node = LandingControl(
-        takeoff_alt=args.takeoff_alt,
-        loiter_radius=args.loiter_radius,
-        landing_timeout=args.landing_timeout,
         publish_hz=args.publish_hz,
     )
     try:
